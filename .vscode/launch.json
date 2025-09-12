@@ -3,9 +3,9 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Launch Main",
+            "name": "Launch App",
             "request": "launch",
-            "mainClass": "com.dropalltables.Main",
+            "mainClass": "com.dropalltables.App",
             "projectName": "ht25-sysb23-db-dropalltables",
             "vmArgs": "--module-path target/libs --add-modules javafx.controls,javafx.fxml",
             "preLaunchTask": "maven: compile"
