@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch Main",
+            "request": "launch",
+            "mainClass": "com.dropalltables.Main",
+            "projectName": "ht25-sysb23-db-dropalltables",
+            "vmArgs": "--module-path target/libs --add-modules javafx.controls,javafx.fxml",
+            "preLaunchTask": "maven: compile"
+        }
+    ]
+}
