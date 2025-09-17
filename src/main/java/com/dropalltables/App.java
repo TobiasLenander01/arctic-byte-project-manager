@@ -1,5 +1,8 @@
 package com.dropalltables;
 
+import java.io.FileInputStream;
+import java.util.Properties;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -8,6 +11,16 @@ import javafx.stage.Stage;
 
 public class App extends Application {
     public static void main(String[] args) {
+        
+        Properties connectionProperties = new Properties();
+
+        try {
+            FileInputStream stream = new FileInputStream("src/main/resources/config.properties");
+            connectionProperties.load(stream);
+        } catch (Exception e) {
+            System.out.println("could not load properties file");
+            System.exit(1);
+        }
         launch(args);
     }
 
