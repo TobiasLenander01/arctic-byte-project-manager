@@ -1,7 +1,7 @@
 package com.dropalltables.data;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -9,7 +9,7 @@ import java.util.Properties;
 
 public class ConnectionHandler {
     private String connectionURL;
-    private final String propertiesFilePath = "src/main/resources/config.properties";
+    private final String propertiesFilePath = "/config.properties";
 
         // hämtar inloggningsuppgifter från properties filen under resources
         // ist för att skriva in dem i koden
@@ -30,12 +30,11 @@ public class ConnectionHandler {
         String databaseServerName = connectionProperties.getProperty("database.server.name");
         String databaseServerPort = connectionProperties.getProperty("database.server.port");
         String databaseName = connectionProperties.getProperty("database.name");
-        String databaseUsername = connectionProperties.getProperty("database.username");
-        String databasePassword = connectionProperties.getProperty("database.password");
+        String databaseUsername = connectionProperties.getProperty("database.user.name");
+        String databasePassword = connectionProperties.getProperty("database.user.password");
 
         connectionURL = "jdbc:sqlserver://"
-                + databaseServerName + ";"
-                + databaseServerPort + ";"
+                + databaseServerName + ":" + databaseServerPort + ";"
                 + "database=" + databaseName + ";"
                 + "user=" + databaseUsername + ";"
                 + "password=" + databasePassword + ";"

@@ -3,16 +3,16 @@
     "configurations": [
         {
             "type": "java",
-            "name": "App",
+            "name": "Run Data Tests",
             "request": "launch",
-            "mainClass": "db.dropalltables/com.dropalltables.App",
+            "mainClass": "db.dropalltables/com.dropalltables.DataTest",
             "projectName": "ht25-sysb23-db-dropalltables"
         },
         {
             "type": "java",
-            "name": "Launch App",
+            "name": "Launch JavaFX App",
             "request": "launch",
-            "mainClass": "com.dropalltables.App",
+            "mainClass": "db.dropalltables/com.dropalltables.App",
             "projectName": "ht25-sysb23-db-dropalltables",
             "vmArgs": "--module-path target/libs --add-modules javafx.controls,javafx.fxml",
             "preLaunchTask": "maven: compile"
