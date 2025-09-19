@@ -75,7 +75,7 @@ public class DaoConsultant {
 
     }
 
-    public void deleteConsultant(int consultantId) { //här logik för att även radera alla projectassignment med konsultent
+    public void deleteConsultant(int consultantId) { //här logik för att även radera alla projectassignment med konsultent??
 
     }
 
