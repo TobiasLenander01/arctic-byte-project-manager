@@ -3,13 +3,11 @@ package com.dropalltables.data;
 import java.io.FileInputStream;
 import java.util.Properties;
 
-/*
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-*/
 
 public class ConnectionHandler {
     private String connectionURL;

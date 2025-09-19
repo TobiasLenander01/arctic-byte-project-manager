@@ -5,4 +5,7 @@ module db.dropalltables {
     requires javafx.fxml;
     requires javafx.controls;
     requires transitive javafx.graphics;
+
+    requires java.sql;
+    
 }
