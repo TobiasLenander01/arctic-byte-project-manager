@@ -1,4 +1,4 @@
-package com.data;
+package com.dropalltables.data;
 
 import java.io.FileInputStream;
 import java.util.Properties;
@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 public class ConnectionHandler {
     private String connectionURL;
-    private final String propertiedFilePath = "src/main/resources/config.properties";
+    private final String propertiesFilePath = "src/main/resources/config.properties";
 
         // hämtar inloggningsuppgifter från properties filen under resources
         // ist för att skriva in dem i koden
