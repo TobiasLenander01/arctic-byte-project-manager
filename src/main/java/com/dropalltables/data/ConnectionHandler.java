@@ -11,9 +11,9 @@ public class ConnectionHandler {
     private String connectionURL;
     private final String propertiesFilePath = "/config.properties";
 
-        // hämtar inloggningsuppgifter från properties filen under resources
-        // ist för att skriva in dem i koden
-        //om fil inte hittas throws IOException till klass som anropar konstruktorn
+    // hämtar inloggningsuppgifter från properties filen under resources
+    // ist för att skriva in dem i koden
+    // om fil inte hittas throws IOException till klass som anropar konstruktorn
     public ConnectionHandler() throws IOException {
 
         Properties connectionProperties = new Properties();
@@ -44,6 +44,6 @@ public class ConnectionHandler {
 
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(connectionURL);
-    } 
+    }
 
 }
