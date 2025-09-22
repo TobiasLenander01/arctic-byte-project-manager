@@ -18,7 +18,7 @@ public class DaoProject {
         this.connectionHandler = new ConnectionHandler();
     }
 
-    public List<Project> getAllProjects() throws SQLException {
+    public List<Project> getAllProjects() throws DaoException {
         List<Project> projects = new ArrayList<>();
 
         String query = "SELECT * FROM Project";
@@ -31,45 +31,104 @@ public class DaoProject {
                 Project project = instantiateProject(resultSet);
                 projects.add(project);
             }
+        } catch (SQLException e) {
+            throw new DaoException("Failed to retrieve projects from database", e);
         }
         return projects;
     }
 
-    public Project getProjectById(int consultantId) throws SQLException {
-        String query = "SELECT * FROM Project WHERE ProjectID = ?";
+    public Project getProjectByNo(int consultantNo) throws DaoException {
+        String query = "SELECT * FROM Project WHERE ProjectNo = ?";
 
         try (Connection connection = connectionHandler.getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, consultantId);
+            statement.setInt(1, consultantNo);
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
                 return instantiateProject(resultSet);
             }
+        } catch (SQLException e) {
+            throw new DaoException("Failed to retrieve project by ProjectNo: " + consultantNo, e);
         }
         return null;
     }
 
-    private Project instantiateProject(ResultSet resultSet) throws SQLException {
-        int projectNo = resultSet.getInt("ProjectNo");
-        String name = resultSet.getString("Name");
-        Date startDate = resultSet.getDate("StartDate");
-        Date endDate = resultSet.getDate("EndDate");
+    public void insertProject(Project project) throws DaoException {
+        String insert = """
+                INSERT INTO Project (ProjectNo, Name, StartDate)
+                VALUES (?, ?, ?);
+                """;
 
-        if (endDate != null) {
-            return new Project(
-                projectNo,
-                name,
-                startDate.toLocalDate(),
-                endDate.toLocalDate()
-            );
+        String insertWithEnddate = """
+                INSERT INTO Project (ProjectNo, Name, StartDate, EndDate)
+                VALUES (?, ?, ?, ?);
+                """;
+
+        try (Connection connection = connectionHandler.getConnection()) {
+            if (project.getEndDate() == null) {
+                try (PreparedStatement statement = connection.prepareStatement(insert)) {
+                    statement.setInt(1, project.getProjectNo());
+                    statement.setString(2, project.getName());
+                    statement.setDate(3, java.sql.Date.valueOf(project.getStartDate()));
+                    statement.execute();
+                }
+            } else {
+                try (PreparedStatement statement = connection.prepareStatement(insertWithEnddate)) {
+                    statement.setInt(1, project.getProjectNo());
+                    statement.setString(2, project.getName());
+                    statement.setDate(3, java.sql.Date.valueOf(project.getStartDate()));
+                    statement.setDate(4, java.sql.Date.valueOf(project.getEndDate()));
+                    statement.execute();
+                }
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Failed to insert project: " + project.getName() + 
+                ". SQL Error: " + e.getMessage() + " (Error Code: " + e.getErrorCode() + ")", e);
         }
-        else {
-            return new Project(
-                projectNo, 
-                name, 
-                startDate.toLocalDate()
-            );
+    }
+
+    private Project instantiateProject(ResultSet resultSet) throws DaoException {
+        try {
+            int projectNo = resultSet.getInt("ProjectNo");
+            String name = resultSet.getString("Name");
+            Date startDate = resultSet.getDate("StartDate");
+            Date endDate = resultSet.getDate("EndDate");
+
+            if (endDate != null) {
+                return new Project(
+                    projectNo,
+                    name,
+                    startDate.toLocalDate(),
+                    endDate.toLocalDate()
+                );
+            }
+            else {
+                return new Project(
+                    projectNo, 
+                    name, 
+                    startDate.toLocalDate()
+                );
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Failed to instantiate project from result set", e);
         }
+    }
+
+    public boolean projectExists(int projectNo) throws DaoException {
+        String query = "SELECT COUNT(*) FROM Project WHERE ProjectNo = ?";
+
+        try (Connection connection = connectionHandler.getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, projectNo);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Failed to check if project exists with ProjectNo: " + projectNo, e);
+        }
+        return false;
     }
 }

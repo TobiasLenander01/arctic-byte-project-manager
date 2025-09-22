@@ -2,10 +2,9 @@ package com.dropalltables;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.sql.Connection;
 import java.util.List;
 
-import com.dropalltables.data.ConnectionHandler;
+import com.dropalltables.data.DaoException;
 import com.dropalltables.data.DaoProject;
 import com.dropalltables.models.Project;
 
@@ -15,17 +14,6 @@ public class DataTest {
         System.out.println("--- RUNNING DATA TESTS ---");
 
         try {
-            // TEST DATABASE CONNECTION
-            ConnectionHandler connectionHandler = new ConnectionHandler();
-            Connection connection = connectionHandler.getConnection();
-
-            if (connection != null) {
-                System.out.println("Database connection successful.");
-            } else {
-                System.out.println("Database connection failed.");
-                return;
-            }
-
             // TEST PROJECT DAO
             System.out.println("--- TESTING PROJECT ---");
             DaoProject daoProject = new DaoProject();
@@ -37,15 +25,29 @@ public class DataTest {
                 printProperties(project);
             }
 
-            // TEST GET PROJECT BY ID
+            // TEST INSERT PROJECT
+            System.out.println("\n daoProject.insertProject():");
+            Project project1 = new Project(2007, "Grupparbete", java.time.LocalDate.parse("2024-06-01"));
+            
+            // Check if project already exists
+            if (daoProject.projectExists(project1.getProjectNo())) {
+                System.out.println("Project with ProjectNo " + project1.getProjectNo() + " already exists. Skipping insert.");
+            } else {
+                daoProject.insertProject(project1);
+                System.out.println("Project inserted successfully.");
+            }
+
+            // TEST GET PROJECT BY NO
             System.out.println("\n daoProject.getProjectById(1):");
-            Project project1 = daoProject.getProjectById(1);
-            printProperties(project1);
+            Project project2 = daoProject.getProjectByNo(2007);
+            printProperties(project2);
 
             // TODO: TEST CONSULTANT ETC..
 
-        } catch (IOException | RuntimeException | java.sql.SQLException e) {
-            System.out.println("Error during data test: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("IO Error during data testing: " + e.getMessage());
+        } catch (DaoException e) {
+            System.err.println("DAO Error during data testing: " + e.getMessage());
         }
 
     }
