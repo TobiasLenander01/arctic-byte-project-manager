@@ -3,22 +3,21 @@ package com.dropalltables;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.Connection;
-import java.util.List;
-
-import com.dropalltables.data.ConnectionHandler;
-import com.dropalltables.data.DaoProject;
-import com.dropalltables.data.DaoProjectAssignment;
-import com.dropalltables.data.DaoConsultant;
-import com.dropalltables.models.Consultant;
-import com.dropalltables.models.Project;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 
+import com.dropalltables.data.ConnectionHandler;
+import com.dropalltables.data.DaoConsultant;
 import com.dropalltables.data.DaoException;
 import com.dropalltables.data.DaoMilestone;
+import com.dropalltables.data.DaoProject;
+import com.dropalltables.data.DaoProjectAssignment;
+import com.dropalltables.models.Consultant;
 import com.dropalltables.models.Milestone;
+import com.dropalltables.models.Project;
 
 public class DataTest {
 
@@ -27,24 +26,7 @@ public class DataTest {
 
         try {
             // === TEST PROJECT DAO ===
-            System.out.println("--- TESTING PROJECT ---");
-            DaoProject daoProject = new DaoProject();
-
-            System.out.println("\n daoProject.getAllProjects():");
-            List<Project> allProjects = daoProject.getAllProjects();
-            for (Project project : allProjects) {
-                printProperties(project);
-            }
-
-            System.out.println("\n daoProject.insertProject():");
-            Project project1 = new Project(2007, "Grupparbete", java.time.LocalDate.parse("2024-06-01"));
-
-            if (daoProject.projectExists(project1.getProjectNo())) {
-                System.out.println("Project " + project1.getProjectNo() + " already exists. Skipping insert.");
-            } else {
-                daoProject.insertProject(project1);
-                System.out.println("Project inserted successfully.");
-            }
+            testDaoProject();
 
             // TEST CONSULTANT DAO
             System.out.println("\n--- TESTING CONSULTANT ---");
@@ -78,9 +60,9 @@ public class DataTest {
             // TEST PROJECT ASSIGNMENT DAO
             System.out.println("\n --- TESTING PROJECTASSIGNMENT ---");
 
-            System.out.println("\n daoProject.getProjectByNo(2007):");
-            Project project2 = daoProject.getProjectByNo(2007);
-            printProperties(project2);
+            // System.out.println("\n daoProject.getProjectByNo(2007):");
+            // Project project2 = daoProject.getProjectByNo(2007);
+            // printProperties(project2);
 
             // === TEST PROJECT ASSIGNMENT DAO ===
             System.out.println("\n--- TESTING PROJECT_ASSIGNMENT ---");
@@ -283,6 +265,219 @@ public class DataTest {
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getInt(1) : 0;
             }
+        }
+    }
+
+    private static void testDaoProject() throws IOException, DaoException {
+        // === TEST PROJECT DAO ===
+        System.out.println("--- TESTING PROJECT ---");
+        DaoProject daoProject = new DaoProject();
+
+        System.out.println("\n daoProject.getAllProjects():");
+        List<Project> allProjects = daoProject.getAllProjects();
+        for (Project project : allProjects) {
+            printProperties(project);
+        }
+
+        System.out.println("\n daoProject.insertProject():");
+        Project project1 = new Project(2007, "Grupparbete", java.time.LocalDate.parse("2024-06-01"));
+
+        if (daoProject.projectExists(project1.getProjectNo())) {
+            System.out.println("Project " + project1.getProjectNo() + " already exists. Skipping insert.");
+        } else {
+            daoProject.insertProject(project1);
+            System.out.println("Project inserted successfully.");
+        }
+
+        // === TEST getProjectByNo ===
+        System.out.println("\n daoProject.getProjectByNo():");
+
+        // Test with existing project
+        if (!allProjects.isEmpty()) {
+            int existingProjectNo = allProjects.get(0).getProjectNo();
+            Project foundProject = daoProject.getProjectByNo(existingProjectNo);
+            if (foundProject != null) {
+                System.out.println("Found existing project:");
+                printProperties(foundProject);
+            } else {
+                System.out.println("Project not found with ProjectNo: " + existingProjectNo);
+            }
+        }
+
+        // Test with non-existing project
+        Project nonExistingProject = daoProject.getProjectByNo(9999);
+        System.out.println("Non-existing project (9999): " + (nonExistingProject == null ? "null" : "found"));
+
+        // Test validation
+        try {
+            daoProject.getProjectByNo(-1);
+            System.out.println("ERROR: Should have thrown IllegalArgumentException for negative ProjectNo");
+        } catch (IllegalArgumentException e) {
+            System.out.println("✓ Validation works for negative ProjectNo: " + e.getMessage());
+        }
+
+        // === TEST getProjectById ===
+        System.out.println("\n daoProject.getProjectById():");
+
+        // Find any project ID to test with
+        try {
+            ConnectionHandler ch = new ConnectionHandler();
+            int anyProjectId = findAnyProjectId(ch);
+            if (anyProjectId > 0) {
+                Project foundProjectById = daoProject.getProjectById(anyProjectId);
+                if (foundProjectById != null) {
+                    System.out.println("Found project by ID " + anyProjectId + ":");
+                    printProperties(foundProjectById);
+                } else {
+                    System.out.println("No project found with ID: " + anyProjectId);
+                }
+            } else {
+                System.out.println("No project IDs found in database");
+            }
+        } catch (Exception e) {
+            System.out.println("Error testing getProjectById: " + e.getMessage());
+        }
+
+        // Test validation for getProjectById
+        try {
+            daoProject.getProjectById(0);
+            System.out.println("ERROR: Should have thrown IllegalArgumentException for zero ProjectID");
+        } catch (IllegalArgumentException e) {
+            System.out.println("✓ Validation works for zero ProjectID: " + e.getMessage());
+        }
+
+        // === TEST projectExists ===
+        System.out.println("\n daoProject.projectExists():");
+
+        if (!allProjects.isEmpty()) {
+            int existingProjectNo = allProjects.get(0).getProjectNo();
+            boolean exists = daoProject.projectExists(existingProjectNo);
+            System.out.println("Project " + existingProjectNo + " exists: " + exists);
+        }
+
+        boolean nonExistingExists = daoProject.projectExists(9999);
+        System.out.println("Project 9999 exists: " + nonExistingExists);
+
+        // Test validation
+        try {
+            daoProject.projectExists(-5);
+            System.out.println("ERROR: Should have thrown IllegalArgumentException for negative ProjectNo");
+        } catch (IllegalArgumentException e) {
+            System.out.println("✓ Validation works for negative ProjectNo in exists check: " + e.getMessage());
+        }
+
+        // === TEST insertProject validation ===
+        System.out.println("\n daoProject.insertProject() validation tests:");
+
+        // Test null project
+        try {
+            daoProject.insertProject(null);
+            System.out.println("ERROR: Should have thrown IllegalArgumentException for null project");
+        } catch (IllegalArgumentException e) {
+            System.out.println("✓ Validation works for null project: " + e.getMessage());
+        }
+
+        // Test null name
+        try {
+            Project invalidProject = new Project(9998, null, java.time.LocalDate.now());
+            daoProject.insertProject(invalidProject);
+            System.out.println("ERROR: Should have thrown IllegalArgumentException for null name");
+        } catch (IllegalArgumentException e) {
+            System.out.println("✓ Validation works for null name: " + e.getMessage());
+        }
+
+        // Test empty name
+        try {
+            Project invalidProject = new Project(9997, "   ", java.time.LocalDate.now());
+            daoProject.insertProject(invalidProject);
+            System.out.println("ERROR: Should have thrown IllegalArgumentException for empty name");
+        } catch (IllegalArgumentException e) {
+            System.out.println("✓ Validation works for empty name: " + e.getMessage());
+        }
+
+        // Test negative ProjectNo
+        try {
+            Project invalidProject = new Project(-1, "Test Project", java.time.LocalDate.now());
+            daoProject.insertProject(invalidProject);
+            System.out.println("ERROR: Should have thrown IllegalArgumentException for negative ProjectNo");
+        } catch (IllegalArgumentException e) {
+            System.out.println("✓ Validation works for negative ProjectNo: " + e.getMessage());
+        }
+
+        // === TEST updateProject ===
+        System.out.println("\n daoProject.updateProject():");
+
+        // Test updating an existing project
+        if (!allProjects.isEmpty()) {
+            Project existingProject = allProjects.get(0);
+            Project updatedProject = new Project(
+                    existingProject.getProjectNo(),
+                    existingProject.getName() + " (Updated)",
+                    existingProject.getStartDate(),
+                    java.time.LocalDate.now());
+
+            try {
+                daoProject.updateProject(updatedProject);
+                System.out.println("✓ Project updated successfully");
+
+                // Verify the update
+                Project verifyProject = daoProject.getProjectByNo(existingProject.getProjectNo());
+                if (verifyProject != null) {
+                    System.out.println("Updated project:");
+                    printProperties(verifyProject);
+                }
+            } catch (DaoException e) {
+                System.out.println("Error updating project: " + e.getMessage());
+            }
+        }
+
+        // Test updating non-existing project
+        try {
+            Project nonExistingUpdate = new Project(9999, "Non-existing", java.time.LocalDate.now());
+            daoProject.updateProject(nonExistingUpdate);
+            System.out.println("ERROR: Should have thrown DaoException for non-existing project");
+        } catch (DaoException e) {
+            System.out.println("✓ Correctly handles non-existing project update: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("✓ Validation error for update: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("✓ Error updating non-existing project: " + e.getMessage());
+        }
+
+        // === TEST deleteProject ===
+        System.out.println("\n daoProject.deleteProject():");
+
+        // Insert a test project to delete
+        Project testDeleteProject = new Project(9996, "Test Delete Project", java.time.LocalDate.now());
+        if (!daoProject.projectExists(testDeleteProject.getProjectNo())) {
+            daoProject.insertProject(testDeleteProject);
+            System.out.println("Inserted test project for deletion");
+
+            // Now delete it
+            daoProject.deleteProject(testDeleteProject.getProjectNo());
+            System.out.println("✓ Project deleted successfully");
+
+            // Verify deletion
+            boolean stillExists = daoProject.projectExists(testDeleteProject.getProjectNo());
+            System.out.println("Project still exists after deletion: " + stillExists);
+        } else {
+            System.out.println("Test project already exists, skipping delete test");
+        }
+
+        // Test deleting non-existing project
+        try {
+            daoProject.deleteProject(9995);
+            System.out.println("ERROR: Should have thrown DaoException for non-existing project deletion");
+        } catch (DaoException e) {
+            System.out.println("✓ Correctly handles non-existing project deletion: " + e.getMessage());
+        }
+
+        // Test validation for deleteProject
+        try {
+            daoProject.deleteProject(-1);
+            System.out.println("ERROR: Should have thrown IllegalArgumentException for negative ProjectNo");
+        } catch (IllegalArgumentException e) {
+            System.out.println("✓ Validation works for negative ProjectNo in delete: " + e.getMessage());
         }
     }
 }
