@@ -16,6 +16,8 @@ public class Milestone {
         this.date = date;
         this.project = project;
     }
+    public Milestone() {
+    }
 
     public int getMilestoneId() {
         return milestoneId;
@@ -44,7 +46,8 @@ public class Milestone {
     public void setProject(Project project) {
         this.project = project;
     }   
-
-
+    public int getProjectId() {
+        return project.getProjectNo();
+    }
 }
 
