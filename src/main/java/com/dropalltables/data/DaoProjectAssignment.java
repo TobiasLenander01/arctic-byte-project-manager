@@ -54,7 +54,7 @@ public class DaoProjectAssignment {
     }
 
     // Updates the hours worked by a consultant on a project
-    public int updateHours(int consultantID, int projectID, int hours) throws SQLException {
+    public int updateHours(int consultantID, int projectID, int hoursWorked) throws SQLException {
         String sql = """
                 UPDATE Project_Assignment
                 SET HoursWorked = ?
@@ -62,7 +62,7 @@ public class DaoProjectAssignment {
                 AND ProjectID = ?
                 """;
         return execUpdate(sql, ps -> {
-            ps.setInt(1, hours);
+            ps.setInt(1, hoursWorked);
             ps.setInt(2, consultantID);
             ps.setInt(3, projectID);
         });
