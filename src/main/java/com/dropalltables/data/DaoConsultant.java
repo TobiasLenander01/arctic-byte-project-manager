@@ -60,7 +60,7 @@ public class DaoConsultant {
 
 
 
-    public void insertConsultant(Consultant consultant) throws SQLException {
+    public void insertConsultant(Consultant consultant) throws DaoException {
         String sql = "INSERT INTO Consultant (ConsultantNo, ConsultantName, Title) VALUES (?, ?, ?)";
         try (Connection connection = connectionHandler.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -68,15 +68,40 @@ public class DaoConsultant {
             statement.setString(2, consultant.getName());
             statement.setString(3, consultant.getTitle());
             statement.executeUpdate();
+        } catch (SQLException e) {
+            // consultNo redan taget
+            throw new DaoException("duplicate: ConsultantNo " + consultant.getConsultantNo() + " is already occupied.", e);
         }
     }
 
-    public void updateConsultant(Consultant consultant) {
-
+    /**
+     * behöver tre variabler gamla för WHERE och alla tre nya värden. 
+     * I controller fixa att autofilla de gamla värdena i texfält
+     * updatering sker oavsett om nya värden är samma som gamla
+     * skulle eventuallt kunna göra med consultant object som argument
+     * m.a.o updateConsultant(int oldConsultantNo, Consultant newConsultant)
+     */
+    public void updateConsultant(int oldConsultantNo, int newConsultantNo, String newName, String newTitle) throws DaoException {
+        String sql = "UPDATE Consultant SET ConsultantNo = ?, ConsultantName = ?, Title = ? WHERE ConsultantNo = ?";
+        try (Connection connection = connectionHandler.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, newConsultantNo);
+            statement.setString(2, newName);
+            statement.setString(3, newTitle);
+            statement.setInt(4, oldConsultantNo);
+            int rows = statement.executeUpdate();
+            //om raden med oldConsultantNo inte existerar
+            if (rows == 0) {
+                throw new DaoException("not_found" + oldConsultantNo);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Database error: " + e.getMessage(), e);
+        }
     }
+    
 
-    public void deleteConsultant(int consultantId) { //här logik för att även radera alla projectassignment med konsultent??
-
+    public void deleteConsultant(int consultantNo) { //här logik för att även radera alla projectassignment med konsultent??
+        String sql = "DELETE * FROM Consultant WHERE ConsultantNo = ?";
     }
 
 
