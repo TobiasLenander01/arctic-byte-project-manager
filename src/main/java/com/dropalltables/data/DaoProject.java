@@ -54,6 +54,23 @@ public class DaoProject {
         return null;
     }
 
+    public Project getProjectById(int projectId) throws DaoException {
+        String query = "SELECT * FROM Project WHERE ProjectID = ?";
+
+        try (Connection connection = connectionHandler.getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, projectId);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                return instantiateProject(resultSet);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Failed to retrieve project by ProjectID: " + projectId, e);
+        }
+        return null;
+    }
+
     public void insertProject(Project project) throws DaoException {
         String insert = """
                 INSERT INTO Project (ProjectNo, ProjectName, StartDate)
