@@ -38,6 +38,28 @@ public class DaoProjectAssignment {
                 rs.getInt("HoursWorked"));
     }
 
+    // Returns a project assignment matching consultantID and projectID
+    private ProjectAssignment findProjectAssignment(int consultantID, int projectID) throws SQLException {
+        String sql = """
+                SELECT ConsultantID, ProjectID, HoursWorked
+                FROM Project_Assignment
+                WHERE ConsultantID = ?
+                  AND ProjectID = ?
+                """;
+
+        try (Connection c = connectionHandler.getConnection();
+                PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, consultantID);
+            ps.setInt(2, projectID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return instantiateProjectAssignment(rs);
+                }
+            }
+        }
+        return null;
+    }
+
     /*
      * Assigns a consultant to a project starting with 0 hours worked. Uniqueness is
      * handled in DB?
@@ -54,7 +76,15 @@ public class DaoProjectAssignment {
     }
 
     // Updates the hours worked by a consultant on a project
-    public int updateHours(int consultantID, int projectID, int hoursWorked) throws SQLException {
+    public int updateHours(int consultantID, int projectID, int addHours) throws SQLException {
+        ProjectAssignment pa = findProjectAssignment(consultantID, projectID);
+
+        if (pa == null) {
+            throw new SQLException("No ProjectAssignment found for consultant="
+                    + consultantID + ", project=" + projectID);
+        }
+        pa.incrementHoursWorked(addHours);
+
         String sql = """
                 UPDATE Project_Assignment
                 SET HoursWorked = ?
@@ -62,9 +92,9 @@ public class DaoProjectAssignment {
                 AND ProjectID = ?
                 """;
         return execUpdate(sql, ps -> {
-            ps.setInt(1, hoursWorked);
-            ps.setInt(2, consultantID);
-            ps.setInt(3, projectID);
+            ps.setInt(1, pa.getHoursWorked());
+            ps.setInt(2, pa.getConsultantID());
+            ps.setInt(3, pa.getProjectID());
         });
     }
 
@@ -83,7 +113,7 @@ public class DaoProjectAssignment {
     public List<ProjectAssignment> getByProjectID(int projectID) throws SQLException {
         List<ProjectAssignment> list = new ArrayList<>();
         String sql = """
-                SELECT ConsultantID, ProjectID, [HoursWorked]
+                SELECT ConsultantID, ProjectID, HoursWorked
                 FROM Project_Assignment
                 WHERE ProjectID = ?
                 """;
@@ -149,11 +179,11 @@ public class DaoProjectAssignment {
                 """;
 
         try (Connection c = connectionHandler.getConnection();
-                PreparedStatement ps = c.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
-
-            if (rs.next()) {
-                return rs.getInt("ConsultantID");
+                PreparedStatement ps = c.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("ConsultantID");
+                }
             }
         }
         return 0;
@@ -186,7 +216,7 @@ public class DaoProjectAssignment {
                 FROM Project_Assignment pa
                 JOIN Project p ON p.ProjectID = pa.ProjectID
                 WHERE ConsultantID = ?
-                AND EndDate IS null
+                AND EndDate IS NULL
                 """;
 
         try (Connection c = connectionHandler.getConnection();
