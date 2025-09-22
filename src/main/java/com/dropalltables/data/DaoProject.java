@@ -56,12 +56,12 @@ public class DaoProject {
 
     public void insertProject(Project project) throws DaoException {
         String insert = """
-                INSERT INTO Project (ProjectNo, Name, StartDate)
+                INSERT INTO Project (ProjectNo, ProjectName, StartDate)
                 VALUES (?, ?, ?);
                 """;
 
         String insertWithEnddate = """
-                INSERT INTO Project (ProjectNo, Name, StartDate, EndDate)
+                INSERT INTO Project (ProjectNo, ProjectName, StartDate, EndDate)
                 VALUES (?, ?, ?, ?);
                 """;
 
@@ -124,20 +124,20 @@ public class DaoProject {
     private Project instantiateProject(ResultSet resultSet) throws DaoException {
         try {
             int projectNo = resultSet.getInt("ProjectNo");
-            String name = resultSet.getString("Name");
+            String projectName = resultSet.getString("ProjectName");
             Date startDate = resultSet.getDate("StartDate");
             Date endDate = resultSet.getDate("EndDate");
 
             if (endDate != null) {
                 return new Project(
                         projectNo,
-                        name,
+                        projectName,
                         startDate.toLocalDate(),
                         endDate.toLocalDate());
             } else {
                 return new Project(
                         projectNo,
-                        name,
+                        projectName,
                         startDate.toLocalDate());
             }
         } catch (SQLException e) {

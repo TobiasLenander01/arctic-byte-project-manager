@@ -86,7 +86,7 @@ public class DataTest {
             daoPA.getByConsultantID(testConsultantId).stream()
                     .filter(pa -> {
                         try {
-                            var f = pa.getClass().getDeclaredField("projectID");
+                            var f = pa.getClass().getDeclaredField("ProjectID");
                             f.setAccessible(true);
                             return ((Integer) f.get(pa)) == testProjectId;
                         } catch (Exception e) {
