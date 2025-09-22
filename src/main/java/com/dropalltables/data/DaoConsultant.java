@@ -81,27 +81,37 @@ public class DaoConsultant {
      * skulle eventuallt kunna göra med consultant object som argument
      * m.a.o updateConsultant(int oldConsultantNo, Consultant newConsultant)
      */
-    public void updateConsultant(int oldConsultantNo, int newConsultantNo, String newName, String newTitle) throws DaoException {
+    public void updateConsultant(int oldConsultantNo, Consultant newConsultant) throws DaoException {
         String sql = "UPDATE Consultant SET ConsultantNo = ?, ConsultantName = ?, Title = ? WHERE ConsultantNo = ?";
         try (Connection connection = connectionHandler.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, newConsultantNo);
-            statement.setString(2, newName);
-            statement.setString(3, newTitle);
+            statement.setInt(1, newConsultant.getConsultantNo());
+            statement.setString(2, newConsultant.getName());
+            statement.setString(3, newConsultant.getTitle());
             statement.setInt(4, oldConsultantNo);
             int rows = statement.executeUpdate();
             //om raden med oldConsultantNo inte existerar
             if (rows == 0) {
-                throw new DaoException("not_found" + oldConsultantNo);
+                throw new DaoException("not_found: " + oldConsultantNo);
             }
         } catch (SQLException e) {
             throw new DaoException("Database error: " + e.getMessage(), e);
         }
     }
     
-
-    public void deleteConsultant(int consultantNo) { //här logik för att även radera alla projectassignment med konsultent??
-        String sql = "DELETE * FROM Consultant WHERE ConsultantNo = ?";
+///här logik för att även radera alla projectassignment med konsultent??
+    public void deleteConsultant(int consultantNo) throws DaoException {
+        String sql = "DELETE FROM Consultant WHERE ConsultantNo = ?";
+        try (Connection connection = connectionHandler.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, consultantNo);
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new DaoException("not_found: " + consultantNo);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Database error: " + e.getMessage(), e);
+        }
     }
 
 
