@@ -34,12 +34,12 @@ public class DaoConsultant {
         return consultants;
     }
 
-    public Consultant getConsultantById(int consultantId) throws SQLException {
-        String query = "SELECT * FROM Consultant WHERE consultantId = ?";
+    public Consultant getConsultantByNo(int consultantNo) throws SQLException {
+        String query = "SELECT * FROM Consultant WHERE consultantNo = ?";
 
         try (Connection connection = connectionHandler.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, consultantId);
+            statement.setInt(1, consultantNo);
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {         //if eftersom max en rad kan returneras
@@ -51,7 +51,6 @@ public class DaoConsultant {
 
     public Consultant instantiateConsultant(ResultSet resultSet) throws SQLException {
         return new Consultant(
-            resultSet.getInt("consultantId"),
             resultSet.getInt("consultantNo"),
             resultSet.getString("consultantName"),
             resultSet.getString("title")

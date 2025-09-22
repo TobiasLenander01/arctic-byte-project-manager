@@ -1,23 +1,14 @@
 package com.dropalltables.models;
 
 public class Consultant {
-    private int consultantId;
     private int consultantNo;
     private String consultantName;
     private String title;
 
-    public Consultant(int consultantId, int consultantNo, String consultantName, String title) {
-        this.consultantId = consultantId;
+    public Consultant(int consultantNo, String consultantName, String title) {
         this.consultantNo = consultantNo;
         this.consultantName = consultantName;
         this.title = title;
-    }
-
-    public int getConsultantId() {
-        return consultantId;
-    }
-    public void setConsultantId(int consultantId) {
-        this.consultantId = consultantId;
     }
 
     public int getConsultantNo() {
