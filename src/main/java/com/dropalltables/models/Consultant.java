@@ -2,12 +2,12 @@ package com.dropalltables.models;
 
 public class Consultant {
     private int consultantNo;
-    private String consultantName;
+    private String name;
     private String title;
 
-    public Consultant(int consultantNo, String consultantName, String title) {
+    public Consultant(int consultantNo, String name, String title) {
         this.consultantNo = consultantNo;
-        this.consultantName = consultantName;
+        this.name = name;
         this.title = title;
     }
 
@@ -18,11 +18,11 @@ public class Consultant {
         this.consultantNo = consultantNo;
     }
 
-    public String getConsultantName() {
-        return consultantName;
+    public String getName() {
+        return name;
     }
-    public void setConsultantName(String consultantName) {
-        this.consultantName = consultantName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getTitle() {
@@ -33,6 +33,6 @@ public class Consultant {
     }
 
     public String toString() {
-        return consultantName;
+        return name;
     }
 }

@@ -8,6 +8,8 @@ import java.util.List;
 import com.dropalltables.data.ConnectionHandler;
 import com.dropalltables.data.DaoProject;
 import com.dropalltables.data.DaoProjectAssignment;
+import com.dropalltables.data.DaoConsultant;
+import com.dropalltables.models.Consultant;
 import com.dropalltables.models.Project;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -47,6 +49,21 @@ public class DataTest {
             printProperties(project1);
 
             // TODO: TEST CONSULTANT ETC..
+
+            // TEST CONSULTANT DAO
+            System.out.println("\n--- TESTING CONSULTANT ---");
+
+            DaoConsultant daoConsultant = new DaoConsultant();
+
+            // TEST GET ALL CONSULTANTS
+            System.out.println("\n daoConsultant.getAllConsultants():");
+            List<Consultant> allConsultants = daoConsultant.getAllConsultants();
+            for (Consultant consultant : allConsultants) {
+                printProperties(consultant);
+            }
+            
+
+
 
             // TEST PROJECT ASSIGNMENT DAO
             System.out.println("\n--- TESTING PROJECT_ASSIGNMENT ---");

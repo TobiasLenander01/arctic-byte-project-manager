@@ -64,7 +64,7 @@ public class DaoConsultant {
         try (Connection connection = connectionHandler.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, consultant.getConsultantNo());
-            statement.setString(2, consultant.getConsultantName());
+            statement.setString(2, consultant.getName());
             statement.setString(3, consultant.getTitle());
             statement.executeUpdate();
         }
