@@ -14,6 +14,13 @@ import com.dropalltables.models.Project;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
+
+import com.dropalltables.data.ConnectionHandler;
+import com.dropalltables.data.DaoException;
+import com.dropalltables.data.DaoProject;
+import com.dropalltables.data.DaoProjectAssignment;
+import com.dropalltables.models.Project;
 
 public class DataTest {
 
@@ -21,34 +28,25 @@ public class DataTest {
         System.out.println("--- RUNNING DATA TESTS ---");
 
         try {
-            // TEST DATABASE CONNECTION
-            ConnectionHandler connectionHandler = new ConnectionHandler();
-            Connection connection = connectionHandler.getConnection();
-
-            if (connection != null) {
-                System.out.println("Database connection successful.");
-            } else {
-                System.out.println("Database connection failed.");
-                return;
-            }
-
-            // TEST PROJECT DAO
+            // === TEST PROJECT DAO ===
             System.out.println("--- TESTING PROJECT ---");
             DaoProject daoProject = new DaoProject();
 
-            // TEST GET ALL PROJECTS
             System.out.println("\n daoProject.getAllProjects():");
             List<Project> allProjects = daoProject.getAllProjects();
             for (Project project : allProjects) {
                 printProperties(project);
             }
 
-            // TEST GET PROJECT BY ID
-            System.out.println("\n daoProject.getProjectById(1):");
-            Project project1 = daoProject.getProjectById(1);
-            printProperties(project1);
+            System.out.println("\n daoProject.insertProject():");
+            Project project1 = new Project(2007, "Grupparbete", java.time.LocalDate.parse("2024-06-01"));
 
-            // TODO: TEST CONSULTANT ETC..
+            if (daoProject.projectExists(project1.getProjectNo())) {
+                System.out.println("Project " + project1.getProjectNo() + " already exists. Skipping insert.");
+            } else {
+                daoProject.insertProject(project1);
+                System.out.println("Project inserted successfully.");
+            }
 
             // TEST CONSULTANT DAO
             System.out.println("\n--- TESTING CONSULTANT ---");
@@ -66,8 +64,14 @@ public class DataTest {
 
 
             // TEST PROJECT ASSIGNMENT DAO
+            System.out.println("\n daoProject.getProjectByNo(2007):");
+            Project project2 = daoProject.getProjectByNo(2007);
+            printProperties(project2);
+
+            // === TEST PROJECT ASSIGNMENT DAO ===
             System.out.println("\n--- TESTING PROJECT_ASSIGNMENT ---");
             DaoProjectAssignment daoPA = new DaoProjectAssignment();
+            ConnectionHandler connectionHandler = new ConnectionHandler();
 
             int testConsultantId = findAnyConsultantId(connectionHandler);
             int testProjectId = findAnyProjectId(connectionHandler);
@@ -78,42 +82,35 @@ public class DataTest {
                 return;
             }
 
-            // Start clean (ignore result if nothing to delete)
+            // Start clean
             daoPA.deleteProjectAssignment(testConsultantId, testProjectId);
 
-            // Baseline total for consultant
             int totalBefore = daoPA.totalHoursForConsultant(testConsultantId);
             System.out.println("totalHoursForConsultant(before) = " + totalBefore);
 
-            // INSERT
             int ins = daoPA.insertProjectAssignment(testConsultantId, testProjectId);
             System.out.println("insertProjectAssignment -> rows: " + ins);
 
-            // VERIFY via getByConsultantID / getByProjectID
             System.out.println("\ngetByConsultantID(" + testConsultantId + "):");
             for (var pa : daoPA.getByConsultantID(testConsultantId)) {
                 printProperties(pa);
             }
+
             System.out.println("\ngetByProjectID(" + testProjectId + "):");
             for (var pa : daoPA.getByProjectID(testProjectId)) {
                 printProperties(pa);
             }
 
-            // UPDATE hours
             int newHours = 12;
             int upd = daoPA.updateHours(testConsultantId, testProjectId, newHours);
             System.out.println("\nupdateHours -> rows: " + upd);
 
-            // VERIFY hours updated
             System.out.println("After update, getByConsultantID(" + testConsultantId + ") filtered to Project "
                     + testProjectId + ":");
             daoPA.getByConsultantID(testConsultantId).stream()
                     .filter(pa -> {
                         try {
-                            // ProjectAssignment likely has a getProjectID(); if not, reflection printer
-                            // below will still show it.
-                            // Replace with pa.getProjectID() if your model exposes it.
-                            var f = pa.getClass().getDeclaredField("projectID");
+                            var f = pa.getClass().getDeclaredField("ProjectID");
                             f.setAccessible(true);
                             return ((Integer) f.get(pa)) == testProjectId;
                         } catch (Exception e) {
@@ -122,41 +119,36 @@ public class DataTest {
                     })
                     .forEach(DataTest::printProperties);
 
-            // VERIFY totals moved by +newHours (since we inserted fresh)
             int totalAfter = daoPA.totalHoursForConsultant(testConsultantId);
             System.out.println("\ntotalHoursForConsultant(after) = " + totalAfter +
                     " (delta " + (totalAfter - totalBefore) + ", expected " + newHours + ")");
 
-            // HARDEST WORKING CONSULTANT
             int hardest = daoPA.hardestWorkingConsultant();
             System.out.println("\nhardestWorkingConsultant() -> ConsultantID: " + hardest);
 
-            // PROJECTS THAT INVOLVE EVERY CONSULTANT
             List<Integer> allHandsProjects = daoPA.projectsThatInvolveEveryConsultant();
             System.out.println("\nprojectsThatInvolveEveryConsultant() -> " + allHandsProjects);
 
-            // ACTIVE ASSIGNMENTS for the consultant (requires EndDate IS NULL fix in DAO)
             System.out.println("\ngetActiveProjectAssignments(" + testConsultantId + "):");
             for (var pa : daoPA.getActiveProjectAssignments(testConsultantId)) {
                 printProperties(pa);
             }
 
-            // CLEANUP
             int del = daoPA.deleteProjectAssignment(testConsultantId, testProjectId);
             System.out.println("\ndeleteProjectAssignment -> rows: " + del);
 
-        } catch (IOException | RuntimeException | java.sql.SQLException e) {
-            System.out.println("Error during data test: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("IO Error during data testing: " + e.getMessage());
+        } catch (DaoException e) {
+            System.err.println("DAO Error during data testing: " + e.getMessage());
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
     }
 
-    /**
-     * GENERISK METOD FÖR ATT VISA ETT OBJEKTS VARIABLER PÅ ETT SNYGGT SÄTT I
-     * TERMINALEN
-     */
-    private static void printProperties(Object obj) {
+    // === Utility methods ===
 
+    private static void printProperties(Object obj) {
         String blue = "\u001B[34m";
         String cyan = "\u001B[36m";
         String reset = "\u001B[0m";
@@ -169,9 +161,8 @@ public class DataTest {
         boolean first = true;
 
         for (Field field : fields) {
-            if (!first) {
+            if (!first)
                 sb.append(", ");
-            }
             first = false;
 
             field.setAccessible(true);
@@ -179,7 +170,6 @@ public class DataTest {
                 Object value = field.get(obj);
                 sb.append(blue).append(field.getName()).append("=").append(reset);
                 sb.append(cyan);
-
                 if (value instanceof String) {
                     sb.append("'").append(value).append("'");
                 } else {
@@ -197,8 +187,6 @@ public class DataTest {
     }
 
     private static int findAnyConsultantId(ConnectionHandler ch) throws SQLException {
-        // SQL Server dialect (TOP 1). If you switch DB, use the equivalent (e.g., LIMIT
-        // 1).
         String sql = "SELECT TOP 1 ConsultantID FROM Consultant ORDER BY ConsultantID";
         try (Connection c = ch.getConnection();
                 PreparedStatement ps = c.prepareStatement(sql);

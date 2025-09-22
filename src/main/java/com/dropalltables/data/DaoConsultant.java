@@ -1,16 +1,17 @@
 package com.dropalltables.data;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.io.IOException;
-import java.sql.ResultSet;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
+
 import com.dropalltables.models.Consultant;
 
 public class DaoConsultant {
 
-    private ConnectionHandler connectionHandler;
+    private final ConnectionHandler connectionHandler;
 
     public DaoConsultant() throws IOException {
         this.connectionHandler = new ConnectionHandler();
@@ -60,7 +61,7 @@ public class DaoConsultant {
 
 
     public void insertConsultant(Consultant consultant) throws SQLException {
-        String sql = "INSERT INTO Consultant (consultantNo, consultantName, title) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO Consultant (ConsultantNo, ConsultantName, Title) VALUES (?, ?, ?)";
         try (Connection connection = connectionHandler.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, consultant.getConsultantNo());

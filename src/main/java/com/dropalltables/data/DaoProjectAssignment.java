@@ -35,7 +35,7 @@ public class DaoProjectAssignment {
         return new ProjectAssignment(
                 rs.getInt("ConsultantID"),
                 rs.getInt("ProjectID"),
-                rs.getInt("hours"));
+                rs.getInt("HoursWorked"));
     }
 
     /*
@@ -44,7 +44,7 @@ public class DaoProjectAssignment {
      */
     public int insertProjectAssignment(int consultantID, int projectID) throws SQLException {
         String sql = """
-                INSERT INTO Project_Assignment (ConsultantID, ProjectID, Hours)
+                INSERT INTO Project_Assignment (ConsultantID, ProjectID, HoursWorked)
                 VALUES (?, ?, 0)
                 """;
         return execUpdate(sql, ps -> {
@@ -54,15 +54,15 @@ public class DaoProjectAssignment {
     }
 
     // Updates the hours worked by a consultant on a project
-    public int updateHours(int consultantID, int projectID, int hours) throws SQLException {
+    public int updateHours(int consultantID, int projectID, int hoursWorked) throws SQLException {
         String sql = """
                 UPDATE Project_Assignment
-                SET [Hours] = ?
+                SET HoursWorked = ?
                 WHERE ConsultantID = ?
                 AND ProjectID = ?
                 """;
         return execUpdate(sql, ps -> {
-            ps.setInt(1, hours);
+            ps.setInt(1, hoursWorked);
             ps.setInt(2, consultantID);
             ps.setInt(3, projectID);
         });
@@ -83,7 +83,7 @@ public class DaoProjectAssignment {
     public List<ProjectAssignment> getByProjectID(int projectID) throws SQLException {
         List<ProjectAssignment> list = new ArrayList<>();
         String sql = """
-                SELECT ConsultantID, ProjectID, [Hours]
+                SELECT ConsultantID, ProjectID, [HoursWorked]
                 FROM Project_Assignment
                 WHERE ProjectID = ?
                 """;
@@ -101,7 +101,7 @@ public class DaoProjectAssignment {
     public List<ProjectAssignment> getByConsultantID(int consultantID) throws SQLException {
         List<ProjectAssignment> list = new ArrayList<>();
         String sql = """
-                SELECT ConsultantID, ProjectID, [Hours]
+                SELECT ConsultantID, ProjectID, HoursWorked
                 FROM Project_Assignment
                 WHERE ConsultantID = ?
                 """;
@@ -121,7 +121,7 @@ public class DaoProjectAssignment {
         int hours = 0;
 
         String sql = """
-                SELECT COALESCE(SUM(Hours), 0) AS TotalHours
+                SELECT COALESCE(SUM(HoursWorked), 0) AS TotalHours
                 FROM Project_Assignment
                 WHERE ConsultantID = ?
                 """;
@@ -145,7 +145,7 @@ public class DaoProjectAssignment {
                 SELECT TOP 1 ConsultantID
                 FROM Project_Assignment
                 GROUP BY ConsultantID
-                ORDER BY SUM(Hours) DESC
+                ORDER BY SUM(HoursWorked) DESC
                 """;
 
         try (Connection c = connectionHandler.getConnection();
@@ -182,7 +182,7 @@ public class DaoProjectAssignment {
     public List<ProjectAssignment> getActiveProjectAssignments(int consultantID) throws SQLException {
         List<ProjectAssignment> list = new ArrayList<>();
         String sql = """
-                SELECT pa.ConsultantID, pa.ProjectID, pa.Hours
+                SELECT pa.ConsultantID, pa.ProjectID, pa.HoursWorked
                 FROM Project_Assignment pa
                 JOIN Project p ON p.ProjectID = pa.ProjectID
                 WHERE ConsultantID = ?
