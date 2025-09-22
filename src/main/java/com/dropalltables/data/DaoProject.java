@@ -37,19 +37,19 @@ public class DaoProject {
         return projects;
     }
 
-    public Project getProjectByNo(int consultantNo) throws DaoException {
+    public Project getProjectByNo(int projectNo) throws DaoException {
         String query = "SELECT * FROM Project WHERE ProjectNo = ?";
 
         try (Connection connection = connectionHandler.getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, consultantNo);
+            statement.setInt(1, projectNo);
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
                 return instantiateProject(resultSet);
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to retrieve project by ProjectNo: " + consultantNo, e);
+            throw new DaoException("Failed to retrieve project by ProjectNo: " + projectNo, e);
         }
         return null;
     }
@@ -83,35 +83,8 @@ public class DaoProject {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to insert project: " + project.getName() + 
-                ". SQL Error: " + e.getMessage() + " (Error Code: " + e.getErrorCode() + ")", e);
-        }
-    }
-
-    private Project instantiateProject(ResultSet resultSet) throws DaoException {
-        try {
-            int projectNo = resultSet.getInt("ProjectNo");
-            String name = resultSet.getString("Name");
-            Date startDate = resultSet.getDate("StartDate");
-            Date endDate = resultSet.getDate("EndDate");
-
-            if (endDate != null) {
-                return new Project(
-                    projectNo,
-                    name,
-                    startDate.toLocalDate(),
-                    endDate.toLocalDate()
-                );
-            }
-            else {
-                return new Project(
-                    projectNo, 
-                    name, 
-                    startDate.toLocalDate()
-                );
-            }
-        } catch (SQLException e) {
-            throw new DaoException("Failed to instantiate project from result set", e);
+            throw new DaoException("Failed to insert project: " + project.getName() +
+                    ". SQL Error: " + e.getMessage() + " (Error Code: " + e.getErrorCode() + ")", e);
         }
     }
 
@@ -130,5 +103,45 @@ public class DaoProject {
             throw new DaoException("Failed to check if project exists with ProjectNo: " + projectNo, e);
         }
         return false;
+    }
+
+    public void deleteProject(int projectNo) throws DaoException {
+        String query = "DELETE FROM Project WHERE ProjectNo = ?";
+
+        try (Connection connection = connectionHandler.getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, projectNo);
+            int rowsAffected = statement.executeUpdate();
+
+            if (rowsAffected == 0) {
+                throw new DaoException("No project found with ProjectNo: " + projectNo);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Failed to delete project with ProjectNo: " + projectNo, e);
+        }
+    }
+
+    private Project instantiateProject(ResultSet resultSet) throws DaoException {
+        try {
+            int projectNo = resultSet.getInt("ProjectNo");
+            String name = resultSet.getString("Name");
+            Date startDate = resultSet.getDate("StartDate");
+            Date endDate = resultSet.getDate("EndDate");
+
+            if (endDate != null) {
+                return new Project(
+                        projectNo,
+                        name,
+                        startDate.toLocalDate(),
+                        endDate.toLocalDate());
+            } else {
+                return new Project(
+                        projectNo,
+                        name,
+                        startDate.toLocalDate());
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Failed to instantiate project from result set", e);
+        }
     }
 }
