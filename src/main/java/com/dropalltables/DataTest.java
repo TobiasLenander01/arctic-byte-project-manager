@@ -63,10 +63,29 @@ public class DataTest {
                 printProperties(consultant);
             }
             
+            System.out.println("\n daoConsultant.insertConsultant():");
+            Consultant newConsultant = new Consultant(1045, "Test Consultant", "Senior Developer");
+            daoConsultant.insertConsultant(newConsultant);
+            System.out.println("Test Consultant inserted successfully.");
+            
+            System.out.println("daoConsultant.updateConsultant():");
+            Consultant updatedConsultant = new Consultant(1045, "Updated Consultant", "Lead Developer");
+            daoConsultant.updateConsultant(1045, updatedConsultant);
+
+            System.out.println("daoConsultant.getConsultantByNo(1045):");
+            Consultant printConsultant = daoConsultant.getConsultantByNo(1045);
+            printProperties(printConsultant);
+
+            System.out.println("daoConsultant.deleteConsultant():");
+            daoConsultant.deleteConsultant(1045);
+            System.out.println("Test Consultant deleted successfully.");
+
 
 
 
             // TEST PROJECT ASSIGNMENT DAO
+            System.out.println("\n --- TESTING PROJECTASSIGNMENT ---");
+            
             System.out.println("\n daoProject.getProjectByNo(2007):");
             Project project2 = daoProject.getProjectByNo(2007);
             printProperties(project2);

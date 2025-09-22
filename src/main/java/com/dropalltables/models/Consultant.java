@@ -32,7 +32,12 @@ public class Consultant {
         this.title = title;
     }
 
+    @Override
     public String toString() {
-        return name;
+        return "Consultant{" +
+                "consultantNo=" + consultantNo +
+                ", consultantName='" + name + '\'' +
+                ", title='" + title + '\'' +
+                '}';
     }
 }

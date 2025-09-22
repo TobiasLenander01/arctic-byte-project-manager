@@ -70,7 +70,7 @@ public class DaoConsultant {
             statement.executeUpdate();
         } catch (SQLException e) {
             // consultNo redan taget
-            throw new DaoException("duplicate: ConsultantNo " + consultant.getConsultantNo() + " is already occupied.", e);
+            throw new DaoException("duplicate: ConsultantNo " + consultant.getConsultantNo(), e);
         }
     }
 
