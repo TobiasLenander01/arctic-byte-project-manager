@@ -18,7 +18,7 @@ public class DaoConsultant {
 
 
     //metoder
-    public List<Consultant> findAllConsultants() throws SQLException {
+    public List<Consultant> getAllConsultants() throws SQLException {
         List<Consultant> consultants = new ArrayList<>();
         String query = "SELECT * FROM Consultant";
 
@@ -27,14 +27,14 @@ public class DaoConsultant {
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {              //while eftersom flera rader kan returneras
-                Consultant consultant = consultantFindMethod(resultSet);
+                Consultant consultant = instantiateConsultant(resultSet);
                 consultants.add(consultant);
             }
         }
         return consultants;
     }
 
-    public Consultant findConsultantById(int consultantId) throws SQLException {
+    public Consultant getConsultantById(int consultantId) throws SQLException {
         String query = "SELECT * FROM Consultant WHERE consultantId = ?";
 
         try (Connection connection = connectionHandler.getConnection();
@@ -43,13 +43,13 @@ public class DaoConsultant {
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {         //if eftersom max en rad kan returneras
-                return consultantFindMethod(resultSet);
+                return instantiateConsultant(resultSet);
             }
         }
         return null;
     }
 
-    public Consultant consultantFindMethod(ResultSet resultSet) throws SQLException {
+    public Consultant instantiateConsultant(ResultSet resultSet) throws SQLException {
         return new Consultant(
             resultSet.getInt("consultantId"),
             resultSet.getInt("consultantNo"),
