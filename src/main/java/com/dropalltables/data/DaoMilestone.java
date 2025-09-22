@@ -17,7 +17,7 @@ public class DaoMilestone {
     }
 
     public void addMilestone(Milestone milestone) throws SQLException, IOException {
-        String sql = "INSERT INTO Milestone (Name, MilestoneDate, ProjectID) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO Milestone (MilestoneName, MilestoneDate, ProjectID) VALUES (?, ?, ?)";
         try (Connection conn = connectionHandler.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -26,35 +26,6 @@ public class DaoMilestone {
             stmt.setInt(3, milestone.getProjectId());
             stmt.executeUpdate();
         }
-    }
-
-    public List<Milestone> getAllMilestones() throws SQLException, IOException {
-        List<Milestone> milestones = new ArrayList<>();
-        String sql = "SELECT * FROM Milestone ORDER BY MilestoneDate";
-        try (Connection conn = connectionHandler.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                milestones.add(instantiateMilestone(rs));
-            }
-        }
-        return milestones;
-    }
-
-    public Milestone getMilestoneById(int milestoneId) throws SQLException, IOException {
-        String sql = "SELECT * FROM Milestone WHERE MilestoneID = ?";
-        try (Connection conn = connectionHandler.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, milestoneId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return instantiateMilestone(rs);
-                }
-            }
-        }
-        return null;
     }
 
     public List<Milestone> getMilestonesByProject(int projectId) throws SQLException, IOException {
@@ -97,14 +68,20 @@ public class DaoMilestone {
             stmt.executeUpdate();
         }
     }
+
     private Milestone instantiateMilestone(ResultSet rs) throws SQLException, IOException {
         int milestoneId = rs.getInt("MilestoneID");
-        String name = rs.getString("Name");
+        String name = rs.getString("MilestoneName");
         LocalDate date = rs.getTimestamp("MilestoneDate").toLocalDateTime().toLocalDate();
         int projectId = rs.getInt("ProjectID");
 
         DaoProject daoProject = new DaoProject();
-        Project project = daoProject.getProjectById(projectId);
+        Project project;
+        try {
+            project = daoProject.getProjectById(projectId);
+        } catch (DaoException e) {
+            throw new IOException("Failed to fetch project for milestone", e);
+        }
 
         return new Milestone(milestoneId, name, date, project);
     }
