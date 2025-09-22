@@ -15,15 +15,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.List;
 
-import com.dropalltables.data.ConnectionHandler;
 import com.dropalltables.data.DaoException;
 import com.dropalltables.data.DaoMilestone;
-import com.dropalltables.data.DaoProject;
-import com.dropalltables.data.DaoProjectAssignment;
 import com.dropalltables.models.Milestone;
-import com.dropalltables.models.Project;
 
 public class DataTest {
 
@@ -62,12 +57,12 @@ public class DataTest {
             for (Consultant consultant : allConsultants) {
                 printProperties(consultant);
             }
-            
+
             System.out.println("\n daoConsultant.insertConsultant():");
             Consultant newConsultant = new Consultant(1045, "Test Consultant", "Senior Developer");
             daoConsultant.insertConsultant(newConsultant);
             System.out.println("Test Consultant inserted successfully.");
-            
+
             System.out.println("daoConsultant.updateConsultant():");
             Consultant updatedConsultant = new Consultant(1045, "Updated Consultant", "Lead Developer");
             daoConsultant.updateConsultant(1045, updatedConsultant);
@@ -80,12 +75,9 @@ public class DataTest {
             daoConsultant.deleteConsultant(1045);
             System.out.println("Test Consultant deleted successfully.");
 
-
-
-
             // TEST PROJECT ASSIGNMENT DAO
             System.out.println("\n --- TESTING PROJECTASSIGNMENT ---");
-            
+
             System.out.println("\n daoProject.getProjectByNo(2007):");
             Project project2 = daoProject.getProjectByNo(2007);
             printProperties(project2);
@@ -180,14 +172,15 @@ public class DataTest {
             int milestoneCount = daoMilestone.getMilestoneCountForProject(testProjectForMilestone);
             System.out.println("Milestone count: " + milestoneCount);
 
-            // Test adding a new milestone - create a manual test that bypasses the model issue
+            // Test adding a new milestone - create a manual test that bypasses the model
+            // issue
             System.out.println("\n daoMilestone.addMilestone():");
             try {
                 // Create a test milestone by directly inserting with correct ProjectID
                 String testSql = "INSERT INTO Milestone (MilestoneName, MilestoneDate, ProjectID) VALUES (?, ?, ?)";
                 try (Connection conn = connectionHandler.getConnection();
-                     PreparedStatement stmt = conn.prepareStatement(testSql)) {
-                    
+                        PreparedStatement stmt = conn.prepareStatement(testSql)) {
+
                     stmt.setString(1, "Test Milestone");
                     stmt.setTimestamp(2, Timestamp.valueOf(java.time.LocalDate.parse("2024-12-01").atStartOfDay()));
                     stmt.setInt(3, testProjectForMilestone); // Use actual ProjectID from database

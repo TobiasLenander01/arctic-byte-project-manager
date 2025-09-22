@@ -169,6 +169,25 @@ public class DaoProjectAssignment {
         return hours;
     }
 
+    // Returns total number of hours on all project assignments by all consultants
+    public int totalHoursForAllConsultants() throws SQLException {
+        String sql = """
+                SELECT COALESCE(SUM(HoursWorked), 0) AS TotalHours
+                FROM Project_Assignment
+                """;
+
+        try (Connection c = connectionHandler.getConnection();
+                PreparedStatement ps = c.prepareStatement(sql)) {
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("TotalHours");
+                }
+            }
+        }
+        return 0;
+    }
+
     // Returns ID of consultant with the most worked hours. No handling of ties.
     public int hardestWorkingConsultant() throws SQLException {
         String sql = """
