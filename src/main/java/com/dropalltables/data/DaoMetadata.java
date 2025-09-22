@@ -1,5 +1,6 @@
 package com.dropalltables.data;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,6 +10,10 @@ import java.util.List;
 
 public class DaoMetadata {
     private ConnectionHandler connectionHandler;
+
+    public DaoMetadata() throws IOException {
+        this.connectionHandler = new ConnectionHandler();
+    }
 
     // Helper method to avoid duplicate code when querying for single columns
     private List<String> fetchSingleColumn(String sql, String columnLabel) throws SQLException {
@@ -30,6 +35,7 @@ public class DaoMetadata {
         String sql = """
                 SELECT COLUMN_NAME
                 FROM INFORMATION_SCHEMA.COLUMNS
+                ORDER BY COLUMN_NAME
                 """;
         return fetchSingleColumn(sql, "COLUMN_NAME");
     }
@@ -67,12 +73,12 @@ public class DaoMetadata {
 
     // Retrieve the name and number of rows of the table in your database containing
     // the highest number of rows and display them in your application's gui
-    public List<String> getRowsFromMaxRowTable() throws SQLException {
-        List<String> list = new ArrayList<>();
+    public String getRowsFromMaxRowTable() throws SQLException {
+        String result = null;
         String sql = """
                 SELECT TOP 1
-                    t.name AS TableName,
-                    SUM(p.rows) AS RowCount
+                t.name AS 'TableName',
+                SUM(p.rows) AS 'RowCount'
                 FROM sys.tables t
                 JOIN sys.partitions p ON t.object_id = p.object_id
                 WHERE p.index_id IN (0, 1)
@@ -83,10 +89,12 @@ public class DaoMetadata {
         try (Connection c = connectionHandler.getConnection();
                 PreparedStatement ps = c.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                list.add(rs.getString("TableName") + " (" + rs.getInt("RowCount") + " rows)");
+
+            if (rs.next()) {
+                result = rs.getString("TableName") + " (" + rs.getInt("RowCount") + " rows)";
             }
         }
-        return list;
+        return result;
     }
+
 }

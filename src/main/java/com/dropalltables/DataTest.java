@@ -12,6 +12,7 @@ import java.util.List;
 import com.dropalltables.data.ConnectionHandler;
 import com.dropalltables.data.DaoConsultant;
 import com.dropalltables.data.DaoException;
+import com.dropalltables.data.DaoMetadata;
 import com.dropalltables.data.DaoMilestone;
 import com.dropalltables.data.DaoProject;
 import com.dropalltables.data.DaoProjectAssignment;
@@ -190,6 +191,42 @@ public class DataTest {
                 System.out.println("⚠️  Could not find the test milestone for deletion test.");
             }
 
+            // === TEST METADATA DAO ===
+            System.out.println("\n--- TESTING METADATA ---");
+            DaoMetadata daoMetadata = new DaoMetadata();
+
+            // Test all database columns
+            System.out.println("\n daoMetadata.getAllDatabaseColumns():");
+            List<String> allColumns = daoMetadata.getAllDatabaseColumns();
+            for (String col : allColumns) {
+                System.out.println("  " + col);
+            }
+
+            // Test all primary key constraints
+            System.out.println("\n daoMetadata.getAllPKConstraints():");
+            List<String> pkConstraints = daoMetadata.getAllPKConstraints();
+            for (String pk : pkConstraints) {
+                System.out.println("  " + pk);
+            }
+
+            // Test all check constraints
+            System.out.println("\n daoMetadata.getAllCheckConstraints():");
+            List<String> checkConstraints = daoMetadata.getAllCheckConstraints();
+            for (String chk : checkConstraints) {
+                System.out.println("  " + chk);
+            }
+
+            // Test non-integer columns in Consultant table
+            System.out.println("\n daoMetadata.getNonIntConsultantColumns():");
+            List<String> nonIntCols = daoMetadata.getNonIntConsultantColumns();
+            for (String col : nonIntCols) {
+                System.out.println("  " + col);
+            }
+
+            // Test largest table (name + row count)
+            System.out.println("\n daoMetadata.getRowsFromMaxRowTable():");
+            System.out.println(daoMetadata.getRowsFromMaxRowTable());
+
         } catch (IOException e) {
             System.err.println("IO Error during data testing: " + e.getMessage());
         } catch (DaoException e) {
@@ -197,6 +234,7 @@ public class DataTest {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
     }
 
     // === Utility methods ===
@@ -479,5 +517,7 @@ public class DataTest {
         } catch (IllegalArgumentException e) {
             System.out.println("✓ Validation works for negative ProjectNo in delete: " + e.getMessage());
         }
+
     }
+
 }
