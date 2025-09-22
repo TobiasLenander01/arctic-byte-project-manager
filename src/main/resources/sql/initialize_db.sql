@@ -11,7 +11,7 @@ CREATE TABLE Consultant
 (
     ConsultantID int IDENTITY(1, 1),
     ConsultantNo int NOT NULL,
-    Name varchar(255) NOT NULL,
+    ConsultantName varchar(255) NOT NULL,
     Title varchar(255) NOT NULL,
     
     CONSTRAINT PK_Consultant_ConsultantID PRIMARY KEY (ConsultantID),
@@ -22,7 +22,7 @@ CREATE TABLE Project
 (
     ProjectID int IDENTITY(1, 1),
     ProjectNo int NOT NULL,
-    Name varchar(255) NOT NULL,
+    ProjectName varchar(255) NOT NULL,
     StartDate datetime NOT NULL,
     EndDate datetime NULL,
 
@@ -33,7 +33,7 @@ CREATE TABLE Project
 CREATE TABLE Milestone
 (
     MilestoneID int IDENTITY(1, 1),
-    Name varchar(255) NOT NULL,
+    MilestoneName varchar(255) NOT NULL,
     MilestoneDate datetime NOT NULL,
     ProjectID int NOT NULL,
 
@@ -46,16 +46,16 @@ CREATE TABLE Project_Assignment
 (
     ProjectID int NOT NULL,
     ConsultantID int NOT NULL,
-    Hours int NOT NULL,
+    HoursWorked int NOT NULL,
     
     CONSTRAINT PK_Project_Assignment_ProjectID PRIMARY KEY (ProjectID, ConsultantID),
-    CONSTRAINT CK_Project_Assignment_Hours CHECK (Hours >= 0),
+    CONSTRAINT CK_Project_Assignment_Hours CHECK (HoursWorked >= 0),
     CONSTRAINT FK_Project_ConsultantID FOREIGN KEY (ConsultantID) REFERENCES Consultant (ConsultantID),
     CONSTRAINT FK_Project_ProjectID FOREIGN KEY (ProjectID) REFERENCES Project (ProjectID)
 );
 
 -- TEST DATA
-INSERT INTO Consultant (ConsultantNo, Name, Title) VALUES
+INSERT INTO Consultant (ConsultantNo, ConsultantName, Title) VALUES
 (1001, 'Alice Smith', 'Senior Consultant'),
 (1002, 'Bob Johnson', 'Consultant'),
 (1003, 'Carol Lee', 'Project Manager'),
@@ -65,7 +65,7 @@ INSERT INTO Consultant (ConsultantNo, Name, Title) VALUES
 (1007, 'Grace Miller', 'Senior Developer'),
 (1008, 'Henry Garcia', 'UX Designer');
 
-INSERT INTO Project (ProjectNo, Name, StartDate, EndDate) VALUES
+INSERT INTO Project (ProjectNo, ProjectName, StartDate, EndDate) VALUES
 (2001, 'Website Redesign', '2024-06-01', '2024-08-31'),
 (2002, 'Mobile App Development', '2024-07-15', NULL),
 (2003, 'Database Migration', '2024-09-01', '2024-12-31'),
@@ -73,7 +73,7 @@ INSERT INTO Project (ProjectNo, Name, StartDate, EndDate) VALUES
 (2005, 'Security Audit', '2024-08-15', '2024-09-30'),
 (2006, 'Cloud Infrastructure', '2025-01-01', '2025-06-30');
 
-INSERT INTO Project_Assignment (ProjectID, ConsultantID, Hours) VALUES
+INSERT INTO Project_Assignment (ProjectID, ConsultantID, HoursWorked) VALUES
 (1, 1, 120),
 (1, 2, 80),
 (1, 8, 60),
@@ -91,7 +91,7 @@ INSERT INTO Project_Assignment (ProjectID, ConsultantID, Hours) VALUES
 (6, 4, 200),
 (6, 6, 45);
 
-INSERT INTO Milestone (Name, MilestoneDate, ProjectID) VALUES
+INSERT INTO Milestone (MilestoneName, MilestoneDate, ProjectID) VALUES
 ('Design Complete', '2024-06-15', 1),
 ('Development Start', '2024-06-20', 1),
 ('App Prototype', '2024-07-25', 2),

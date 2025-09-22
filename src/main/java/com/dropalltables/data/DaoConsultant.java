@@ -1,16 +1,17 @@
 package com.dropalltables.data;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.io.IOException;
-import java.sql.ResultSet;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
+
 import com.dropalltables.models.Consultant;
 
 public class DaoConsultant {
 
-    private ConnectionHandler connectionHandler;
+    private final ConnectionHandler connectionHandler;
 
     public DaoConsultant() throws IOException {
         this.connectionHandler = new ConnectionHandler();
@@ -34,12 +35,12 @@ public class DaoConsultant {
         return consultants;
     }
 
-    public Consultant findConsultantById(int consultantId) throws SQLException {
-        String query = "SELECT * FROM Consultant WHERE consultantId = ?";
+    public Consultant findConsultantById(int ConsultantId) throws SQLException {
+        String query = "SELECT * FROM Consultant WHERE ConsultantID = ?";
 
         try (Connection connection = connectionHandler.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, consultantId);
+            statement.setInt(1, ConsultantId);
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {         //if eftersom max en rad kan returneras
@@ -51,17 +52,17 @@ public class DaoConsultant {
 
     public Consultant consultantFindMethod(ResultSet resultSet) throws SQLException {
         return new Consultant(
-            resultSet.getInt("consultantId"),
-            resultSet.getInt("consultantNo"),
-            resultSet.getString("consultantName"),
-            resultSet.getString("title")
+            resultSet.getInt("ConsultantId"),
+            resultSet.getInt("ConsultantNo"),
+            resultSet.getString("ConsultantName"),
+            resultSet.getString("Title")
         );
     }
 
 
 
     public void insertConsultant(Consultant consultant) throws SQLException {
-        String sql = "INSERT INTO Consultant (consultantNo, consultantName, title) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO Consultant (ConsultantNo, ConsultantName, Title) VALUES (?, ?, ?)";
         try (Connection connection = connectionHandler.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, consultant.getConsultantNo());
