@@ -31,12 +31,11 @@ public class DaoProjectAssignment {
         this.connectionHandler = new ConnectionHandler();
     }
 
-    private ProjectAssignment mapToProjectAssignment(ResultSet rs) throws SQLException {
+    private ProjectAssignment instantiateProjectAssignment(ResultSet rs) throws SQLException {
         return new ProjectAssignment(
                 rs.getInt("ConsultantID"),
                 rs.getInt("ProjectID"),
                 rs.getInt("hours"));
-
     }
 
     /*
@@ -45,8 +44,8 @@ public class DaoProjectAssignment {
      */
     public int insertProjectAssignment(int consultantID, int projectID) throws SQLException {
         String sql = """
-                INSERT INTO Project_Assignment (ConsultantId, ProjectId)
-                VALUES (?, ?)
+                INSERT INTO Project_Assignment (ConsultantID, ProjectID, Hours)
+                VALUES (?, ?, 0)
                 """;
         return execUpdate(sql, ps -> {
             ps.setInt(1, consultantID);
@@ -58,7 +57,7 @@ public class DaoProjectAssignment {
     public int updateHours(int consultantID, int projectID, int hours) throws SQLException {
         String sql = """
                 UPDATE Project_Assignment
-                SET hours = ?
+                SET [Hours] = ?
                 WHERE ConsultantID = ?
                 AND ProjectID = ?
                 """;
@@ -81,35 +80,40 @@ public class DaoProjectAssignment {
         });
     }
 
-    private List<ProjectAssignment> findBy(String column, int value) throws SQLException {
+    public List<ProjectAssignment> getByProjectID(int projectID) throws SQLException {
         List<ProjectAssignment> list = new ArrayList<>();
         String sql = """
-                SELECT ConsultantID, ProjectID, Hours
+                SELECT ConsultantID, ProjectID, [Hours]
                 FROM Project_Assignment
-                WHERE """ + column + " = ?";
-
+                WHERE ProjectID = ?
+                """;
         try (Connection c = connectionHandler.getConnection();
                 PreparedStatement ps = c.prepareStatement(sql)) {
-
-            ps.setInt(1, value);
-
+            ps.setInt(1, projectID);
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapToProjectAssignment(rs));
-                }
+                while (rs.next())
+                    list.add(instantiateProjectAssignment(rs));
             }
         }
         return list;
     }
 
-    // Returns a list of all project assignments matching projectID
-    public List<ProjectAssignment> findByProjectID(int projectID) throws SQLException {
-        return findBy("ProjectID", projectID);
-    }
-
-    // Returns a list of all project assignments matching consultantID
-    public List<ProjectAssignment> findByConsultantID(int consultantID) throws SQLException {
-        return findBy("ConsultantID", consultantID);
+    public List<ProjectAssignment> getByConsultantID(int consultantID) throws SQLException {
+        List<ProjectAssignment> list = new ArrayList<>();
+        String sql = """
+                SELECT ConsultantID, ProjectID, [Hours]
+                FROM Project_Assignment
+                WHERE ConsultantID = ?
+                """;
+        try (Connection c = connectionHandler.getConnection();
+                PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, consultantID);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next())
+                    list.add(instantiateProjectAssignment(rs));
+            }
+        }
+        return list;
     }
 
     // Returns total number of hours on all project assignments by a consultant
@@ -173,6 +177,28 @@ public class DaoProjectAssignment {
             }
         }
         return ids;
+    }
+
+    public List<ProjectAssignment> getActiveProjectAssignments(int consultantID) throws SQLException {
+        List<ProjectAssignment> list = new ArrayList<>();
+        String sql = """
+                SELECT pa.ConsultantID, pa.ProjectID, pa.Hours
+                FROM Project_Assignment pa
+                JOIN Project p ON p.ProjectID = pa.ProjectID
+                WHERE ConsultantID = ?
+                AND EndDate IS null
+                """;
+
+        try (Connection c = connectionHandler.getConnection();
+                PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, consultantID);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(instantiateProjectAssignment(rs));
+                }
+            }
+        }
+        return list;
     }
 
 }
