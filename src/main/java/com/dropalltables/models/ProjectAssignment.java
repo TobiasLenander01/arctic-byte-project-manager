@@ -17,19 +17,19 @@ public class ProjectAssignment {
         this.hoursWorked = hoursWorked;
     }
 
-    public int getconsultantID() {
+    public int getConsultantID() {
         return consultantID;
     }
 
-    public void setconsultantID(int consultantID) {
+    public void setcConsultantID(int consultantID) {
         this.consultantID = consultantID;
     }
 
-    public int getprojectID() {
+    public int getProjectID() {
         return projectID;
     }
 
-    public void setprojectID(int projectID) {
+    public void setProjectID(int projectID) {
         this.projectID = projectID;
     }
 
@@ -39,5 +39,9 @@ public class ProjectAssignment {
 
     public void setHoursWorked(int hoursWorked) {
         this.hoursWorked = hoursWorked;
+    }
+
+    public void incrementHoursWorked(int hours) {
+        hoursWorked += hours;
     }
 }
