@@ -41,7 +41,7 @@ public class DaoProject {
         if (projectNo <= 0) {
             throw new IllegalArgumentException("ProjectNo must be positive");
         }
-        
+
         String query = "SELECT * FROM Project WHERE ProjectNo = ?";
 
         try (Connection connection = connectionHandler.getConnection();
@@ -62,7 +62,7 @@ public class DaoProject {
         if (projectId <= 0) {
             throw new IllegalArgumentException("ProjectID must be positive");
         }
-        
+
         String query = "SELECT * FROM Project WHERE ProjectID = ?";
 
         try (Connection connection = connectionHandler.getConnection();
@@ -92,22 +92,21 @@ public class DaoProject {
         if (project.getProjectNo() <= 0) {
             throw new IllegalArgumentException("ProjectNo must be positive");
         }
-        
+
         String insert = """
                 INSERT INTO Project (ProjectNo, ProjectName, StartDate, EndDate)
                 VALUES (?, ?, ?, ?);
                 """;
 
         try (Connection connection = connectionHandler.getConnection();
-             PreparedStatement statement = connection.prepareStatement(insert)) {
-            
+                PreparedStatement statement = connection.prepareStatement(insert)) {
+
             statement.setInt(1, project.getProjectNo());
             statement.setString(2, project.getName());
             statement.setDate(3, java.sql.Date.valueOf(project.getStartDate()));
-            statement.setDate(4, project.getEndDate() != null ? 
-                java.sql.Date.valueOf(project.getEndDate()) : null);
+            statement.setDate(4, project.getEndDate() != null ? java.sql.Date.valueOf(project.getEndDate()) : null);
             statement.executeUpdate();
-            
+
         } catch (SQLException e) {
             throw new DaoException("Failed to insert project: " + project.getName() +
                     ". SQL Error: " + e.getMessage() + " (Error Code: " + e.getErrorCode() + ")", e);
@@ -118,7 +117,7 @@ public class DaoProject {
         if (projectNo <= 0) {
             throw new IllegalArgumentException("ProjectNo must be positive");
         }
-        
+
         String query = "SELECT 1 FROM Project WHERE ProjectNo = ?";
 
         try (Connection connection = connectionHandler.getConnection();
@@ -132,16 +131,38 @@ public class DaoProject {
         }
     }
 
+    public Integer getProjectId(int projectNo) throws DaoException {
+        if (projectNo <= 0) {
+            throw new IllegalArgumentException("ProjectNo must be positive");
+        }
+
+        String query = "SELECT ProjectID FROM Project WHERE ProjectNo = ?";
+
+        try (Connection connection = connectionHandler.getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, projectNo);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("ProjectID");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Failed to retrieve ProjectID for ProjectNo: " + projectNo, e);
+        }
+
+        return null;
+    }
+
     public void deleteProject(int projectNo) throws DaoException {
         if (projectNo <= 0) {
             throw new IllegalArgumentException("ProjectNo must be positive");
         }
-        
+
         try {
             // Delete all milestones associated with this project
             DaoMilestone daoMilestone = new DaoMilestone();
             daoMilestone.deleteMilestonesByProjectNo(projectNo);
-            
+
             // Then delete the project
             String query = "DELETE FROM Project WHERE ProjectNo = ?";
             try (Connection connection = connectionHandler.getConnection();
@@ -171,20 +192,19 @@ public class DaoProject {
         if (project.getProjectNo() <= 0) {
             throw new IllegalArgumentException("ProjectNo must be positive");
         }
-        
+
         String query = "UPDATE Project SET ProjectName = ?, StartDate = ?, EndDate = ? WHERE ProjectNo = ?";
 
         try (Connection connection = connectionHandler.getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
-            
+
             statement.setString(1, project.getName());
             statement.setDate(2, java.sql.Date.valueOf(project.getStartDate()));
-            statement.setDate(3, project.getEndDate() != null ? 
-                java.sql.Date.valueOf(project.getEndDate()) : null);
+            statement.setDate(3, project.getEndDate() != null ? java.sql.Date.valueOf(project.getEndDate()) : null);
             statement.setInt(4, project.getProjectNo());
-            
+
             int rowsAffected = statement.executeUpdate();
-            
+
             if (rowsAffected == 0) {
                 throw new DaoException("No project found with ProjectNo: " + project.getProjectNo());
             }

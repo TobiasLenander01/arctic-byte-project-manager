@@ -33,11 +33,13 @@ CREATE TABLE Project
 CREATE TABLE Milestone
 (
     MilestoneID int IDENTITY(1, 1),
+    MilestoneNo int NOT NULL,
     MilestoneName varchar(255) NOT NULL,
     MilestoneDate datetime NOT NULL,
     ProjectID int NOT NULL,
 
     CONSTRAINT PK_Milestone_MilestoneID PRIMARY KEY (MilestoneID),
+    CONSTRAINT UQ_Milestone_MilestoneNo UNIQUE(MilestoneNo),
     CONSTRAINT CK_Milestone_Date CHECK (MilestoneDate >= '2022-01-01'),
     CONSTRAINT FK_Milestone_ProjectID FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID)
 );
@@ -91,21 +93,21 @@ INSERT INTO Project_Assignment (ProjectID, ConsultantID, HoursWorked) VALUES
 (6, 4, 200),
 (6, 6, 45);
 
-INSERT INTO Milestone (MilestoneName, MilestoneDate, ProjectID) VALUES
-('Design Complete', '2024-06-15', 1),
-('Development Start', '2024-06-20', 1),
-('App Prototype', '2024-07-25', 2),
-('Final Review', '2024-08-25', 1),
-('Requirements Analysis', '2024-09-15', 3),
-('Data Schema Design', '2024-10-01', 3),
-('Migration Testing', '2024-11-15', 3),
-('API Design Phase', '2024-10-15', 4),
-('Integration Testing', '2024-11-30', 4),
-('Security Assessment', '2024-08-30', 5),
-('Vulnerability Report', '2024-09-15', 5),
-('Infrastructure Planning', '2025-01-15', 6),
-('Cloud Deployment', '2025-04-01', 6),
-('Performance Optimization', '2025-05-15', 6);
+INSERT INTO Milestone (MilestoneNo, MilestoneName, MilestoneDate, ProjectID) VALUES
+(3001, 'Design Complete', '2024-06-15', 1),
+(3002, 'Development Start', '2024-06-20', 1),
+(3003, 'App Prototype', '2024-07-25', 2),
+(3004, 'Final Review', '2024-08-25', 1),
+(3005, 'Requirements Analysis', '2024-09-15', 3),
+(3006, 'Data Schema Design', '2024-10-01', 3),
+(3007, 'Migration Testing', '2024-11-15', 3),
+(3008, 'API Design Phase', '2024-10-15', 4),
+(3009, 'Integration Testing', '2024-11-30', 4),
+(3010, 'Security Assessment', '2024-08-30', 5),
+(3011, 'Vulnerability Report', '2024-09-15', 5),
+(3012, 'Infrastructure Planning', '2025-01-15', 6),
+(3013, 'Cloud Deployment', '2025-04-01', 6),
+(3014, 'Performance Optimization', '2025-05-15', 6);
 
 
 -- SELECT STATEMENTS
