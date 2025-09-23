@@ -1,5 +1,7 @@
 module db.dropalltables {
     exports com.dropalltables;
+    
+    opens com.dropalltables.controllers to javafx.fxml;
 
     requires javafx.base;
     requires javafx.fxml;
