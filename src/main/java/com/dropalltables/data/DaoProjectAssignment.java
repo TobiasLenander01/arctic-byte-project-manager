@@ -270,4 +270,33 @@ public class DaoProjectAssignment {
         return list;
     }
 
+    // Returns all consultant assignments for a project,
+    // including consultant details (ConsultantNo, Name, Title)
+    public List<ProjectAssignment> getAssignmentsWithConsultants(int projectID) throws SQLException {
+        List<ProjectAssignment> list = new ArrayList<>();
+        String sql = """
+                SELECT pa.ConsultantID, pa.ProjectID, pa.HoursWorked,
+                       c.ConsultantNo, c.ConsultantName, c.Title
+                FROM Project_Assignment pa
+                JOIN Consultant c ON pa.ConsultantID = c.ConsultantID
+                WHERE pa.ProjectID = ?
+                """;
+
+        try (Connection c = connectionHandler.getConnection();
+                PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, projectID);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new ProjectAssignment(
+                            rs.getInt("ProjectID"),
+                            rs.getInt("ConsultantID"),
+                            rs.getInt("HoursWorked"),
+                            rs.getInt("ConsultantNo"),
+                            rs.getString("ConsultantName"),
+                            rs.getString("Title")));
+                }
+            }
+        }
+        return list;
+    }
 }

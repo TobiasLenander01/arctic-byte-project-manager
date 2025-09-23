@@ -1,6 +1,7 @@
 package com.dropalltables.controllers;
 
 import java.io.IOException;
+import java.net.URL;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,7 +10,7 @@ import javafx.stage.Stage;
 
 public class AppController {
     private final Stage primaryStage;
-    private MainController mainViewController;
+    private MainViewController mainViewController;
 
     public AppController(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -17,7 +18,7 @@ public class AppController {
 
     public void showPrimaryStage() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MainView.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
             primaryStage.setScene(scene);
@@ -39,7 +40,7 @@ public class AppController {
             System.out.println("MainController is not initialized. Cannot change view to: " + viewName);
             return;
         }
-        
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/" + viewName + ".fxml"));
         try {
             Parent content = loader.load();
