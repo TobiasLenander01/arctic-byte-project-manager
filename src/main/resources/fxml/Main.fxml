@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="borderPaneRoot" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dropalltables.controllers.MainController">
+  <top>
+    <MenuBar BorderPane.alignment="CENTER">
+      <menus>
+        <Menu mnemonicParsing="false" text="File">
+          <items>
+            <MenuItem mnemonicParsing="false" text="Close" />
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Edit">
+          <items>
+            <MenuItem mnemonicParsing="false" text="Delete" />
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Help">
+          <items>
+            <MenuItem mnemonicParsing="false" text="About" />
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+  </top>
+  <center>
+    <ScrollPane fx:id="scrollPaneContent" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+  </center>
+  <left>
+    <VBox prefHeight="375.0" prefWidth="121.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="buttonProjects" mnemonicParsing="false" onAction="#handleButtonProjectsClickEvent" text="Projects" />
+            <Button fx:id="buttonConsultants" mnemonicParsing="false" onAction="#handleButtonConsultantsClickEvent" text="Consultants" />
+         </children></VBox>
+  </left>
+</BorderPane>

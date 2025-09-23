@@ -163,6 +163,11 @@ public class DaoProject {
             DaoMilestone daoMilestone = new DaoMilestone();
             daoMilestone.deleteMilestonesByProjectNo(projectNo);
 
+            // Delete all assignments associated with this project
+            DaoProjectAssignment daoAssignment = new DaoProjectAssignment();
+            int projectID = getProjectId(projectNo);
+            daoAssignment.deleteProjectAssignmentByProjectID(projectID);
+
             // Then delete the project
             String query = "DELETE FROM Project WHERE ProjectNo = ?";
             try (Connection connection = connectionHandler.getConnection();
