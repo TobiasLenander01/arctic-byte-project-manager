@@ -137,17 +137,23 @@ public class DaoProject {
             throw new IllegalArgumentException("ProjectNo must be positive");
         }
         
-        String query = "DELETE FROM Project WHERE ProjectNo = ?";
+        try {
+            // Delete all milestones associated with this project
+            DaoMilestone daoMilestone = new DaoMilestone();
+            daoMilestone.deleteMilestonesByProjectNo(projectNo);
+            
+            // Then delete the project
+            String query = "DELETE FROM Project WHERE ProjectNo = ?";
+            try (Connection connection = connectionHandler.getConnection();
+                    PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setInt(1, projectNo);
+                int rowsAffected = statement.executeUpdate();
 
-        try (Connection connection = connectionHandler.getConnection();
-                PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, projectNo);
-            int rowsAffected = statement.executeUpdate();
-
-            if (rowsAffected == 0) {
-                throw new DaoException("No project found with ProjectNo: " + projectNo);
+                if (rowsAffected == 0) {
+                    throw new DaoException("No project found with ProjectNo: " + projectNo);
+                }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             throw new DaoException("Failed to delete project with ProjectNo: " + projectNo, e);
         }
     }

@@ -69,6 +69,26 @@ public class DaoMilestone {
         }
     }
 
+    public void deleteMilestonesByProject(int projectId) throws SQLException, IOException {
+        String sql = "DELETE FROM Milestone WHERE ProjectID = ?";
+        try (Connection conn = connectionHandler.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, projectId);
+            stmt.executeUpdate();
+        }
+    }
+
+    public void deleteMilestonesByProjectNo(int projectNo) throws SQLException, IOException {
+        String sql = "DELETE FROM Milestone WHERE ProjectID = (SELECT ProjectID FROM Project WHERE ProjectNo = ?)";
+        try (Connection conn = connectionHandler.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, projectNo);
+            stmt.executeUpdate();
+        }
+    }
+
     private Milestone instantiateMilestone(ResultSet rs) throws SQLException, IOException {
         int milestoneId = rs.getInt("MilestoneID");
         String name = rs.getString("MilestoneName");
