@@ -164,7 +164,7 @@ public class ProjectsViewController {
     private void loadConsultantsForProject(Project project) {
         try {
             DaoProject daoProject = new DaoProject();
-            Integer projectID = daoProject.getProjectId(project.getProjectNo());
+            Integer projectID = daoProject.getProjectID(project.getProjectNo());
 
             DaoProjectAssignment daoPA = new DaoProjectAssignment();
             List<ProjectAssignment> assignments = daoPA.getAssignmentsWithConsultants(projectID);
