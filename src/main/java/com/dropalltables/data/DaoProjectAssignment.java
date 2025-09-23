@@ -110,6 +110,26 @@ public class DaoProjectAssignment {
         });
     }
 
+    public int deleteProjectAssignmentByConsultantID(int consultantID) throws SQLException {
+        String sql = """
+                DELETE FROM Project_Assignment
+                WHERE ConsultantID = ?
+                """;
+        return execUpdate(sql, ps -> {
+            ps.setInt(1, consultantID);
+        });
+    }
+
+    public int deleteProjectAssignmentByProjectID(int projectID) throws SQLException {
+        String sql = """
+                DELETE FROM Project_Assignment
+                WHERE ProjectID = ?
+                """;
+        return execUpdate(sql, ps -> {
+            ps.setInt(1, projectID);
+        });
+    }
+
     public List<ProjectAssignment> getByProjectID(int projectID) throws SQLException {
         List<ProjectAssignment> list = new ArrayList<>();
         String sql = """
