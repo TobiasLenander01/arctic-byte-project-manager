@@ -99,7 +99,7 @@ public class DaoConsultant {
         }
     }
     
-    private int getConsultantID(int consultantNo) throws DaoException {
+    public Integer getConsultantID(int consultantNo) throws DaoException {
         String sql = """
                     SELECT ConsultantID 
                     FROM Consultant 

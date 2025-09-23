@@ -54,9 +54,24 @@ public class DataTest {
             Consultant printConsultant = daoConsultant.getConsultantByNo(1045);
             printProperties(printConsultant);
 
-            System.out.println("daoConsultant.deleteConsultant():");
+            // Insert a new project assignment for the updated consultant
+            System.out.println("\nInserting ProjectAssignment for Consultant 1045 and ProjectID 1");
+            DaoProjectAssignment daoProjectAssignment = new DaoProjectAssignment();
+            int consultantId = daoConsultant.getConsultantID(1045);
+            daoProjectAssignment.insertProjectAssignment(consultantId, 1);
+
+            // Print project assignments before deletion
+            System.out.println("\nProject assignments for Consultant 1045 BEFORE delete:");
+            daoProjectAssignment.getByProjectID(1).forEach(DataTest::printProperties);
+
+            // Delete the consultant
+            System.out.println("\ndaoConsultant.deleteConsultant():");
             daoConsultant.deleteConsultant(1045);
             System.out.println("Test Consultant deleted successfully.");
+
+            // Print project assignments after deletion
+            System.out.println("\nProject assignments for project 1 AFTER delete:");
+            daoProjectAssignment.getByProjectID(1).forEach(DataTest::printProperties);
 
             // TEST PROJECT ASSIGNMENT DAO
             System.out.println("\n --- TESTING PROJECTASSIGNMENT ---");
