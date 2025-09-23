@@ -99,22 +99,48 @@ public class DaoConsultant {
         }
     }
     
-///här logik för att även radera alla projectassignment med konsultent??
-    public void deleteConsultant(int consultantNo) throws DaoException {
-        String sql = "DELETE FROM Consultant WHERE ConsultantNo = ?";
+    private int getConsultantID(int consultantNo) throws DaoException {
+        String sql = """
+                    SELECT ConsultantID 
+                    FROM Consultant 
+                    WHERE ConsultantNo = ?
+                    """;
         try (Connection connection = connectionHandler.getConnection();
             PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, consultantNo);
-            int rowsAffected = statement.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new DaoException("not_found: " + consultantNo);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("ConsultantID");
+                } else {
+                    throw new DaoException("not_found: " + consultantNo);
+                }
             }
         } catch (SQLException e) {
             throw new DaoException("Database error: " + e.getMessage(), e);
         }
     }
+    
+///här logik för att även radera alla projectassignment med konsultent??
+    public void deleteConsultant(int consultantNo) throws DaoException {
+        try {
+            int foundConsultantID = getConsultantID(consultantNo);
+            DaoProjectAssignment daoPA = new DaoProjectAssignment();
+            daoPA.deleteProjectAssignmentByConsultantID(foundConsultantID);
 
-
-
+            String sql = "DELETE FROM Consultant WHERE ConsultantNo = ?";
+            try (Connection connection = connectionHandler.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setInt(1, consultantNo);
+                int rowsAffected = statement.executeUpdate();
+                if (rowsAffected == 0) {
+                    throw new DaoException("not_found: " + consultantNo);
+                }
+            }
+        } catch (IOException e) {
+            throw new DaoException("Failed to delete consultant: " + e.getMessage(), e);
+        } catch (SQLException e) {
+            throw new DaoException("Database error: " + e.getMessage(), e);
+        }
+    }
 }
 
