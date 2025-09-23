@@ -58,8 +58,8 @@ public class DaoProject {
         return null;
     }
 
-    public Project getProjectById(int projectId) throws DaoException {
-        if (projectId <= 0) {
+    public Project getProjectByID(int projectID) throws DaoException {
+        if (projectID <= 0) {
             throw new IllegalArgumentException("ProjectID must be positive");
         }
 
@@ -67,14 +67,14 @@ public class DaoProject {
 
         try (Connection connection = connectionHandler.getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, projectId);
+            statement.setInt(1, projectID);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     return instantiateProject(resultSet);
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to retrieve project by ProjectID: " + projectId, e);
+            throw new DaoException("Failed to retrieve project by ProjectID: " + projectID, e);
         }
         return null;
     }
@@ -131,7 +131,7 @@ public class DaoProject {
         }
     }
 
-    public Integer getProjectId(int projectNo) throws DaoException {
+    public Integer getProjectID(int projectNo) throws DaoException {
         if (projectNo <= 0) {
             throw new IllegalArgumentException("ProjectNo must be positive");
         }
@@ -165,7 +165,7 @@ public class DaoProject {
 
             // Delete all assignments associated with this project
             DaoProjectAssignment daoAssignment = new DaoProjectAssignment();
-            int projectID = getProjectId(projectNo);
+            int projectID = getProjectID(projectNo);
             daoAssignment.deleteProjectAssignmentByProjectID(projectID);
 
             // Then delete the project

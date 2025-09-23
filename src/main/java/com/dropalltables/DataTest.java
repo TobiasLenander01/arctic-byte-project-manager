@@ -57,8 +57,8 @@ public class DataTest {
             // Insert a new project assignment for the updated consultant
             System.out.println("\nInserting ProjectAssignment for Consultant 1045 and ProjectID 1");
             DaoProjectAssignment daoProjectAssignment = new DaoProjectAssignment();
-            int consultantId = daoConsultant.getConsultantID(1045);
-            daoProjectAssignment.insertProjectAssignment(consultantId, 1);
+            int consultantID = daoConsultant.getConsultantID(1045);
+            daoProjectAssignment.insertProjectAssignment(consultantID, 1);
 
             // Print project assignments before deletion
             System.out.println("\nProject assignments for Consultant 1045 BEFORE delete:");
@@ -85,53 +85,53 @@ public class DataTest {
             DaoProjectAssignment daoPA = new DaoProjectAssignment();
             ConnectionHandler connectionHandler = new ConnectionHandler();
 
-            int testConsultantId = findAnyConsultantId(connectionHandler);
-            int testProjectId = findAnyProjectId(connectionHandler);
+            int testConsultantID = findAnyConsultantID(connectionHandler);
+            int testProjectID = findAnyProjectID(connectionHandler);
 
-            if (testConsultantId == 0 || testProjectId == 0) {
+            if (testConsultantID == 0 || testProjectID == 0) {
                 System.out.println(
                         "⚠️  Skipping Project_Assignment tests: need at least one Consultant and one Project row.");
                 return;
             }
 
             // Start clean
-            daoPA.deleteProjectAssignment(testConsultantId, testProjectId);
+            daoPA.deleteProjectAssignment(testConsultantID, testProjectID);
 
-            int totalBefore = daoPA.totalHoursForConsultant(testConsultantId);
+            int totalBefore = daoPA.totalHoursForConsultant(testConsultantID);
             System.out.println("totalHoursForConsultant(before) = " + totalBefore);
 
-            int ins = daoPA.insertProjectAssignment(testConsultantId, testProjectId);
+            int ins = daoPA.insertProjectAssignment(testConsultantID, testProjectID);
             System.out.println("insertProjectAssignment -> rows: " + ins);
 
-            System.out.println("\ngetByConsultantID(" + testConsultantId + "):");
-            for (var pa : daoPA.getByConsultantID(testConsultantId)) {
+            System.out.println("\ngetByConsultantID(" + testConsultantID + "):");
+            for (var pa : daoPA.getByConsultantID(testConsultantID)) {
                 printProperties(pa);
             }
 
-            System.out.println("\ngetByProjectID(" + testProjectId + "):");
-            for (var pa : daoPA.getByProjectID(testProjectId)) {
+            System.out.println("\ngetByProjectID(" + testProjectID + "):");
+            for (var pa : daoPA.getByProjectID(testProjectID)) {
                 printProperties(pa);
             }
 
             int newHours = 12;
-            int upd = daoPA.updateHours(testConsultantId, testProjectId, newHours);
+            int upd = daoPA.updateHours(testConsultantID, testProjectID, newHours);
             System.out.println("\nupdateHours -> rows: " + upd);
 
-            System.out.println("After update, getByConsultantID(" + testConsultantId + ") filtered to Project "
-                    + testProjectId + ":");
-            daoPA.getByConsultantID(testConsultantId).stream()
+            System.out.println("After update, getByConsultantID(" + testConsultantID + ") filtered to Project "
+                    + testProjectID + ":");
+            daoPA.getByConsultantID(testConsultantID).stream()
                     .filter(pa -> {
                         try {
                             var f = pa.getClass().getDeclaredField("ProjectID");
                             f.setAccessible(true);
-                            return ((Integer) f.get(pa)) == testProjectId;
+                            return ((Integer) f.get(pa)) == testProjectID;
                         } catch (Exception e) {
                             return false;
                         }
                     })
                     .forEach(DataTest::printProperties);
 
-            int totalAfter = daoPA.totalHoursForConsultant(testConsultantId);
+            int totalAfter = daoPA.totalHoursForConsultant(testConsultantID);
             System.out.println("\ntotalHoursForConsultant(after) = " + totalAfter +
                     " (delta " + (totalAfter - totalBefore) + ", expected " + newHours + ")");
 
@@ -141,12 +141,12 @@ public class DataTest {
             List<Integer> allHandsProjects = daoPA.projectsThatInvolveEveryConsultant();
             System.out.println("\nprojectsThatInvolveEveryConsultant() -> " + allHandsProjects);
 
-            System.out.println("\ngetActiveProjectAssignments(" + testConsultantId + "):");
-            for (var pa : daoPA.getActiveProjectAssignments(testConsultantId)) {
+            System.out.println("\ngetActiveProjectAssignments(" + testConsultantID + "):");
+            for (var pa : daoPA.getActiveProjectAssignments(testConsultantID)) {
                 printProperties(pa);
             }
 
-            int del = daoPA.deleteProjectAssignment(testConsultantId, testProjectId);
+            int del = daoPA.deleteProjectAssignment(testConsultantID, testProjectID);
             System.out.println("\ndeleteProjectAssignment -> rows: " + del);
 
             // === TEST MILESTONE DAO ===
@@ -154,7 +154,7 @@ public class DataTest {
             DaoMilestone daoMilestone = new DaoMilestone();
 
             // Get a test project ID for milestone operations
-            int testProjectForMilestone = findAnyProjectId(connectionHandler);
+            int testProjectForMilestone = findAnyProjectID(connectionHandler);
             if (testProjectForMilestone == 0) {
                 System.out.println("⚠️  Skipping Milestone tests: need at least one Project row.");
                 return;
@@ -197,10 +197,10 @@ public class DataTest {
             }
 
             // Test deleting the milestone
-            int testMilestoneId = findMilestoneIdByName(connectionHandler, "Test Milestone");
-            if (testMilestoneId > 0) {
-                System.out.println("\n daoMilestone.deleteMilestone(" + testMilestoneId + "):");
-                daoMilestone.deleteMilestone(testMilestoneId);
+            int testMilestoneID = findMilestoneIDByName(connectionHandler, "Test Milestone");
+            if (testMilestoneID > 0) {
+                System.out.println("\n daoMilestone.deleteMilestone(" + testMilestoneID + "):");
+                daoMilestone.deleteMilestone(testMilestoneID);
                 System.out.println("Milestone deleted successfully.");
             } else {
                 System.out.println("⚠️  Could not find the test milestone for deletion test.");
@@ -214,14 +214,14 @@ public class DataTest {
             System.out.println("\n Testing deleteMilestonesByProjectNo for ProjectNo " + projectNoForMassDelete + ":");
             
             // Get ProjectID for ProjectNo using SQL query
-            int projectIdForMassDelete = -1;
+            int projectIDForMassDelete = -1;
             try (Connection conn = connectionHandler.getConnection()) {
                 String sql = "SELECT ProjectID FROM Project WHERE ProjectNo = ?";
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                     stmt.setInt(1, projectNoForMassDelete);
                     try (ResultSet rs = stmt.executeQuery()) {
                         if (rs.next()) {
-                            projectIdForMassDelete = rs.getInt("ProjectID");
+                            projectIDForMassDelete = rs.getInt("ProjectID");
                         }
                     }
                 }
@@ -229,8 +229,8 @@ public class DataTest {
                 System.out.println("Error getting ProjectID: " + e.getMessage());
             }
             
-            if (projectIdForMassDelete > 0) {
-                int milestoneCountBefore = daoMilestone.getMilestoneCountForProject(projectIdForMassDelete);
+            if (projectIDForMassDelete > 0) {
+                int milestoneCountBefore = daoMilestone.getMilestoneCountForProject(projectIDForMassDelete);
                 System.out.println("Milestone count before deletion: " + milestoneCountBefore);
                 
                 if (milestoneCountBefore > 0) {
@@ -239,7 +239,7 @@ public class DataTest {
                     System.out.println("All milestones for project " + projectNoForMassDelete + " deleted successfully.");
                     
                     // Verify deletion
-                    int countAfterDeletion = daoMilestone.getMilestoneCountForProject(projectIdForMassDelete);
+                    int countAfterDeletion = daoMilestone.getMilestoneCountForProject(projectIDForMassDelete);
                     System.out.println("Milestone count after deletion: " + countAfterDeletion);
                 } else {
                     System.out.println("No milestones found for project " + projectNoForMassDelete);
@@ -334,7 +334,7 @@ public class DataTest {
         System.out.println(sb.toString());
     }
 
-    private static int findAnyConsultantId(ConnectionHandler ch) throws SQLException {
+    private static int findAnyConsultantID(ConnectionHandler ch) throws SQLException {
         String sql = "SELECT TOP 1 ConsultantID FROM Consultant ORDER BY ConsultantID";
         try (Connection c = ch.getConnection();
                 PreparedStatement ps = c.prepareStatement(sql);
@@ -343,7 +343,7 @@ public class DataTest {
         }
     }
 
-    private static int findAnyProjectId(ConnectionHandler ch) throws SQLException {
+    private static int findAnyProjectID(ConnectionHandler ch) throws SQLException {
         String sql = "SELECT TOP 1 ProjectID FROM Project ORDER BY ProjectID";
         try (Connection c = ch.getConnection();
                 PreparedStatement ps = c.prepareStatement(sql);
@@ -352,7 +352,7 @@ public class DataTest {
         }
     }
 
-    private static int findMilestoneIdByName(ConnectionHandler ch, String milestoneName) throws SQLException {
+    private static int findMilestoneIDByName(ConnectionHandler ch, String milestoneName) throws SQLException {
         String sql = "SELECT TOP 1 MilestoneID FROM Milestone WHERE MilestoneName = ? ORDER BY MilestoneID DESC";
         try (Connection c = ch.getConnection();
                 PreparedStatement ps = c.prepareStatement(sql)) {
@@ -411,31 +411,31 @@ public class DataTest {
             System.out.println("✓ Validation works for negative ProjectNo: " + e.getMessage());
         }
 
-        // === TEST getProjectById ===
-        System.out.println("\n daoProject.getProjectById():");
+        // === TEST getProjectByID ===
+        System.out.println("\n daoProject.getProjectByID():");
 
         // Find any project ID to test with
         try {
             ConnectionHandler ch = new ConnectionHandler();
-            int anyProjectId = findAnyProjectId(ch);
-            if (anyProjectId > 0) {
-                Project foundProjectById = daoProject.getProjectById(anyProjectId);
-                if (foundProjectById != null) {
-                    System.out.println("Found project by ID " + anyProjectId + ":");
-                    printProperties(foundProjectById);
+            int anyProjectID = findAnyProjectID(ch);
+            if (anyProjectID > 0) {
+                Project foundProjectByID = daoProject.getProjectByID(anyProjectID);
+                if (foundProjectByID != null) {
+                    System.out.println("Found project by ID " + anyProjectID + ":");
+                    printProperties(foundProjectByID);
                 } else {
-                    System.out.println("No project found with ID: " + anyProjectId);
+                    System.out.println("No project found with ID: " + anyProjectID);
                 }
             } else {
                 System.out.println("No project IDs found in database");
             }
         } catch (Exception e) {
-            System.out.println("Error testing getProjectById: " + e.getMessage());
+            System.out.println("Error testing getProjectByID: " + e.getMessage());
         }
 
-        // Test validation for getProjectById
+        // Test validation for getProjectByID
         try {
-            daoProject.getProjectById(0);
+            daoProject.getProjectByID(0);
             System.out.println("ERROR: Should have thrown IllegalArgumentException for zero ProjectID");
         } catch (IllegalArgumentException e) {
             System.out.println("✓ Validation works for zero ProjectID: " + e.getMessage());
