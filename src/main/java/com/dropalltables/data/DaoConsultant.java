@@ -144,8 +144,6 @@ public class DaoConsultant {
                     throw new DaoException("not_found: " + consultantNo);
                 }
             }
-        } catch (IOException e) {
-            throw new DaoException("Failed to delete consultant: " + e.getMessage(), e);
         } catch (SQLException e) {
             throw new DaoException("Database error: " + e.getMessage(), e);
         }

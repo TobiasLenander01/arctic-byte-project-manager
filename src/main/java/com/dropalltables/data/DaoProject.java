@@ -183,7 +183,7 @@ public class DaoProject {
                     throw new DaoException("not_found ProjectNo: " + projectNo);
                 }
             }
-        } catch (SQLException | IOException e) {
+        } catch (SQLException e) {
             throw new DaoException("Failed to delete project with ProjectNo: " + projectNo, e);
         }
     }
