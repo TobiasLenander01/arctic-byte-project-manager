@@ -1,7 +1,4 @@
 package com.dropalltables.controllers;
-
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 
 import com.dropalltables.data.DaoConsultant;
