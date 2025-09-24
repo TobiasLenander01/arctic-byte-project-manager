@@ -38,9 +38,10 @@
   <left>
     <VBox prefHeight="456.0" prefWidth="100.0" BorderPane.alignment="CENTER">
       <children>
-        <Button fx:id="buttonProjects" mnemonicParsing="false" onAction="#handleButtonProjectsClickEvent" text="Projects" />
-        <Button fx:id="buttonConsultants" mnemonicParsing="false" onAction="#handleButtonConsultantsClickEvent" text="Consultants" />
-        <Button fx:id="buttonMetadata" mnemonicParsing="false" onAction="#handleButtonMetadataClickEvent" text="Metadata" />
+        <Button mnemonicParsing="false" onAction="#handleButtonProjectsClickEvent" text="Projects" />
+        <Button mnemonicParsing="false" onAction="#handleButtonConsultantsClickEvent" text="Consultants" />
+        <Button mnemonicParsing="false" onAction="#handleButtonMetadataClickEvent" text="Metadata" />
+        <Button mnemonicParsing="false" onAction="#buttonOpenExcelAction" text="Open Excel"/>
       </children>
     </VBox>
   </left>

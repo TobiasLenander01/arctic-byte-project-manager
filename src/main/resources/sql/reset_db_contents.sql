@@ -1,55 +1,17 @@
--- DROP TABLES
-DROP TABLE IF EXISTS Project_Assignment;
+-- ===========================
+-- Reset DB contents (truncate + reseed IDs)
+-- ===========================
+-- 1. Remove data from child tables first
+TRUNCATE TABLE Project_Assignment;
 
-DROP TABLE IF EXISTS Milestone;
+TRUNCATE TABLE Milestone;
 
-DROP TABLE IF EXISTS Consultant;
+-- 2. Then truncate parent tables
+TRUNCATE TABLE Consultant;
 
-DROP TABLE IF EXISTS Project;
+TRUNCATE TABLE Project;
 
--- CREATE TABLES
-CREATE TABLE Consultant (
-    ConsultantID int IDENTITY(1, 1),
-    ConsultantNo int NOT NULL,
-    ConsultantName varchar(255) NOT NULL,
-    Title varchar(255) NOT NULL,
-    CONSTRAINT PK_Consultant_ConsultantID PRIMARY KEY (ConsultantID),
-    CONSTRAINT UQ_Consultant_ConsultantNo UNIQUE(ConsultantNo)
-);
-
-CREATE TABLE Project (
-    ProjectID int IDENTITY(1, 1),
-    ProjectNo int NOT NULL,
-    ProjectName varchar(255) NOT NULL,
-    StartDate datetime NOT NULL,
-    EndDate datetime NULL,
-    CONSTRAINT PK_Project_ProjectID PRIMARY KEY (ProjectID),
-    CONSTRAINT UQ_Project_ProjectNo UNIQUE(ProjectNo)
-);
-
-CREATE TABLE Milestone (
-    MilestoneID int IDENTITY(1, 1),
-    MilestoneNo int NOT NULL,
-    MilestoneName varchar(255) NOT NULL,
-    MilestoneDate datetime NOT NULL,
-    ProjectID int NOT NULL,
-    CONSTRAINT PK_Milestone_MilestoneID PRIMARY KEY (MilestoneID),
-    CONSTRAINT UQ_Milestone_MilestoneNo UNIQUE(MilestoneNo),
-    CONSTRAINT CK_Milestone_Date CHECK (MilestoneDate >= '2022-01-01'),
-    CONSTRAINT FK_Milestone_ProjectID FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID)
-);
-
-CREATE TABLE Project_Assignment (
-    ProjectID int NOT NULL,
-    ConsultantID int NOT NULL,
-    HoursWorked int NOT NULL,
-    CONSTRAINT PK_Project_Assignment_ProjectID PRIMARY KEY (ProjectID, ConsultantID),
-    CONSTRAINT CK_Project_Assignment_Hours CHECK (HoursWorked >= 0),
-    CONSTRAINT FK_Project_ConsultantID FOREIGN KEY (ConsultantID) REFERENCES Consultant (ConsultantID),
-    CONSTRAINT FK_Project_ProjectID FOREIGN KEY (ProjectID) REFERENCES Project (ProjectID)
-);
-
--- TEST DATA
+-- 3. Insert fresh test data
 -- Consultants
 INSERT INTO
     Consultant (ConsultantNo, ConsultantName, Title)
@@ -189,24 +151,3 @@ VALUES
     (3018, 'Warehouse Testing', '2025-02-10', 8),
     (3019, 'AI Model Training', '2025-01-15', 9),
     (3020, 'Pilot Evaluation', '2025-03-01', 9);
-
--- SELECT STATEMENTS
-SELECT
-    *
-FROM
-    Consultant;
-
-SELECT
-    *
-FROM
-    Milestone;
-
-SELECT
-    *
-FROM
-    Project;
-
-SELECT
-    *
-FROM
-    Project_Assignment;
