@@ -1,4 +1,5 @@
 package com.dropalltables.data;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,17 +22,16 @@ public class DaoConsultant {
         }
     }
 
-
-    //metoder
+    // metoder
     public List<Consultant> getAllConsultants() throws DaoException {
         List<Consultant> consultants = new ArrayList<>();
         String query = "SELECT * FROM Consultant";
 
         try (Connection connection = connectionHandler.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query);
-             ResultSet resultSet = statement.executeQuery()) {
+                PreparedStatement statement = connection.prepareStatement(query);
+                ResultSet resultSet = statement.executeQuery()) {
 
-            while (resultSet.next()) {              //while eftersom flera rader kan returneras
+            while (resultSet.next()) { // while eftersom flera rader kan returneras
                 Consultant consultant = instantiateConsultant(resultSet);
                 consultants.add(consultant);
             }
@@ -45,11 +45,11 @@ public class DaoConsultant {
         String query = "SELECT * FROM Consultant WHERE consultantNo = ?";
 
         try (Connection connection = connectionHandler.getConnection();
-            PreparedStatement statement = connection.prepareStatement(query)) {
+                PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, consultantNo);
             ResultSet resultSet = statement.executeQuery();
 
-            if (resultSet.next()) {         //if eftersom max en rad kan returneras
+            if (resultSet.next()) { // if eftersom max en rad kan returneras
                 return instantiateConsultant(resultSet);
             }
         } catch (SQLException e) {
@@ -60,18 +60,15 @@ public class DaoConsultant {
 
     public Consultant instantiateConsultant(ResultSet resultSet) throws SQLException {
         return new Consultant(
-            resultSet.getInt("consultantNo"),
-            resultSet.getString("consultantName"),
-            resultSet.getString("title")
-        );
+                resultSet.getInt("consultantNo"),
+                resultSet.getString("consultantName"),
+                resultSet.getString("title"));
     }
-
-
 
     public void insertConsultant(Consultant consultant) throws DaoException {
         String sql = "INSERT INTO Consultant (ConsultantNo, ConsultantName, Title) VALUES (?, ?, ?)";
         try (Connection connection = connectionHandler.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, consultant.getConsultantNo());
             statement.setString(2, consultant.getName());
             statement.setString(3, consultant.getTitle());
@@ -83,7 +80,7 @@ public class DaoConsultant {
     }
 
     /**
-     * behöver tre variabler gamla för WHERE och alla tre nya värden. 
+     * behöver tre variabler gamla för WHERE och alla tre nya värden.
      * I controller fixa att autofilla de gamla värdena i texfält
      * updatering sker oavsett om nya värden är samma som gamla
      * skulle eventuallt kunna göra med consultant object som argument
@@ -92,13 +89,13 @@ public class DaoConsultant {
     public void updateConsultant(int oldConsultantNo, Consultant newConsultant) throws DaoException {
         String sql = "UPDATE Consultant SET ConsultantNo = ?, ConsultantName = ?, Title = ? WHERE ConsultantNo = ?";
         try (Connection connection = connectionHandler.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, newConsultant.getConsultantNo());
             statement.setString(2, newConsultant.getName());
             statement.setString(3, newConsultant.getTitle());
             statement.setInt(4, oldConsultantNo);
             int rows = statement.executeUpdate();
-            //om raden med oldConsultantNo inte existerar
+            // om raden med oldConsultantNo inte existerar
             if (rows == 0) {
                 throw new DaoException("not_found: " + oldConsultantNo);
             }
@@ -106,15 +103,15 @@ public class DaoConsultant {
             throw new DaoException("Database error: " + e.getMessage(), e);
         }
     }
-    
+
     public Integer getConsultantID(int consultantNo) throws DaoException {
         String sql = """
-                    SELECT ConsultantID 
-                    FROM Consultant 
-                    WHERE ConsultantNo = ?
-                    """;
+                SELECT ConsultantID
+                FROM Consultant
+                WHERE ConsultantNo = ?
+                """;
         try (Connection connection = connectionHandler.getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, consultantNo);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -127,8 +124,8 @@ public class DaoConsultant {
             throw new DaoException("Database error: " + e.getMessage(), e);
         }
     }
-    
-///här logik för att även radera alla projectassignment med konsultent??
+
+    /// här logik för att även radera alla projectassignment med konsultent??
     public void deleteConsultant(int consultantNo) throws DaoException {
         try {
             int foundConsultantID = getConsultantID(consultantNo);
@@ -137,7 +134,7 @@ public class DaoConsultant {
 
             String sql = "DELETE FROM Consultant WHERE ConsultantNo = ?";
             try (Connection connection = connectionHandler.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
+                    PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setInt(1, consultantNo);
                 int rowsAffected = statement.executeUpdate();
                 if (rowsAffected == 0) {
@@ -148,5 +145,33 @@ public class DaoConsultant {
             throw new DaoException("Database error: " + e.getMessage(), e);
         }
     }
-}
 
+    // returns list of all consultants NOT assigned to a specific project
+    public List<Consultant> getConsultantsNotInProject(int projectID) throws DaoException {
+        String sql = """
+                SELECT c.*
+                FROM Consultant c
+                WHERE c.ConsultantID NOT IN (
+                    SELECT pa.ConsultantID
+                    FROM Project_Assignment pa
+                    WHERE pa.ProjectID = ?
+
+                )
+                ORDER BY ConsultantName
+                """;
+
+        List<Consultant> consultants = new ArrayList<>();
+        try (Connection conn = connectionHandler.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, projectID);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    consultants.add(instantiateConsultant(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Failed to retrieve consultants not in project " + projectID, e);
+        }
+        return consultants;
+    }
+}

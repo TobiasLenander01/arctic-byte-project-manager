@@ -7,6 +7,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
+
+import com.dropalltables.util.*;
+
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+
 import javafx.scene.control.ScrollPane;
 
 public class MainViewController {
@@ -14,16 +23,16 @@ public class MainViewController {
 
     @FXML
     private ScrollPane scrollPaneContent;
-    
+
     @FXML
     private Button buttonProjects;
-    
+
     @FXML
     private Button buttonConsultants;
-    
+
     @FXML
     private Button buttonMetadata;
-    
+
     private List<javafx.scene.Node> navigationItems;
 
     public void initialize() {
@@ -32,7 +41,7 @@ public class MainViewController {
         navigationItems.add(buttonProjects);
         navigationItems.add(buttonConsultants);
         navigationItems.add(buttonMetadata);
-        
+
         // Set Projects as active initially
         setActiveState(buttonProjects);
     }
@@ -78,4 +87,27 @@ public class MainViewController {
     public void setAppController(AppController appController) {
         this.appController = appController;
     }
+
+    // Open excel file
+    @FXML
+    private void handleButtonExcelClickEvent() {
+        try {
+            File file = new File("data/db_export.xlsx");
+
+            if (!file.exists()) {
+                AlertUtil.showInfo("File not found", "The file 'db_export.xlsx' was not found in /data.");
+                return;
+            }
+
+            if (java.awt.Desktop.isDesktopSupported()) {
+                java.awt.Desktop.getDesktop().open(file);
+            } else {
+                AlertUtil.showError("Not supported", "Opening Excel files is not supported on this system.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            AlertUtil.showError("Error", "Failed to open Excel file: " + e.getMessage());
+        }
+    }
+
 }

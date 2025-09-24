@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dropalltables.models.Consultant;
 import com.dropalltables.models.ProjectAssignment;
 
 public class DaoProjectAssignment {
@@ -326,4 +327,5 @@ public class DaoProjectAssignment {
         }
         return list;
     }
+
 }
