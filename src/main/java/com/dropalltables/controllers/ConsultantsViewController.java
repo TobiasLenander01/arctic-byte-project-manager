@@ -48,7 +48,7 @@ public class ConsultantsViewController {
             DaoConsultant dao = new DaoConsultant();
             List<Consultant> consultants = dao.getAllConsultants();
             consultantData.setAll(consultants);
-        } catch (IOException | SQLException e) {
+        } catch (IOException | DaoException e) {
             e.printStackTrace();
         }
     }

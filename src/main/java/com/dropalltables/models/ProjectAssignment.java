@@ -37,7 +37,7 @@ public class ProjectAssignment {
         return consultantID;
     }
 
-    public void setcConsultantID(int consultantID) {
+    public void setConsultantID(int consultantID) {
         this.consultantID = consultantID;
     }
 

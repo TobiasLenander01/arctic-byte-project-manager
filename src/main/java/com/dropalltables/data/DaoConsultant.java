@@ -19,7 +19,7 @@ public class DaoConsultant {
 
 
     //metoder
-    public List<Consultant> getAllConsultants() throws SQLException {
+    public List<Consultant> getAllConsultants() throws DaoException {
         List<Consultant> consultants = new ArrayList<>();
         String query = "SELECT * FROM Consultant";
 
@@ -31,21 +31,25 @@ public class DaoConsultant {
                 Consultant consultant = instantiateConsultant(resultSet);
                 consultants.add(consultant);
             }
+        } catch (SQLException e) {
+            throw new DaoException("failed to retrieve all consultants", e);
         }
         return consultants;
     }
 
-    public Consultant getConsultantByNo(int consultantNo) throws SQLException {
+    public Consultant getConsultantByNo(int consultantNo) throws DaoException {
         String query = "SELECT * FROM Consultant WHERE consultantNo = ?";
 
         try (Connection connection = connectionHandler.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+            PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, consultantNo);
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {         //if eftersom max en rad kan returneras
                 return instantiateConsultant(resultSet);
             }
+        } catch (SQLException e) {
+            throw new DaoException("not_found ConsultantNo: " + consultantNo, e);
         }
         return null;
     }
