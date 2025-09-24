@@ -22,6 +22,10 @@ public class MainViewController {
         appController.changeView("ConsultantsView");
     }
 
+    public void handleButtonMetadataClickEvent(ActionEvent event) {
+        appController.changeView("MetadataView");
+    }
+
     public void setAppController(AppController appController) {
         this.appController = appController;
     }

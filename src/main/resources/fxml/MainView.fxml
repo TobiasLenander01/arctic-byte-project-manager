@@ -8,7 +8,9 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="borderPaneRoot" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="400.0" minWidth="600.0" prefHeight="763.0" prefWidth="1131.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dropalltables.controllers.MainViewController">
+<BorderPane fx:id="borderPaneRoot" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="400.0" minWidth="600.0" prefHeight="763.0" prefWidth="1131.0"
+  xmlns="http://javafx.com/javafx/23.0.1"
+  xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dropalltables.controllers.MainViewController">
   <top>
     <MenuBar BorderPane.alignment="CENTER">
       <menus>
@@ -38,6 +40,7 @@
       <children>
         <Button fx:id="buttonProjects" mnemonicParsing="false" onAction="#handleButtonProjectsClickEvent" text="Projects" />
         <Button fx:id="buttonConsultants" mnemonicParsing="false" onAction="#handleButtonConsultantsClickEvent" text="Consultants" />
+        <Button fx:id="buttonMetadata" mnemonicParsing="false" onAction="#handleButtonMetadataClickEvent" text="Metadata" />
       </children>
     </VBox>
   </left>
