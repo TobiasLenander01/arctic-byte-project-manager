@@ -15,7 +15,7 @@ public class DaoProjectAssignment {
 
     @FunctionalInterface
     private interface Binder {
-        void bind(PreparedStatement ps) throws SQLException;
+        void bind(PreparedStatement ps) throws SQLException; //behåll SQL här!! catch i ExcUpd
     }
 
     // Removes duplicate code when updating database
