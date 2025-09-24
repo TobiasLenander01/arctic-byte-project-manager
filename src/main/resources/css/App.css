@@ -1,0 +1,111 @@
+/* Dashboard Menu Styles - Vision UI Pro Theme */
+
+/* Main Sidebar Container */
+.sidebar {
+    -fx-background-color: linear-gradient(to bottom, #1a1f3a, #2d3561);
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0, 2, 0);
+    -fx-min-height: 600;
+}
+
+/* Header Section */
+.sidebar-header {
+    -fx-padding: 0 0 10 0;
+}
+
+.logo-icon {
+    -fx-background-color: #4299e1;
+    -fx-background-radius: 8;
+}
+
+.logo-text {
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI";
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+/* Navigation Items */
+.nav-item {
+    -fx-padding: 12 16;
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-text-fill: transparent;
+    -fx-pref-width: 280;
+    -fx-max-width: 280;
+}
+
+.nav-item:hover {
+    -fx-background-color: rgba(66, 153, 225, 0.1);
+    -fx-background-radius: 12;
+}
+
+.nav-item-active {
+    -fx-background-color: #4299e1;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(66, 153, 225, 0.3), 8, 0, 0, 2);
+}
+
+.nav-item-active:hover {
+    -fx-background-color: #4299e1;
+}
+
+.nav-text {
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+}
+
+.nav-item-active .nav-text {
+    -fx-text-fill: white;
+    -fx-font-weight: 600;
+}
+
+/* Section Headers */
+.section-header {
+    -fx-text-fill: #718096;
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+}
+
+/* Logo Icon */
+.logo-icon-text {
+    -fx-font-size: 24px;
+    -fx-text-fill: #4299e1;
+}
+
+/* Navigation Icons */
+.nav-icon-text {
+    -fx-font-size: 18px;
+    -fx-text-fill: #a0aec0;
+}
+
+.nav-item-active .nav-icon-text {
+    -fx-text-fill: white;
+}
+
+
+
+/* Hover Effects */
+.nav-item:hover .nav-icon-text {
+    -fx-text-fill: #4299e1;
+}
+
+.nav-item:hover .nav-text {
+    -fx-text-fill: #4299e1;
+}
+
+/* Active item hover effects - keep text white when active */
+.nav-item-active:hover .nav-icon-text {
+    -fx-text-fill: white;
+}
+
+.nav-item-active:hover .nav-text {
+    -fx-text-fill: white;
+}
+

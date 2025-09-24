@@ -15,6 +15,6 @@ public class App extends Application {
         primaryStage.setTitle("Arctic Byte");
         AppController appController = new AppController(primaryStage);
         appController.showPrimaryStage();
-        appController.changeView("ConsultantsView");
+        appController.changeView("ProjectsView");
     }
 }

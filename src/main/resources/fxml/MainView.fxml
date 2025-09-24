@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="borderPaneRoot" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="400.0" minWidth="600.0" prefHeight="763.0" prefWidth="1131.0"
-  xmlns="http://javafx.com/javafx/23.0.1"
-  xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dropalltables.controllers.MainViewController">
+<BorderPane fx:id="borderPaneRoot" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="400.0" minWidth="800.0" prefHeight="800.0" prefWidth="1400.0" stylesheets="@../css/App.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dropalltables.controllers.MainViewController">
   <top>
     <MenuBar BorderPane.alignment="CENTER">
       <menus>
@@ -36,12 +37,71 @@
     <ScrollPane fx:id="scrollPaneContent" prefHeight="565.0" prefWidth="928.0" BorderPane.alignment="CENTER" />
   </center>
   <left>
-    <VBox prefHeight="456.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+    <VBox maxWidth="280" minWidth="280" prefWidth="280" styleClass="sidebar">
+      <BorderPane.margin>
+        <Insets bottom="10" left="10" right="10" top="10" />
+      </BorderPane.margin>
       <children>
-        <Button fx:id="buttonProjects" mnemonicParsing="false" onAction="#handleButtonProjectsClickEvent" text="Projects" />
-        <Button fx:id="buttonConsultants" mnemonicParsing="false" onAction="#handleButtonConsultantsClickEvent" text="Consultants" />
-        <Button fx:id="buttonMetadata" mnemonicParsing="false" onAction="#handleButtonMetadataClickEvent" text="Metadata" />
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="sidebar-header">
+          <VBox.margin>
+            <Insets bottom="20" />
+          </VBox.margin>
+          <children>
+            <Label styleClass="logo-icon-text" text="❄" />
+            <Label styleClass="logo-text" text="ARCTICBYTE" />
+          </children>
+        </HBox>
+        
+        <!-- Projects -->
+        <Button fx:id="buttonProjects" contentDisplay="GRAPHIC_ONLY" onAction="#handleButtonProjectsClickEvent" styleClass="nav-item">
+          <VBox.margin>
+            <Insets bottom="8" />
+          </VBox.margin>
+          <graphic>
+            <HBox alignment="CENTER_LEFT" spacing="12">
+              <children>
+                <Label styleClass="nav-icon-text" text="📁" />
+                <Label styleClass="nav-text" text="Projects" />
+              </children>
+            </HBox>
+          </graphic>
+        </Button>
+        
+        <!-- Consultants -->
+        <Button fx:id="buttonConsultants" contentDisplay="GRAPHIC_ONLY" onAction="#handleButtonConsultantsClickEvent" styleClass="nav-item">
+          <VBox.margin>
+            <Insets bottom="8" />
+          </VBox.margin>
+          <graphic>
+            <HBox alignment="CENTER_LEFT" spacing="12">
+              <children>
+                <Label styleClass="nav-icon-text" text="👥" />
+                <Label styleClass="nav-text" text="Consultants" />
+              </children>
+            </HBox>
+          </graphic>
+        </Button>
+        
+        <!-- Metadata -->
+        <Button fx:id="buttonMetadata" contentDisplay="GRAPHIC_ONLY" onAction="#handleButtonMetadataClickEvent" styleClass="nav-item">
+          <VBox.margin>
+            <Insets bottom="8" />
+          </VBox.margin>
+          <graphic>
+            <HBox alignment="CENTER_LEFT" spacing="12">
+              <children>
+                <Label styleClass="nav-icon-text" text="📄" />
+                <Label styleClass="nav-text" text="Metadata" />
+              </children>
+            </HBox>
+          </graphic>
+        </Button>
       </children>
+      
+      <padding>
+        <Insets bottom="24" left="20" right="20" top="24" />
+      </padding>
     </VBox>
   </left>
 </BorderPane>
