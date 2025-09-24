@@ -58,6 +58,23 @@ public class DaoConsultant {
         return null;
     }
 
+    public Consultant getConsultantByID(int consultantID) throws DaoException {
+        String query = "SELECT * FROM Consultant WHERE consultantID = ?";
+
+        try (Connection connection = connectionHandler.getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, consultantID);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) { // if eftersom max en rad kan returneras
+                return instantiateConsultant(resultSet);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("not_found ConsultantID: " + consultantID, e);
+        }
+        return null;
+    }
+
     public Consultant instantiateConsultant(ResultSet resultSet) throws SQLException {
         return new Consultant(
                 resultSet.getInt("consultantNo"),
