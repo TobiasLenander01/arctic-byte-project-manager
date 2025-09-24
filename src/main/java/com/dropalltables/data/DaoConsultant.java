@@ -13,8 +13,12 @@ public class DaoConsultant {
 
     private final ConnectionHandler connectionHandler;
 
-    public DaoConsultant() throws IOException {
-        this.connectionHandler = new ConnectionHandler();
+    public DaoConsultant() throws DaoException {
+        try {
+            this.connectionHandler = new ConnectionHandler();
+        } catch (IOException e) {
+            throw new DaoException("Failed to initialize ConnectionHandler: " + e.getMessage(), e);
+        }
     }
 
 

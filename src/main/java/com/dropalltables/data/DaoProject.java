@@ -14,8 +14,12 @@ import com.dropalltables.models.Project;
 public class DaoProject {
     private final ConnectionHandler connectionHandler;
 
-    public DaoProject() throws IOException {
-        this.connectionHandler = new ConnectionHandler();
+    public DaoProject() throws DaoException {
+        try {
+            this.connectionHandler = new ConnectionHandler();
+        } catch (IOException e) {
+            throw new DaoException("Failed to initialize ConnectionHandler: " + e.getMessage(), e);
+        }
     }
 
     public List<Project> getAllProjects() throws DaoException {
@@ -176,7 +180,7 @@ public class DaoProject {
                 int rowsAffected = statement.executeUpdate();
 
                 if (rowsAffected == 0) {
-                    throw new DaoException("No project found with ProjectNo: " + projectNo);
+                    throw new DaoException("not_found ProjectNo: " + projectNo);
                 }
             }
         } catch (SQLException | IOException e) {

@@ -1,6 +1,5 @@
 package com.dropalltables.controllers;
 
-import java.io.IOException;
 import java.util.List;
 
 import com.dropalltables.data.DaoException;
@@ -142,7 +141,7 @@ public class ProjectsViewController {
             DaoProject dao = new DaoProject();
             List<Project> projects = dao.getAllProjects();
             projectData.setAll(projects);
-        } catch (IOException | DaoException e) {
+        } catch (DaoException e) {
             e.printStackTrace();
         }
     }
@@ -204,7 +203,7 @@ public class ProjectsViewController {
             milestoneData.clear();
             tableViewProjects.getSelectionModel().clearSelection();
 
-        } catch (IOException | DaoException e) {
+        } catch ( DaoException e) {
             e.printStackTrace();
         }
 
