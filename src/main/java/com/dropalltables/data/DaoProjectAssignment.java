@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dropalltables.models.Consultant;
 import com.dropalltables.models.ProjectAssignment;
 
 public class DaoProjectAssignment {
@@ -86,14 +85,15 @@ public class DaoProjectAssignment {
     }
 
     // Updates the hours worked by a consultant on a project
-    public int updateHours(int consultantID, int projectID, int addHours) throws DaoException {
+    public int updateHours(int consultantID, int projectID, int hours) throws DaoException {
         ProjectAssignment pa = findProjectAssignment(consultantID, projectID);
 
         if (pa == null) {
             throw new DaoException("No ProjectAssignment found for consultant="
                     + consultantID + ", project=" + projectID);
-        } 
-        pa.incrementHoursWorked(addHours);
+        }
+
+        pa.setHoursWorked(hours);
         
         String sql = """
                 UPDATE Project_Assignment

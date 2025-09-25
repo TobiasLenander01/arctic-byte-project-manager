@@ -1,17 +1,20 @@
 package com.dropalltables.controllers;
 
+
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.dropalltables.data.DaoConsultant;
 import com.dropalltables.data.DaoException;
+import com.dropalltables.data.DaoMilestone;
 import com.dropalltables.data.DaoProject;
 import com.dropalltables.data.DaoProjectAssignment;
-import com.dropalltables.data.DaoMilestone;
-import com.dropalltables.models.Project;
-import com.dropalltables.models.ProjectAssignment;
 import com.dropalltables.models.Consultant;
 import com.dropalltables.models.Milestone;
+import com.dropalltables.models.Project;
+import com.dropalltables.models.ProjectAssignment;
 import com.dropalltables.util.AlertUtil;
 
 import javafx.collections.FXCollections;
@@ -69,7 +72,7 @@ public class ProjectsViewController {
 
     // --- Buttons ---
     @FXML
-    private Button buttonAddHours;
+    private Button buttonSetHours;
     @FXML
     private Button buttonAddMilestone;
     @FXML
@@ -100,7 +103,7 @@ public class ProjectsViewController {
         updateAllConsultantsProjectsLabel();
 
         // disable add hours button if no consultant is selected
-        buttonAddHours.disableProperty().bind(
+        buttonSetHours.disableProperty().bind(
                 tableViewConsultantsOnProject.getSelectionModel().selectedItemProperty().isNull());
     }
 
@@ -226,8 +229,7 @@ public class ProjectsViewController {
                 loadProjectsFromDatabase();
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to add project: " + e.getMessage());
+            AlertUtil.showError("Error", "Failed to add project.");
         }
     }
 
@@ -259,9 +261,8 @@ public class ProjectsViewController {
                 dao.updateProject(updatedProject);
                 loadProjectsFromDatabase();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to update project: " + e.getMessage());
+        } catch (DaoException | IOException e) {
+            AlertUtil.showError("Error", "Failed to update project.");
         }
     }
 
@@ -282,8 +283,7 @@ public class ProjectsViewController {
             milestoneData.clear();
             tableViewProjects.getSelectionModel().clearSelection();
         } catch (DaoException e) {
-            e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to delete project: " + e.getMessage());
+            AlertUtil.showError("Error", "Failed to delete project.");
         }
     }
 
@@ -314,6 +314,7 @@ public class ProjectsViewController {
                 DaoMilestone dao = new DaoMilestone();
                 dao.insertMilestone(newMilestone);
                 loadMilestonesForProject(selected);
+              
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -339,36 +340,37 @@ public class ProjectsViewController {
                 loadMilestonesForProject(currentProject);
             }
         } catch (DaoException e) {
-            e.printStackTrace();
             AlertUtil.showError("Error", "Failed to delete milestone: " + e.getMessage());
         }
     }
 
     // --- Add hours ---
     @FXML
-    public void buttonAddHoursAction() {
+    public void buttonSetHoursAction() {
         ProjectAssignment selected = tableViewConsultantsOnProject.getSelectionModel().getSelectedItem();
         if (selected == null) {
             return;
         }
 
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Add Hours");
+        dialog.setTitle("Set Hours");
         dialog.setHeaderText("Consultant: " + selected.getConsultantName());
-        dialog.setContentText("Enter number of hours to add:");
+        dialog.setContentText("Enter number of hours:");
 
         dialog.showAndWait().ifPresent(input -> {
             try {
-                int hoursToAdd = Integer.parseInt(input);
+                int hours = Integer.parseInt(input);
+                if (hours < 0) {
+                    throw new NumberFormatException("Negative hours not allowed");
+                }
 
                 DaoProjectAssignment dao = new DaoProjectAssignment();
-                dao.updateHours(selected.getConsultantID(), selected.getProjectID(), hoursToAdd);
+                dao.updateHours(selected.getConsultantID(), selected.getProjectID(), hours);
 
                 loadConsultantsForProject(findSelectedProject());
             } catch (NumberFormatException e) {
-                AlertUtil.showError("Invalid input", "Please enter a valid number.");
-            } catch (Exception e) {
-                e.printStackTrace();
+                AlertUtil.showError("Invalid input", "Please enter a valid number. Number must be positive.");
+            } catch (DaoException e) {
                 AlertUtil.showError("Error", "Failed to update hours: " + e.getMessage());
             }
         });
@@ -405,7 +407,7 @@ public class ProjectsViewController {
             List<Project> projects = dao.getAllProjects();
             projectData.setAll(projects);
         } catch (DaoException e) {
-            e.printStackTrace();
+            AlertUtil.showError("Error", "Failed to load projects from database. Check connection or contact support.");
         }
     }
 
@@ -429,8 +431,7 @@ public class ProjectsViewController {
             DaoProjectAssignment daoPA = new DaoProjectAssignment();
             List<ProjectAssignment> assignments = daoPA.getAssignmentsWithConsultants(projectID);
             consultantData.setAll(assignments);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (DaoException e) {
             consultantData.clear();
         }
     }
@@ -443,7 +444,6 @@ public class ProjectsViewController {
 
             labelMilestonesHeader.setText("Milestones (" + milestones.size() + ")");
         } catch (DaoException e) {
-            e.printStackTrace();
             milestoneData.clear();
             labelMilestonesHeader.setText("Milestones (0)");
         }
@@ -475,8 +475,7 @@ public class ProjectsViewController {
 
             labelAllConsultantsProjects.setText(
                     "Projects that involve every consultant: " + String.join(", ", projectNames));
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (DaoException e) {
             labelAllConsultantsProjects.setText("Error retrieving data.");
         }
     }

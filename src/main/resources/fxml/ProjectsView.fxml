@@ -64,7 +64,7 @@
     </TableView>
 
     <!-- Buttons -->
-    <Button fx:id="buttonAddHours" layoutX="923.0" layoutY="251.0" mnemonicParsing="false" onAction="#buttonAddHoursAction" text="Add hours" />
+    <Button fx:id="buttonSetHours" layoutX="923.0" layoutY="251.0" mnemonicParsing="false" onAction="#buttonSetHoursAction" text="Set hours" />
     <Button fx:id="buttonDeleteProject" layoutX="49.0" layoutY="520.0" mnemonicParsing="false" onAction="#buttonDeleteProjectAction" text="Delete project" />
     <Button layoutX="154.0" layoutY="520.0" mnemonicParsing="false" onAction="#buttonCreateProjectAction" text="Create project" />
     <Button layoutX="270.0" layoutY="520.0" mnemonicParsing="false" onAction="#buttonUpdateProjectAction" text="Update project" />
