@@ -51,6 +51,7 @@ public class CreateMilestoneWindowController {
             LocalDate minimumDate = LocalDate.of(2022, 1, 1);
             LocalDate defaultDate = LocalDate.now();
             
+            // Consider project start date
             if (project.getStartDate() != null) {
                 LocalDate projectStart = project.getStartDate();
                 // Use the latest of: project start date, minimum date (2022-01-01), or today
@@ -59,6 +60,15 @@ public class CreateMilestoneWindowController {
                 }
                 if (projectStart.isAfter(minimumDate)) {
                     minimumDate = projectStart;
+                }
+            }
+            
+            // Consider project end date
+            if (project.getEndDate() != null) {
+                LocalDate projectEnd = project.getEndDate();
+                // If default date is after project end, use project end date
+                if (defaultDate.isAfter(projectEnd)) {
+                    defaultDate = projectEnd;
                 }
             }
             
@@ -117,6 +127,13 @@ public class CreateMilestoneWindowController {
         if (project != null && project.getStartDate() != null && date.isBefore(project.getStartDate())) {
             AlertUtil.showError("Invalid Date", 
                 "Milestone date cannot be before the project start date (" + project.getStartDate() + ").");
+            return; // keep window open
+        }
+
+        // Only validate against project end date if the project has an end date
+        if (project != null && project.getEndDate() != null && date.isAfter(project.getEndDate())) {
+            AlertUtil.showError("Invalid Date", 
+                "Milestone date cannot be after the project end date (" + project.getEndDate() + ").");
             return; // keep window open
         }
 
