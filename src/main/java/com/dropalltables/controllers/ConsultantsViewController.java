@@ -171,7 +171,12 @@ public class ConsultantsViewController {
                 new DaoConsultant().insertConsultant(newConsultant);
                 loadConsultantsFromDatabase();
             }
-        } catch (Exception e) {
+
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+            AlertUtil.showError("Error", "Failed to load dialog: " + e.getMessage());
+        } catch (DaoException e) {
+            e.printStackTrace();
             AlertUtil.showError("Error", "Failed to add consultant: " + e.getMessage());
         }
     }
@@ -200,7 +205,9 @@ public class ConsultantsViewController {
                 new DaoConsultant().updateConsultant(selected.getConsultantNo(), updated);
                 loadConsultantsFromDatabase();
             }
+
         } catch (Exception e) {
+            e.printStackTrace();
             AlertUtil.showError("Error", "Failed to edit consultant: " + e.getMessage());
         }
     }
@@ -245,9 +252,11 @@ public class ConsultantsViewController {
             labelConsultantNo.setText("No: " + consultant.getConsultantNo());
             labelConsultantName.setText("Name: " + consultant.getName());
             labelConsultantTitle.setText("Title: " + consultant.getTitle());
-            labelConsultantAssignments.setText("Assignments: " + assignmentCount);
-            labelConsultantHours.setText("Total hours: " + totalHours);
+            labelConsultantAssignments.setText("Current no. of assignments: " + assignmentCount);
+            labelConsultantHours.setText("Total hours worked: " + totalHours);
+
         } catch (Exception e) {
+            e.printStackTrace();
             clearConsultantInfo();
         }
     }
