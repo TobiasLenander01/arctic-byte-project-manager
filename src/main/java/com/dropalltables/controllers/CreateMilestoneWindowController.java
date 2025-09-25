@@ -83,11 +83,11 @@ public class CreateMilestoneWindowController {
         try {
             milestoneNo = Integer.parseInt(milestoneNoText.trim());
             if (milestoneNo <= 0) {
-                AlertUtil.showError("Invalid input", "Milestone number must be a positive integer.");
+                AlertUtil.showError("Invalid input", "Milestone number must be a positive number.");
                 return; // keep window open
             }
         } catch (NumberFormatException e) {
-            AlertUtil.showError("Invalid input", "Milestone number must be a valid positive integer.");
+            AlertUtil.showError("Invalid input", "Milestone number must be a valid positive number.");
             return; // keep window open
         }
 
