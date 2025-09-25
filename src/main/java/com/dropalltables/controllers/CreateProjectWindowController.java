@@ -76,6 +76,13 @@ public class CreateProjectWindowController {
             return; // keep window open
         }
 
+        // Validate that end date is not before start date (if both are provided)
+        if (endDate != null && endDate.isBefore(startDate)) {
+            AlertUtil.showError("Invalid Date", 
+                "End date (" + endDate + ") cannot be before start date (" + startDate + ").");
+            return; // keep window open
+        }
+
         if (project == null) {
             // Creating new
             project = new Project(projectNo, name, startDate, endDate);

@@ -131,7 +131,7 @@ public class DaoMilestone {
 
     public void deleteMilestonesByProject(int projectID) throws DaoException {
         String sql = "DELETE FROM Milestone WHERE ProjectID = ?";
-        try (Connection conn = connectionHandler.getConnection();
+           try (Connection conn = connectionHandler.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, projectID);
