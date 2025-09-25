@@ -11,12 +11,16 @@ import java.util.List;
 public class DaoMetadata {
     private ConnectionHandler connectionHandler;
 
-    public DaoMetadata() throws IOException {
-        this.connectionHandler = new ConnectionHandler();
+    public DaoMetadata() throws DaoException {
+        try {
+            this.connectionHandler = new ConnectionHandler();
+        } catch (IOException e) {
+            throw new DaoException("Failed to initialize database connection", e);
+        }
     }
 
     // Helper method to avoid duplicate code when querying for single columns
-    private List<String> fetchSingleColumn(String sql, String columnLabel) throws SQLException {
+    private List<String> fetchSingleColumn(String sql, String columnLabel) throws DaoException {
         List<String> list = new ArrayList<>();
         try (Connection c = connectionHandler.getConnection();
                 PreparedStatement ps = c.prepareStatement(sql);
@@ -24,6 +28,8 @@ public class DaoMetadata {
             while (rs.next()) {
                 list.add(rs.getString(columnLabel));
             }
+        } catch (SQLException e) {
+            throw new DaoException("Failed to execute query: " + sql, e);
         }
         return list;
     }
@@ -31,7 +37,7 @@ public class DaoMetadata {
     // METADATA REQUIREMENTS
 
     // Names of all columns in database
-    public List<String> getAllDatabaseColumns() throws SQLException {
+    public List<String> getAllDatabaseColumns() throws DaoException {
         String sql = """
                 SELECT COLUMN_NAME
                 FROM INFORMATION_SCHEMA.COLUMNS
@@ -41,7 +47,7 @@ public class DaoMetadata {
     }
 
     // Names of all primary key constraints in database
-    public List<String> getAllPKConstraints() throws SQLException {
+    public List<String> getAllPKConstraints() throws DaoException {
         String sql = """
                 SELECT CONSTRAINT_NAME
                 FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
@@ -51,7 +57,7 @@ public class DaoMetadata {
     }
 
     // Names of all check constraints in database
-    public List<String> getAllCheckConstraints() throws SQLException {
+    public List<String> getAllCheckConstraints() throws DaoException {
         String sql = """
                 SELECT CONSTRAINT_NAME
                 FROM INFORMATION_SCHEMA.CHECK_CONSTRAINTS
@@ -61,7 +67,7 @@ public class DaoMetadata {
 
     // Retrieve the names of all columns in Consultant table that are NOT of type
     // INTEGER and display them in the gui
-    public List<String> getNonIntConsultantColumns() throws SQLException {
+    public List<String> getNonIntConsultantColumns() throws DaoException {
         String sql = """
                 SELECT COLUMN_NAME
                 FROM INFORMATION_SCHEMA.COLUMNS
@@ -73,7 +79,7 @@ public class DaoMetadata {
 
     // Retrieve the name and number of rows of the table in your database containing
     // the highest number of rows and display them in your application's gui
-    public String getRowsFromMaxRowTable() throws SQLException {
+    public String getRowsFromMaxRowTable() throws DaoException {
         String result = null;
         String sql = """
                 SELECT TOP 1
@@ -93,6 +99,8 @@ public class DaoMetadata {
             if (rs.next()) {
                 result = rs.getString("TableName") + " (" + rs.getInt("RowCount") + " rows)";
             }
+        } catch (SQLException e) {
+            throw new DaoException("Failed to retrieve table row counts", e);
         }
         return result;
     }

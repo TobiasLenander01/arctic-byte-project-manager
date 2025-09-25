@@ -1,9 +1,8 @@
 package com.dropalltables.controllers;
 
-import java.io.IOException;
-import java.sql.SQLException; //TODO
 import java.util.List;
 
+import com.dropalltables.data.DaoException;
 import com.dropalltables.data.DaoMetadata;
 
 import javafx.fxml.FXML;
@@ -37,7 +36,7 @@ public class MetadataViewController {
             textMaxRowsTable.setText("Name and number of rows of table in db with the highest number of rows:\n"
                     + dao.getRowsFromMaxRowTable());
 
-        } catch (IOException | SQLException e) { //TODO inga SQLException här
+        } catch (DaoException e) {
             e.printStackTrace();
             textAllColumnNames.setText("Failed to load metadata: " + e.getMessage());
         }

@@ -146,9 +146,12 @@ public class ConsultantsViewController {
                 loadConsultantsFromDatabase(); // refresh
             }
 
-        } catch (Exception e) {
+        } catch (java.io.IOException e) {
             e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to add consultant: " + e.getMessage()); // ✅ use AlertUtil
+            AlertUtil.showError("Error", "Failed to load dialog: " + e.getMessage());
+        } catch (DaoException e) {
+            e.printStackTrace();
+            AlertUtil.showError("Error", "Failed to add consultant: " + e.getMessage());
         }
     }
 
@@ -180,7 +183,10 @@ public class ConsultantsViewController {
                 loadConsultantsFromDatabase();
             }
 
-        } catch (Exception e) {
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+            AlertUtil.showError("Error", "Failed to load dialog: " + e.getMessage());
+        } catch (DaoException e) {
             e.printStackTrace();
             AlertUtil.showError("Error", "Failed to edit consultant: " + e.getMessage());
         }
@@ -241,7 +247,7 @@ public class ConsultantsViewController {
             labelConsultantAssignments.setText("Current no. of assignments: " + assignmentCount);
             labelConsultantHours.setText("Total hours worked: " + totalHours);
 
-        } catch (Exception e) {
+        } catch (DaoException e) {
             e.printStackTrace();
             clearConsultantInfo();
         }
