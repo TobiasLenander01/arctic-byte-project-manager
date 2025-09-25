@@ -25,7 +25,7 @@ public class DaoProjectAssignment {
             binder.bind(ps);
             return ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DaoException("Database error executing update: " + sql, e);
+            throw new DaoException("Database error executing update: " + e.getMessage());
         }
     }
 

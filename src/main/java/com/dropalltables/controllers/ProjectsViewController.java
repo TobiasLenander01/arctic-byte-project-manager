@@ -361,8 +361,7 @@ public class ProjectsViewController {
 
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to add milestone: " + e.getMessage());
+            AlertUtil.showError("Error", "Failed to add milestone. Check if Project still exists.");
         }
     }
 

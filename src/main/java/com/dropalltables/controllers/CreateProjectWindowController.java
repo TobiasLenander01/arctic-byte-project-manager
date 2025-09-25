@@ -60,7 +60,7 @@ public class CreateProjectWindowController {
         try {
             projectNo = Integer.parseInt(textFieldProjectNo.getText());
         } catch (NumberFormatException e) {
-            AlertUtil.showError("Invalid input", "Project number must be a valid integer.");
+            AlertUtil.showError("Invalid input", "Project number must be a valid number.");
             return; // keep window open
         }
 
