@@ -6,6 +6,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -229,17 +230,20 @@ public class DaoProject {
             Date startDate = resultSet.getDate("StartDate");
             Date endDate = resultSet.getDate("EndDate");
 
-            if (endDate != null) {
+            LocalDate startLocalDate = startDate != null ? startDate.toLocalDate() : null;
+            LocalDate endLocalDate = endDate != null ? endDate.toLocalDate() : null;
+
+            if (endLocalDate != null) {
                 return new Project(
                         projectNo,
                         projectName,
-                        startDate.toLocalDate(),
-                        endDate.toLocalDate());
+                        startLocalDate,
+                        endLocalDate);
             } else {
                 return new Project(
                         projectNo,
                         projectName,
-                        startDate.toLocalDate());
+                        startLocalDate);
             }
         } catch (SQLException e) {
             throw new DaoException("Failed to instantiate project from result set", e);

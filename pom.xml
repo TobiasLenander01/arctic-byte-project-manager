@@ -54,13 +54,13 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>${javafx.maven.plugin.version}</version>
                 <configuration>
-                    <mainClass>com.dropalltables.Main</mainClass>
+                    <mainClass>com.dropalltables.App</mainClass>
                 </configuration>
                 <executions>
                     <execution>
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.dropalltables.Main</mainClass>
+                            <mainClass>com.dropalltables.App</mainClass>
                         </configuration>
                     </execution>
                 </executions>

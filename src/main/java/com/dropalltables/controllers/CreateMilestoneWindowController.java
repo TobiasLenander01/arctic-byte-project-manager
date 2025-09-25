@@ -33,7 +33,7 @@ public class CreateMilestoneWindowController {
     @FXML
     private Button buttonCancel;
 
-    private Milestone milestone; // holds the created milestone
+    private Milestone milestone = null; // holds the created milestone
     private Project project; // the project this milestone belongs to
 
     public void initialize() {
@@ -73,12 +73,15 @@ public class CreateMilestoneWindowController {
 
     /** OK button: create milestone */
     @FXML
-    private void handleOkAction() {
+    private void handleSaveAction() {
+        // Reset milestone to null at the start of each save attempt
+        milestone = null;
+        
         String milestoneNoText = textFieldMilestoneNo.getText();
-        String name = textFieldMilestoneName.getText();
-        LocalDate date = datePickerMilestoneDate.getValue();
+        String name = textFieldName.getText();
+        LocalDate date = datePickerDate.getValue();
 
-        // Parse MilestoneNo
+        // Validate Milestone Number
         int milestoneNo;
         try {
             milestoneNo = Integer.parseInt(milestoneNoText.trim());
@@ -110,6 +113,7 @@ public class CreateMilestoneWindowController {
             return; // keep window open
         }
 
+        // Only validate against project start date if the project has a start date
         if (project != null && project.getStartDate() != null && date.isBefore(project.getStartDate())) {
             AlertUtil.showError("Invalid Date", 
                 "Milestone date cannot be before the project start date (" + project.getStartDate() + ").");
