@@ -9,7 +9,6 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.control.ToggleButton?>
 
 <AnchorPane prefHeight="552.0" prefWidth="943.0"
   xmlns="http://javafx.com/javafx/23.0.1"
@@ -45,10 +44,6 @@
         <TableColumn fx:id="tableColumnConsultantTitle" prefWidth="120.0" text="Title" />
       </columns>
     </TableView>
-
-    <!-- Toggle to show only low-project consultants -->
-    <ToggleButton fx:id="toggleLowProjects" layoutX="350.0" layoutY="10.0" text="Show ≤3 projects only" onAction="#handleToggleLowProjects"/>
-
 
     <!-- Buttons -->
     <Button layoutX="43.0" layoutY="500.0" onAction="#buttonCreateConsultantAction" text="Add consultant" />
