@@ -1,6 +1,8 @@
 package com.dropalltables.controllers;
 
 import com.dropalltables.util.*;
+import com.dropalltables.data.DaoException;
+import com.dropalltables.data.DaoProject;
 
 import java.time.LocalDate;
 
@@ -84,7 +86,19 @@ public class CreateProjectWindowController {
         }
 
         if (project == null) {
-            // Creating new
+            // Creating new - check if project number already exists
+            try {
+                DaoProject dao = new DaoProject();
+                if (dao.projectExists(projectNo)) {
+                    AlertUtil.showError("Duplicate Project Number", 
+                        "Project number " + projectNo + " already exists. Please choose a different number.");
+                    return; // keep window open
+                }
+            } catch (DaoException e) {
+                AlertUtil.showError("Error", "Failed to check project number: " + e.getMessage());
+                return; // keep window open
+            }
+            
             project = new Project(projectNo, name, startDate, endDate);
         } else {
             // Updating existing
