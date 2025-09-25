@@ -1,7 +1,6 @@
 package com.dropalltables.controllers;
 
-import java.io.IOException; //TODO ta bort
-import java.net.URL;
+import java.io.IOException;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -29,9 +28,8 @@ public class AppController {
                 mainViewController.setAppController(this);
             }
 
-        } catch (IOException e) { //TODO inga IOException här
-            System.out.println("Error loading FXML file: " + e.getMessage());
-            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("Could not load main window");
         }
     }
 
@@ -45,9 +43,8 @@ public class AppController {
         try {
             Parent content = loader.load();
             mainViewController.getScrollPaneContent().setContent(content);
-        } catch (IOException e) { //TODO inga IOException här
-            System.out.println("Error loading " + viewName + " FXML file: " + e.getMessage());
-            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("Could not load view: " + viewName);
         }
     }
 }

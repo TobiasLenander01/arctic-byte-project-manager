@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.dropalltables.data.DaoException;
 import com.dropalltables.data.DaoMetadata;
+import com.dropalltables.util.AlertUtil;
 
 import javafx.fxml.FXML;
 import javafx.scene.text.Text;
@@ -37,8 +38,7 @@ public class MetadataViewController {
                     + dao.getRowsFromMaxRowTable());
 
         } catch (DaoException e) {
-            e.printStackTrace();
-            textAllColumnNames.setText("Failed to load metadata: " + e.getMessage());
+            AlertUtil.showError("Error", e.getMessage());
         }
     }
 
@@ -51,7 +51,8 @@ public class MetadataViewController {
         StringBuilder sb = new StringBuilder();
 
         for (String s : l) {
-            sb.append(", " + s);
+            sb.append(", ");
+            sb.append(s);
         }
         sb.delete(0, 2); // remove leading comma and whitespace
         return sb.toString();

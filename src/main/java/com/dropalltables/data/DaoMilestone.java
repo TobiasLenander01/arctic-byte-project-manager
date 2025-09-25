@@ -1,7 +1,11 @@
 package com.dropalltables.data;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +20,7 @@ public class DaoMilestone {
         try {
             this.connectionHandler = new ConnectionHandler();
         } catch (IOException e) {
-            throw new DaoException("Failed to initialize ConnectionHandler: " + e.getMessage(), e);
+            throw new DaoException("Unable to connect to the database. Please check your connection and try again.");
         }
     }
 
@@ -34,16 +38,16 @@ public class DaoMilestone {
             try {
                 Integer projectID = daoProject.getProjectID(milestone.getProjectNo());
                 if (projectID == null) {
-                    throw new DaoException("not_found ProjectNo: " + milestone.getProjectNo());
+                    throw new DaoException("Project not found. Please select a valid project.");
                 }
                 stmt.setInt(4, projectID);
             } catch (SQLException e) {
-                throw new DaoException("Failed to get ProjectID for ProjectNo: " + milestone.getProjectNo(), e);
+                throw new DaoException("Unable to find the selected project. Please try again.");
             }
             
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new DaoException("Failed to insert milestone: " + milestone, e);
+            throw new DaoException("Unable to save milestone. Please check your input and try again.");
         }
     }
 
@@ -60,7 +64,7 @@ public class DaoMilestone {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to retrieve milestones for ProjectID: " + projectID, e);
+            throw new DaoException("Unable to load milestones. Please try again.");
         }
         return milestones;
     }
@@ -78,7 +82,7 @@ public class DaoMilestone {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to retrieve milestones for ProjectNo: " + projectNo, e);
+            throw new DaoException("Unable to load milestones for the selected project. Please try again.");
         }
         return milestones;
     }
@@ -95,7 +99,7 @@ public class DaoMilestone {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to count milestones for ProjectID: " + projectID, e);
+            throw new DaoException("Unable to count milestones. Please try again.");
         }
         return 0;
     }
@@ -112,7 +116,7 @@ public class DaoMilestone {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to count milestones for ProjectNo: " + projectNo, e);
+            throw new DaoException("Unable to count milestones for the selected project. Please try again.");
         }
         return 0;
     }
@@ -125,7 +129,7 @@ public class DaoMilestone {
             stmt.setInt(1, milestoneNo);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new DaoException("Failed to delete " + milestoneNo, e);
+            throw new DaoException("Unable to delete milestone. Please try again.");
         }
     }
 
@@ -137,7 +141,7 @@ public class DaoMilestone {
             stmt.setInt(1, projectID);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new DaoException("Failed to delete milestones for ProjectID: " + projectID, e);
+            throw new DaoException("Unable to delete project milestones. Please try again.");
         }
     }
 
@@ -149,7 +153,7 @@ public class DaoMilestone {
             stmt.setInt(1, projectNo);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new DaoException("Failed to delete milestones for ProjectNo: " + projectNo, e);
+            throw new DaoException("Unable to delete milestones for the selected project. Please try again.");
         }
     }
 
@@ -165,7 +169,7 @@ public class DaoMilestone {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to check if milestone number exists: " + milestoneNo, e);
+            throw new DaoException("Unable to verify milestone number. Please try again.");
         }
         return false;
     }
@@ -183,7 +187,7 @@ public class DaoMilestone {
         return new Milestone(milestoneNo, name, date, project);
 
         } catch (SQLException e) {
-            throw new DaoException("Failed to map Milestone from ResultSet", e);
+            throw new DaoException("Error loading milestone data. Please try again.");
         } 
     }
 }

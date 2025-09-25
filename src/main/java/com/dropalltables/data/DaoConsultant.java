@@ -18,7 +18,7 @@ public class DaoConsultant {
         try {
             this.connectionHandler = new ConnectionHandler();
         } catch (IOException e) {
-            throw new DaoException("Failed to initialize ConnectionHandler: " + e.getMessage(), e);
+            throw new DaoException("Unable to connect to the database. Please check your connection and try again.");
         }
     }
 
@@ -36,7 +36,7 @@ public class DaoConsultant {
                 consultants.add(consultant);
             }
         } catch (SQLException e) {
-            throw new DaoException("failed to retrieve all consultants", e);
+            throw new DaoException("Unable to load consultants. Please try again.");
         }
         return consultants;
     }
@@ -53,7 +53,7 @@ public class DaoConsultant {
                 return instantiateConsultant(resultSet);
             }
         } catch (SQLException e) {
-            throw new DaoException("ConsultantNo no longer exists: " + consultantNo, e);
+            throw new DaoException("Unable to find consultant with number: " + consultantNo);
         }
         return null;
     }
@@ -70,7 +70,7 @@ public class DaoConsultant {
                 return instantiateConsultant(resultSet);
             }
         } catch (SQLException e) {
-            throw new DaoException("ConsultantID no longer exists:: " + consultantID, e);
+            throw new DaoException("Unable to find the requested consultant. Please try again.");
         }
         return null;
     }
@@ -91,8 +91,10 @@ public class DaoConsultant {
             statement.setString(3, consultant.getTitle());
             statement.executeUpdate();
         } catch (SQLException e) {
-            // consultNo redan taget
-            throw new DaoException("duplicate: ConsultantNo " + consultant.getConsultantNo(), e);
+            if (e.getMessage().contains("duplicate")) {
+                throw new DaoException("A consultant with that number already exists.");
+            }
+            throw new DaoException("Unable to insert consultant. Please try again.");
         }
     }
 
@@ -114,10 +116,10 @@ public class DaoConsultant {
             int rows = statement.executeUpdate();
             // om raden med oldConsultantNo inte existerar
             if (rows == 0) {
-                throw new DaoException("not_found: " + oldConsultantNo);
+                throw new DaoException("Consultant not found. It may have been deleted by another user.");
             }
         } catch (SQLException e) {
-            throw new DaoException("Database error: " + e.getMessage(), e);
+            throw new DaoException("Unable to update consultant. Please check your input and try again.");
         }
     }
 
@@ -134,11 +136,11 @@ public class DaoConsultant {
                 if (resultSet.next()) {
                     return resultSet.getInt("ConsultantID");
                 } else {
-                    throw new DaoException("not_found: " + consultantNo);
+                    throw new DaoException("Consultant not found with number: " + consultantNo);
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Database error: " + e.getMessage(), e);
+            throw new DaoException("Unable to find consultant information. Please try again.");
         }
     }
 
@@ -155,11 +157,11 @@ public class DaoConsultant {
                 statement.setInt(1, consultantNo);
                 int rowsAffected = statement.executeUpdate();
                 if (rowsAffected == 0) {
-                    throw new DaoException("not_found: " + consultantNo);
+                    throw new DaoException("Consultant not found. It may have already been deleted.");
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Database error: " + e.getMessage(), e);
+            throw new DaoException("Unable to delete consultant. Please try again.");
         }
     }
 
@@ -187,7 +189,7 @@ public class DaoConsultant {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to retrieve consultants not in project " + projectID, e);
+            throw new DaoException("Unable to load available consultants. Please try again.");
         }
         return consultants;
     }

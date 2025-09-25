@@ -25,7 +25,7 @@ public class DaoProjectAssignment {
             binder.bind(ps);
             return ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DaoException("Database error executing update: " + e.getMessage());
+            throw new DaoException("Unable to save changes. Please try again.");
         }
     }
 
@@ -33,7 +33,7 @@ public class DaoProjectAssignment {
         try {
             this.connectionHandler = new ConnectionHandler();
         } catch (IOException e) {
-            throw new DaoException("Failed to initialize DaoProjectAssignment", e);
+            throw new DaoException("Unable to connect to the database. Please check your connection and try again.");
         }
     }
 
@@ -63,8 +63,7 @@ public class DaoProjectAssignment {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("not_found ProjectAssignment consultant="
-                    + consultantID + ", project=" + projectID, e);
+            throw new DaoException("Unable to find the assignment. Please try again.");
         }
         return null;
     }
@@ -89,8 +88,7 @@ public class DaoProjectAssignment {
         ProjectAssignment pa = findProjectAssignment(consultantID, projectID);
 
         if (pa == null) {
-            throw new DaoException("No ProjectAssignment found for consultant="
-                    + consultantID + ", project=" + projectID);
+            throw new DaoException("Assignment not found. The consultant may not be assigned to this project.");
         }
 
         pa.setHoursWorked(hours);
@@ -157,7 +155,7 @@ public class DaoProjectAssignment {
                     list.add(instantiateProjectAssignment(rs));
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to get ProjectAssignments for projectID=" + projectID, e);
+            throw new DaoException("Unable to load project assignments. Please try again.");
         }
         return list;
     }
@@ -177,7 +175,7 @@ public class DaoProjectAssignment {
                     list.add(instantiateProjectAssignment(rs));
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to get ProjectAssignments for consultantID=" + consultantID, e);
+            throw new DaoException("Unable to load consultant assignments. Please try again.");
         }
         return list;
     }
@@ -202,7 +200,7 @@ public class DaoProjectAssignment {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to calculate total hours for consultantID=" + consultantID, e);
+            throw new DaoException("Unable to calculate total hours worked. Please try again.");
         }
         return hours;
     }
@@ -223,7 +221,7 @@ public class DaoProjectAssignment {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to calculate total hours for all consultants", e);
+            throw new DaoException("Unable to calculate total hours for all consultants. Please try again.");
         }
         return 0;
     }
@@ -245,7 +243,7 @@ public class DaoProjectAssignment {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Database error hardestWorkingConsultant", e);
+            throw new DaoException("Unable to find the hardest working consultant. Please try again.");
         }
         return 0;
     }
@@ -267,7 +265,7 @@ public class DaoProjectAssignment {
                 ids.add(rs.getInt("ProjectID"));
             }
         } catch (SQLException e) {
-            throw new DaoException("Database error projectsThatInvolveEveryConsultant", e);
+            throw new DaoException("Unable to find projects involving all consultants. Please try again.");
         }
         return ids;
     }
@@ -291,7 +289,7 @@ public class DaoProjectAssignment {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to get active ProjectAssignments for consultantID=" + consultantID, e);
+            throw new DaoException("Unable to load active assignments for consultant. Please try again.");
         }
         return list;
     }
@@ -323,7 +321,7 @@ public class DaoProjectAssignment {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Database error getAssignmentsWithConsultants for projectID=" + projectID, e);
+            throw new DaoException("Unable to load project assignments with consultant details. Please try again.");
         }
         return list;
     }

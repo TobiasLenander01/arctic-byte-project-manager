@@ -19,7 +19,7 @@ public class DaoProject {
         try {
             this.connectionHandler = new ConnectionHandler();
         } catch (IOException e) {
-            throw new DaoException("Failed to initialize ConnectionHandler: " + e.getMessage(), e);
+            throw new DaoException("Unable to connect to the database. Please check your connection and try again.");
         }
     }
 
@@ -37,7 +37,7 @@ public class DaoProject {
                 projects.add(project);
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to retrieve projects from database", e);
+            throw new DaoException("Unable to load projects. Please try again.");
         }
         return projects;
     }
@@ -58,7 +58,7 @@ public class DaoProject {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to retrieve project by ProjectNo: " + projectNo, e);
+            throw new DaoException("Unable to find project with number: " + projectNo);
         }
         return null;
     }
@@ -79,7 +79,7 @@ public class DaoProject {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to retrieve project by ProjectID: " + projectID, e);
+            throw new DaoException("Unable to find the requested project. Please try again.");
         }
         return null;
     }
@@ -113,8 +113,10 @@ public class DaoProject {
             statement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new DaoException("Failed to insert project: " + project.getName() +
-                    ". SQL Error: " + e.getMessage() + " (Error Code: " + e.getErrorCode() + ")", e);
+            if (e.getMessage().contains("duplicate")) {
+                throw new DaoException("A project with number " + project.getProjectNo() + " already exists.");
+            }
+            throw new DaoException("Unable to save the project. Please check your input and try again.");
         }
     }
 
@@ -132,7 +134,7 @@ public class DaoProject {
                 return resultSet.next();
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to check if project exists with ProjectNo: " + projectNo, e);
+            throw new DaoException("Unable to verify if project exists. Please try again.");
         }
     }
 
@@ -152,7 +154,7 @@ public class DaoProject {
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to retrieve ProjectID for ProjectNo: " + projectNo, e);
+            throw new DaoException("Unable to find project with number: " + projectNo);
         }
 
         return null;
@@ -181,11 +183,11 @@ public class DaoProject {
                 int rowsAffected = statement.executeUpdate();
 
                 if (rowsAffected == 0) {
-                    throw new DaoException("not_found ProjectNo: " + projectNo);
+                    throw new DaoException("Project not found. It may have already been deleted.");
                 }
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to delete project with ProjectNo: " + projectNo, e);
+            throw new DaoException("Unable to delete the project. Please try again.");
         }
     }
 
@@ -216,10 +218,10 @@ public class DaoProject {
             int rowsAffected = statement.executeUpdate();
 
             if (rowsAffected == 0) {
-                throw new DaoException("No project found with ProjectNo: " + project.getProjectNo());
+                throw new DaoException("Project not found. It may have been deleted by another user.");
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to update project: " + project.getName(), e);
+            throw new DaoException("Unable to update the project. Please check your input and try again.");
         }
     }
 
@@ -246,7 +248,7 @@ public class DaoProject {
                         startLocalDate);
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to instantiate project from result set", e);
+            throw new DaoException("Error loading project data. Please try again.");
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.dropalltables.controllers;
 
-import java.io.IOException; //TODO ta bort
-import java.time.LocalDate;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,7 +128,7 @@ public class ProjectsViewController {
             DaoProject dao = new DaoProject();
             allProjects = dao.getAllProjects();
         } catch (DaoException e) {
-            e.printStackTrace();
+            AlertUtil.showError("Error", e.getMessage());
             return;
         }
 
@@ -210,15 +209,13 @@ public class ProjectsViewController {
 
                         loadConsultantsForProject(selectedProject);
                     } catch (DaoException e) {
-                        e.printStackTrace();
-                        AlertUtil.showError("Error", "Failed to assign consultant: " + e.getMessage());
+                        AlertUtil.showError("Error", e.getMessage());
                     }
                 }
             });
 
         } catch (DaoException e) {
-            e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to fetch available consultants: " + e.getMessage());
+            AlertUtil.showError("Error", e.getMessage());
         }
     }
 
@@ -246,8 +243,7 @@ public class ProjectsViewController {
             loadConsultantsForProject(selectedProject);
 
         } catch (DaoException e) {
-            e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to remove consultant: " + e.getMessage());
+            AlertUtil.showError("Error", e.getMessage());
         }
     }
 
@@ -273,9 +269,9 @@ public class ProjectsViewController {
                 loadProjectsFromDatabase();
             }
         } catch (java.io.IOException e) {
-            AlertUtil.showError("Error", "Failed to load dialog: " + e.getMessage());
+            AlertUtil.showError("Error", "Failed to load dialog");
         } catch (DaoException e) {
-            AlertUtil.showError("Error", "Failed to add project: " + e.getMessage());
+            AlertUtil.showError("Error", e.getMessage());
         }
     }
 
@@ -307,8 +303,11 @@ public class ProjectsViewController {
                 dao.updateProject(updatedProject);
                 loadProjectsFromDatabase();
             }
-        } catch (DaoException | IOException e) { //TODO inga IOException här
-            AlertUtil.showError("Error", "Failed to update project.");
+
+        } catch (DaoException e) {
+            AlertUtil.showError("Error", e.getMessage());
+        } catch (IOException e) {
+            AlertUtil.showError("Error", "Failed to load dialog");
         }
     }
 
@@ -329,7 +328,7 @@ public class ProjectsViewController {
             milestoneData.clear();
             tableViewProjects.getSelectionModel().clearSelection();
         } catch (DaoException e) {
-            AlertUtil.showError("Error", "Failed to delete project.");
+            AlertUtil.showError("Error", e.getMessage());
         }
     }
 
@@ -363,12 +362,10 @@ public class ProjectsViewController {
 
             }
 
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to load dialog: " + e.getMessage());
+        } catch (IOException e) {
+            AlertUtil.showError("Error", "Failed to load dialog");
         } catch (DaoException e) {
-            e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to add milestone: " + e.getMessage());
+            AlertUtil.showError("Error", e.getMessage());
         }
     }
 
@@ -390,7 +387,7 @@ public class ProjectsViewController {
                 loadMilestonesForProject(currentProject);
             }
         } catch (DaoException e) {
-            AlertUtil.showError("Error", "Failed to delete milestone: " + e.getMessage());
+            AlertUtil.showError("Error", e.getMessage());
         }
     }
 
@@ -421,7 +418,7 @@ public class ProjectsViewController {
             } catch (NumberFormatException e) {
                 AlertUtil.showError("Invalid input", "Please enter a valid number. Number must be positive.");
             } catch (DaoException e) {
-                AlertUtil.showError("Error", "Failed to update hours: " + e.getMessage());
+                AlertUtil.showError("Error", e.getMessage());
             }
         });
     }
@@ -457,7 +454,7 @@ public class ProjectsViewController {
             List<Project> projects = dao.getAllProjects();
             projectData.setAll(projects);
         } catch (DaoException e) {
-            AlertUtil.showError("Error", "Failed to load projects from database. Check connection or contact support.");
+            AlertUtil.showError("Error", e.getMessage());
         }
     }
 

@@ -15,7 +15,7 @@ public class DaoMetadata {
         try {
             this.connectionHandler = new ConnectionHandler();
         } catch (IOException e) {
-            throw new DaoException("Failed to initialize database connection", e);
+            throw new DaoException("Unable to connect to the database. Please check your connection and try again.");
         }
     }
 
@@ -29,7 +29,7 @@ public class DaoMetadata {
                 list.add(rs.getString(columnLabel));
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to execute query: " + sql, e);
+            throw new DaoException("Unable to load information. Please try again.");
         }
         return list;
     }
@@ -100,7 +100,7 @@ public class DaoMetadata {
                 result = rs.getString("TableName") + " (" + rs.getInt("RowCount") + " rows)";
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to retrieve table row counts", e);
+            throw new DaoException("Unable to load table information. Please try again.");
         }
         return result;
     }

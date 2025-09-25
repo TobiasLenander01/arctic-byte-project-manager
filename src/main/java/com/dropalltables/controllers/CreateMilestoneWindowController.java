@@ -1,13 +1,12 @@
 package com.dropalltables.controllers;
 
-import com.dropalltables.util.*;
-import com.dropalltables.data.DaoException;
-import com.dropalltables.data.DaoMilestone;
-
 import java.time.LocalDate;
 
+import com.dropalltables.data.DaoException;
+import com.dropalltables.data.DaoMilestone;
 import com.dropalltables.models.Milestone;
 import com.dropalltables.models.Project;
+import com.dropalltables.util.AlertUtil;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -146,7 +145,7 @@ public class CreateMilestoneWindowController {
                 return; // keep window open
             }
         } catch (DaoException e) {
-            AlertUtil.showError("Error", "Failed to check milestone number: " + e.getMessage());
+            AlertUtil.showError("Error", e.getMessage());
             return; // keep window open
         }
 

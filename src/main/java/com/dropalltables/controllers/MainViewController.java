@@ -1,21 +1,16 @@
 package com.dropalltables.controllers;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.dropalltables.util.AlertUtil;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import java.awt.Desktop;
-import java.io.File;
-import java.io.IOException; //TODO inga IOException här
-
-import com.dropalltables.util.*;
-
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-
 import javafx.scene.control.ScrollPane;
 
 public class MainViewController {
@@ -104,9 +99,8 @@ public class MainViewController {
             } else {
                 AlertUtil.showError("Not supported", "Opening Excel files is not supported on this system.");
             }
-        } catch (IOException e) { //TODO inga IOException, printstacktrace, getmessage här
-            e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to open Excel file: " + e.getMessage()); 
+        } catch (IOException e) {
+            AlertUtil.showError("Error", "Failed to open Excel file."); 
         }
     }
 

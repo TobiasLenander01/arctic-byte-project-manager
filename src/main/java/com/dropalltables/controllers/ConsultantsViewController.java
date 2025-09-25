@@ -1,5 +1,6 @@
 package com.dropalltables.controllers;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.dropalltables.data.DaoConsultant;
@@ -96,8 +97,7 @@ public class ConsultantsViewController {
                     + daoPA.totalHoursForConsultant(hardestID) + " hours");
 
         } catch (DaoException e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to load consultants: " + e.getMessage());
+            AlertUtil.showError("Error", e.getMessage());
         }
     }
 
@@ -111,7 +111,7 @@ public class ConsultantsViewController {
             DaoConsultant dao = new DaoConsultant();
             allConsultants = dao.getAllConsultants();
         } catch (DaoException e) {
-            e.printStackTrace();
+            AlertUtil.showError("Error", e.getMessage());
             return;
         }
 
@@ -146,12 +146,10 @@ public class ConsultantsViewController {
                 loadConsultantsFromDatabase(); // refresh
             }
 
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to load dialog: " + e.getMessage());
+        } catch (IOException e) {
+            AlertUtil.showError("Error", "Failed to load dialog");
         } catch (DaoException e) {
-            e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to add consultant: " + e.getMessage());
+            AlertUtil.showError("Error", e.getMessage());
         }
     }
 
@@ -183,12 +181,10 @@ public class ConsultantsViewController {
                 loadConsultantsFromDatabase();
             }
 
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to load dialog: " + e.getMessage());
+        } catch (IOException e) {
+            AlertUtil.showError("Error", "Failed to load dialog");
         } catch (DaoException e) {
-            e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to edit consultant: " + e.getMessage());
+            AlertUtil.showError("Error", e.getMessage());
         }
     }
 
@@ -217,8 +213,7 @@ public class ConsultantsViewController {
                     // Refresh table and update count
                     loadConsultantsFromDatabase();
                 } catch (DaoException e) {
-                    e.printStackTrace();
-                    showAlert("Error", "Failed to delete consultant: " + e.getMessage());
+                    AlertUtil.showError("Error", e.getMessage());
                 }
             }
         });
@@ -248,7 +243,7 @@ public class ConsultantsViewController {
             labelConsultantHours.setText("Total hours worked: " + totalHours);
 
         } catch (DaoException e) {
-            e.printStackTrace();
+            AlertUtil.showError("Error", e.getMessage());
             clearConsultantInfo();
         }
     }
