@@ -209,14 +209,14 @@ public class ProjectsViewController {
                                 daoP.getProjectID(selectedProject.getProjectNo()));
 
                         loadConsultantsForProject(selectedProject);
-                    } catch (Exception e) {
+                    } catch (DaoException e) {
                         e.printStackTrace();
                         AlertUtil.showError("Error", "Failed to assign consultant: " + e.getMessage());
                     }
                 }
             });
 
-        } catch (Exception e) {
+        } catch (DaoException e) {
             e.printStackTrace();
             AlertUtil.showError("Error", "Failed to fetch available consultants: " + e.getMessage());
         }
@@ -245,7 +245,7 @@ public class ProjectsViewController {
             // refresh consultants table
             loadConsultantsForProject(selectedProject);
 
-        } catch (Exception e) {
+        } catch (DaoException e) {
             e.printStackTrace();
             AlertUtil.showError("Error", "Failed to remove consultant: " + e.getMessage());
         }
@@ -272,8 +272,10 @@ public class ProjectsViewController {
                 dao.insertProject(newProject);
                 loadProjectsFromDatabase();
             }
-        } catch (Exception e) {
-            AlertUtil.showError("Error", "Failed to add project.");
+        } catch (java.io.IOException e) {
+            AlertUtil.showError("Error", "Failed to load dialog: " + e.getMessage());
+        } catch (DaoException e) {
+            AlertUtil.showError("Error", "Failed to add project: " + e.getMessage());
         }
     }
 
@@ -360,8 +362,13 @@ public class ProjectsViewController {
                 loadMilestonesForProject(selected);
 
             }
-        } catch (Exception e) {
-            AlertUtil.showError("Error", "Failed to add milestone. Check if Project still exists.");
+
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+            AlertUtil.showError("Error", "Failed to load dialog: " + e.getMessage());
+        } catch (DaoException e) {
+            e.printStackTrace();
+            AlertUtil.showError("Error", "Failed to add milestone: " + e.getMessage());
         }
     }
 
