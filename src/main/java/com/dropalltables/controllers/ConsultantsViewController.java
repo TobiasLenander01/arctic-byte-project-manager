@@ -1,4 +1,5 @@
 package com.dropalltables.controllers;
+
 import java.util.List;
 
 import com.dropalltables.data.DaoConsultant;
@@ -81,14 +82,18 @@ public class ConsultantsViewController {
     // --- Load all consultants from DB ---
     private void loadConsultantsFromDatabase() {
         try {
-            DaoConsultant dao = new DaoConsultant();
-            List<Consultant> consultants = dao.getAllConsultants();
+            DaoConsultant daoCon = new DaoConsultant();
+            List<Consultant> consultants = daoCon.getAllConsultants();
             consultantData.setAll(consultants);
+            DaoProjectAssignment daoPA = new DaoProjectAssignment();
+            int hardestID = daoPA.hardestWorkingConsultant();
 
             // update total count label (not affected by filters)
             labelConsultantCount.setText("Total consultants in system: " + consultants.size() + "\n"
                     + "Total hours worked by all consultants: "
-                    + new DaoProjectAssignment().totalHoursForAllConsultants());
+                    + daoPA.totalHoursForAllConsultants() + "\nThe hardest working consultant is "
+                    + daoCon.getConsultantByID(hardestID).getName() + " having worked "
+                    + daoPA.totalHoursForConsultant(hardestID) + " hours");
 
         } catch (DaoException e) {
             e.printStackTrace();
