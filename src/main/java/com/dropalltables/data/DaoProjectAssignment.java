@@ -15,7 +15,7 @@ public class DaoProjectAssignment {
 
     @FunctionalInterface
     private interface Binder {
-        void bind(PreparedStatement ps) throws SQLException; //behåll SQL här!! catch i ExcUpd
+        void bind(PreparedStatement ps) throws SQLException; // behåll SQL här!! catch i ExcUpd
     }
 
     // Removes duplicate code when updating database
@@ -94,21 +94,20 @@ public class DaoProjectAssignment {
         }
 
         pa.setHoursWorked(hours);
-        
+
         String sql = """
                 UPDATE Project_Assignment
                 SET HoursWorked = ?
                 WHERE ConsultantID = ?
                 AND ProjectID = ?
                 """;
-        
-            return execUpdate(sql, ps -> {
+
+        return execUpdate(sql, ps -> {
             ps.setInt(1, pa.getHoursWorked());
             ps.setInt(2, pa.getConsultantID());
             ps.setInt(3, pa.getProjectID());
-            });
+        });
     }
-
 
     public int deleteProjectAssignment(int consultantID, int projectID) throws DaoException {
         String sql = """
@@ -248,6 +247,37 @@ public class DaoProjectAssignment {
             throw new DaoException("Database error hardestWorkingConsultant", e);
         }
         return 0;
+    }
+
+    public List<String> consultantsInMaxNbrOfProjects(int max) throws DaoException {
+        List<String> consultants = new ArrayList<>();
+
+        String sql = """
+                SELECT c.ConsultantName
+                FROM Consultant c
+                LEFT JOIN Project_Assignment pa
+                       ON c.ConsultantID = pa.ConsultantID
+                GROUP BY c.ConsultantID, c.ConsultantName
+                HAVING COUNT(pa.ProjectID) <= ?
+                """;
+
+        try (Connection conn = connectionHandler.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, max);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // read the consultant name from the result set
+                    consultants.add(rs.getString("ConsultantName"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DaoException(
+                    "Failed to retrieve consultants with <= " + max + " projects", e);
+        }
+
+        return consultants;
     }
 
     // Returns list of all projects that involve every consultant

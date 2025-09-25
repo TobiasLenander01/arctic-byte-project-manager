@@ -1,6 +1,7 @@
 package com.dropalltables.controllers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.dropalltables.data.DaoConsultant;
 import com.dropalltables.data.DaoException;
@@ -14,12 +15,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -34,6 +30,7 @@ public class ConsultantsViewController {
     private TableColumn<Consultant, String> tableColumnConsultantName;
     @FXML
     private TableColumn<Consultant, String> tableColumnConsultantTitle;
+
     @FXML
     private Label labelConsultantNo;
     @FXML
@@ -45,7 +42,8 @@ public class ConsultantsViewController {
     @FXML
     private Label labelConsultantHours;
     @FXML
-    private Label labelConsultantCount; // NEW
+    private Label labelConsultantCount;
+
     @FXML
     private TextField textFieldFilterNo;
     @FXML
@@ -53,7 +51,11 @@ public class ConsultantsViewController {
     @FXML
     private TextField textFieldFilterTitle;
 
+    @FXML
+    private ToggleButton toggleLowProjects; // new toggle
+
     private final ObservableList<Consultant> consultantData = FXCollections.observableArrayList();
+    private List<Consultant> allConsultantsCache; // keeps the full list for toggling
 
     @FXML
     public void initialize() {
@@ -61,44 +63,68 @@ public class ConsultantsViewController {
         loadConsultantsFromDatabase();
 
         // update info box when consultant selected
-        tableViewConsultants.getSelectionModel().selectedItemProperty().addListener(
-                (obs, oldSel, newSel) -> showConsultantInfo(newSel));
+        tableViewConsultants.getSelectionModel().selectedItemProperty()
+                .addListener((obs, oldSel, newSel) -> showConsultantInfo(newSel));
 
-        // live filtering
+        // live text filters
         textFieldFilterNo.textProperty().addListener((obs, o, n) -> applyFilters());
         textFieldFilterName.textProperty().addListener((obs, o, n) -> applyFilters());
         textFieldFilterTitle.textProperty().addListener((obs, o, n) -> applyFilters());
     }
 
-    // --- Setup columns for Consultants table ---
     private void setupTableColumns() {
         tableColumnConsultantNo.setCellValueFactory(new PropertyValueFactory<>("consultantNo"));
         tableColumnConsultantName.setCellValueFactory(new PropertyValueFactory<>("name"));
         tableColumnConsultantTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
-
         tableViewConsultants.setItems(consultantData);
     }
 
-    // --- Load all consultants from DB ---
+    /** Loads all consultants and updates the header label. */
     private void loadConsultantsFromDatabase() {
         try {
             DaoConsultant daoCon = new DaoConsultant();
-            List<Consultant> consultants = daoCon.getAllConsultants();
-            consultantData.setAll(consultants);
+            allConsultantsCache = daoCon.getAllConsultants(); // keep full list
+            consultantData.setAll(allConsultantsCache);
+
             DaoProjectAssignment daoPA = new DaoProjectAssignment();
             int hardestID = daoPA.hardestWorkingConsultant();
 
-            // update total count label (not affected by filters)
-            labelConsultantCount.setText("Total consultants in system: " + consultants.size() + "\n"
-                    + "Total hours worked by all consultants: "
-                    + daoPA.totalHoursForAllConsultants() + "\nThe hardest working consultant is "
-                    + daoCon.getConsultantByID(hardestID).getName() + " having worked "
-                    + daoPA.totalHoursForConsultant(hardestID) + " hours");
+            List<String> lowProjectConsultants = daoPA.consultantsInMaxNbrOfProjects(3);
+
+            labelConsultantCount.setText(
+                    "Total consultants: " + allConsultantsCache.size() + "\n" +
+                            "Total hours worked: " + daoPA.totalHoursForAllConsultants() + "\n" +
+                            "Hardest working: " + daoCon.getConsultantByID(hardestID).getName() +
+                            " (" + daoPA.totalHoursForConsultant(hardestID) + " hrs)\n" +
+                            "≤3 projects: " + String.join(", ", lowProjectConsultants));
 
         } catch (DaoException e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to load consultants: " + e.getMessage());
+            AlertUtil.showError("Error", "Failed to load consultants: " + e.getMessage());
         }
+    }
+
+    /** Called when the toggle button is clicked. */
+    @FXML
+    private void handleToggleLowProjects() {
+        if (toggleLowProjects.isSelected()) {
+            try {
+                DaoProjectAssignment daoPA = new DaoProjectAssignment();
+                // get consultant names with <=3 projects
+                List<String> lowNames = daoPA.consultantsInMaxNbrOfProjects(3);
+
+                // filter cached list by those names
+                List<Consultant> filtered = allConsultantsCache.stream()
+                        .filter(c -> lowNames.contains(c.getName()))
+                        .collect(Collectors.toList());
+                consultantData.setAll(filtered);
+            } catch (DaoException e) {
+                AlertUtil.showError("Error", "Could not filter consultants: " + e.getMessage());
+            }
+        } else {
+            // show all again
+            consultantData.setAll(allConsultantsCache);
+        }
+        applyFilters(); // reapply text filters if user typed any
     }
 
     private void applyFilters() {
@@ -106,49 +132,47 @@ public class ConsultantsViewController {
         String filterName = textFieldFilterName.getText().toLowerCase().trim();
         String filterTitle = textFieldFilterTitle.getText().toLowerCase().trim();
 
-        List<Consultant> allConsultants;
-        try {
-            DaoConsultant dao = new DaoConsultant();
-            allConsultants = dao.getAllConsultants();
-        } catch (DaoException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        consultantData.setAll(allConsultants.stream()
-                .filter(c -> filterNo.isEmpty() || String.valueOf(c.getConsultantNo()).startsWith(filterNo))
-                .filter(c -> filterName.isEmpty() || c.getName().toLowerCase().contains(filterName))
-                .filter(c -> filterTitle.isEmpty() || c.getTitle().toLowerCase().contains(filterTitle))
-                .toList());
+        consultantData.setAll(
+                allConsultantsCache.stream()
+                        .filter(c -> !toggleLowProjects.isSelected() || passesLowProjects(c))
+                        .filter(c -> filterNo.isEmpty() || String.valueOf(c.getConsultantNo()).startsWith(filterNo))
+                        .filter(c -> filterName.isEmpty() || c.getName().toLowerCase().contains(filterName))
+                        .filter(c -> filterTitle.isEmpty() || c.getTitle().toLowerCase().contains(filterTitle))
+                        .collect(Collectors.toList()));
     }
 
-    // --- Button: open "Create Consultant" dialog ---
-    // --- Button: open "Create Consultant" dialog ---
+    // Check whether a consultant belongs to the <=3 projects group by name
+    private boolean passesLowProjects(Consultant c) {
+        try {
+            DaoProjectAssignment daoPA = new DaoProjectAssignment();
+            List<String> low = daoPA.consultantsInMaxNbrOfProjects(3);
+            return low.contains(c.getName());
+        } catch (DaoException e) {
+            return false;
+        }
+    }
+
+    // === CRUD Buttons remain unchanged ===
     @FXML
     public void buttonCreateConsultantAction() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CreateConsultantWindow.fxml"));
             Parent root = loader.load();
-
             CreateConsultantWindowController controller = loader.getController();
 
             Stage dialog = new Stage();
             dialog.setTitle("Add Consultant");
             dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.setScene(new Scene(root));
-            dialog.showAndWait(); // block until dialog closes
+            dialog.showAndWait();
 
-            Consultant newConsultant = controller.getConsultant(); // ✅ unified getter
+            Consultant newConsultant = controller.getConsultant();
             if (newConsultant != null) {
-                DaoConsultant dao = new DaoConsultant();
-                dao.insertConsultant(newConsultant);
-
-                loadConsultantsFromDatabase(); // refresh
+                new DaoConsultant().insertConsultant(newConsultant);
+                loadConsultantsFromDatabase();
             }
-
         } catch (Exception e) {
-            e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to add consultant: " + e.getMessage()); // ✅ use AlertUtil
+            AlertUtil.showError("Error", "Failed to add consultant: " + e.getMessage());
         }
     }
 
@@ -159,11 +183,9 @@ public class ConsultantsViewController {
             AlertUtil.showInfo("No selection", "Please select a consultant to edit.");
             return;
         }
-
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CreateConsultantWindow.fxml"));
             Parent root = loader.load();
-
             CreateConsultantWindowController controller = loader.getController();
             controller.setConsultantForEdit(selected);
 
@@ -175,18 +197,14 @@ public class ConsultantsViewController {
 
             Consultant updated = controller.getConsultant();
             if (updated != null) {
-                DaoConsultant dao = new DaoConsultant();
-                dao.updateConsultant(selected.getConsultantNo(), updated); // ✅ correct usage
+                new DaoConsultant().updateConsultant(selected.getConsultantNo(), updated);
                 loadConsultantsFromDatabase();
             }
-
         } catch (Exception e) {
-            e.printStackTrace();
             AlertUtil.showError("Error", "Failed to edit consultant: " + e.getMessage());
         }
     }
 
-    // --- Button: delete selected consultant ---
     @FXML
     public void buttonDeleteConsultantAction() {
         Consultant selected = tableViewConsultants.getSelectionModel().getSelectedItem();
@@ -194,24 +212,17 @@ public class ConsultantsViewController {
             showAlert("No selection", "Please select a consultant to delete.");
             return;
         }
-
-        // Confirmation dialog
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
                 "Delete consultant \"" + selected.getName() + "\"?",
                 ButtonType.YES, ButtonType.NO);
         confirm.setTitle("Confirm Delete");
         confirm.setHeaderText(null);
-
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.YES) {
                 try {
-                    DaoConsultant dao = new DaoConsultant();
-                    dao.deleteConsultant(selected.getConsultantNo());
-
-                    // Refresh table and update count
+                    new DaoConsultant().deleteConsultant(selected.getConsultantNo());
                     loadConsultantsFromDatabase();
                 } catch (DaoException e) {
-                    e.printStackTrace();
                     showAlert("Error", "Failed to delete consultant: " + e.getMessage());
                 }
             }
@@ -223,26 +234,20 @@ public class ConsultantsViewController {
             clearConsultantInfo();
             return;
         }
-
         try {
-            // --- translate ConsultantNo -> ConsultantID ---
             DaoConsultant daoConsultant = new DaoConsultant();
             int consultantID = daoConsultant.getConsultantID(consultant.getConsultantNo());
 
-            // --- fetch assignments + total hours ---
             DaoProjectAssignment daoPA = new DaoProjectAssignment();
             int assignmentCount = daoPA.getByConsultantID(consultantID).size();
             int totalHours = daoPA.totalHoursForConsultant(consultantID);
 
-            // --- update labels ---
             labelConsultantNo.setText("No: " + consultant.getConsultantNo());
             labelConsultantName.setText("Name: " + consultant.getName());
             labelConsultantTitle.setText("Title: " + consultant.getTitle());
-            labelConsultantAssignments.setText("Current no. of assignments: " + assignmentCount);
-            labelConsultantHours.setText("Total hours worked: " + totalHours);
-
+            labelConsultantAssignments.setText("Assignments: " + assignmentCount);
+            labelConsultantHours.setText("Total hours: " + totalHours);
         } catch (Exception e) {
-            e.printStackTrace();
             clearConsultantInfo();
         }
     }
@@ -255,7 +260,6 @@ public class ConsultantsViewController {
         labelConsultantHours.setText("Total Hours:");
     }
 
-    // --- Helper: show alert messages ---
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
