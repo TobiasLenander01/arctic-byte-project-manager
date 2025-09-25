@@ -51,24 +51,6 @@ public class DaoMilestone {
         }
     }
 
-    public List<Milestone> getMilestonesByProject(int projectID) throws DaoException {
-        List<Milestone> milestones = new ArrayList<>();
-        String sql = "SELECT * FROM Milestone WHERE ProjectID = ? ORDER BY MilestoneDate";
-        try (Connection conn = connectionHandler.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, projectID);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    milestones.add(instantiateMilestone(rs));
-                }
-            }
-        } catch (SQLException e) {
-            throw new DaoException("Unable to load milestones. Please try again.");
-        }
-        return milestones;
-    }
-
     public List<Milestone> getMilestonesByProjectNo(int projectNo) throws DaoException {
         List<Milestone> milestones = new ArrayList<>();
         String sql = "SELECT * FROM Milestone WHERE ProjectID = (SELECT ProjectID FROM Project WHERE ProjectNo = ?) ORDER BY MilestoneDate";
@@ -87,40 +69,6 @@ public class DaoMilestone {
         return milestones;
     }
 
-    public int getMilestoneCountForProject(int projectID) throws DaoException {
-        String sql = "SELECT COUNT(*) FROM Milestone WHERE ProjectID = ?";
-        try (Connection conn = connectionHandler.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, projectID);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-            }
-        } catch (SQLException e) {
-            throw new DaoException("Unable to count milestones. Please try again.");
-        }
-        return 0;
-    }
-
-    public int getMilestoneCountForProjectNo(int projectNo) throws DaoException {
-        String sql = "SELECT COUNT(*) FROM Milestone WHERE ProjectID = (SELECT ProjectID FROM Project WHERE ProjectNo = ?)";
-        try (Connection conn = connectionHandler.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, projectNo);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-            }
-        } catch (SQLException e) {
-            throw new DaoException("Unable to count milestones for the selected project. Please try again.");
-        }
-        return 0;
-    }
-
     public void deleteMilestone(int milestoneNo) throws DaoException {
         String sql = "DELETE FROM Milestone WHERE MilestoneNo = ?";
         try (Connection conn = connectionHandler.getConnection();
@@ -133,17 +81,6 @@ public class DaoMilestone {
         }
     }
 
-    public void deleteMilestonesByProject(int projectID) throws DaoException {
-        String sql = "DELETE FROM Milestone WHERE ProjectID = ?";
-           try (Connection conn = connectionHandler.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, projectID);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DaoException("Unable to delete project milestones. Please try again.");
-        }
-    }
 
     public void deleteMilestonesByProjectNo(int projectNo) throws DaoException {
         String sql = "DELETE FROM Milestone WHERE ProjectID = (SELECT ProjectID FROM Project WHERE ProjectNo = ?)";

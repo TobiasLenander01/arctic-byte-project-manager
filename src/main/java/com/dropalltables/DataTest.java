@@ -159,17 +159,6 @@ public class DataTest {
                 System.out.println("⚠️  Skipping Milestone tests: need at least one Project row.");
                 return;
             }
-
-            System.out.println("\n daoMilestone.getMilestonesByProject(" + testProjectForMilestone + "):");
-            List<Milestone> projectMilestones = daoMilestone.getMilestonesByProject(testProjectForMilestone);
-            for (Milestone milestone : projectMilestones) {
-                printProperties(milestone);
-            }
-
-            System.out.println("\n daoMilestone.getMilestoneCountForProject(" + testProjectForMilestone + "):");
-            int milestoneCount = daoMilestone.getMilestoneCountForProject(testProjectForMilestone);
-            System.out.println("Milestone count: " + milestoneCount);
-
             // Test adding a new milestone - create a manual test that bypasses the model
             // issue
             System.out.println("\n daoMilestone.addMilestone():");
@@ -187,13 +176,6 @@ public class DataTest {
                 }
             } catch (SQLException e) {
                 System.out.println("Failed to add milestone via SQL: " + e.getMessage());
-            }
-
-            // Get milestones after adding
-            System.out.println("\n daoMilestone.getMilestonesByProject(" + testProjectForMilestone + ") after adding:");
-            List<Milestone> milestonesAfterAdd = daoMilestone.getMilestonesByProject(testProjectForMilestone);
-            for (Milestone milestone : milestonesAfterAdd) {
-                printProperties(milestone);
             }
 
             // Test deleting the milestone
@@ -229,25 +211,6 @@ public class DataTest {
                 System.out.println("Error getting ProjectID: " + e.getMessage());
             }
             
-            if (projectIDForMassDelete > 0) {
-                int milestoneCountBefore = daoMilestone.getMilestoneCountForProject(projectIDForMassDelete);
-                System.out.println("Milestone count before deletion: " + milestoneCountBefore);
-                
-                if (milestoneCountBefore > 0) {
-                    System.out.println("\n daoMilestone.deleteMilestonesByProjectNo(" + projectNoForMassDelete + "):");
-                    daoMilestone.deleteMilestonesByProjectNo(projectNoForMassDelete);
-                    System.out.println("All milestones for project " + projectNoForMassDelete + " deleted successfully.");
-                    
-                    // Verify deletion
-                    int countAfterDeletion = daoMilestone.getMilestoneCountForProject(projectIDForMassDelete);
-                    System.out.println("Milestone count after deletion: " + countAfterDeletion);
-                } else {
-                    System.out.println("No milestones found for project " + projectNoForMassDelete);
-                }
-            } else {
-                System.out.println("⚠️  Could not find project with ProjectNo: " + projectNoForMassDelete);
-            }
-
             // === TEST METADATA DAO ===
             System.out.println("\n--- TESTING METADATA ---");
             DaoMetadata daoMetadata = new DaoMetadata();
