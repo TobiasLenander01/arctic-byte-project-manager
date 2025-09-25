@@ -36,6 +36,9 @@
 
     <!-- Consultants table -->
     <TableView fx:id="tableViewConsultantsOnProject" layoutX="550.0" layoutY="42.0" prefHeight="200.0" prefWidth="445.0">
+      <placeholder>
+        <Label text="Select a project to view assigned consultants"/>
+      </placeholder>
       <columns>
         <TableColumn fx:id="tableColumnConsultantNo" prefWidth="89.0" text="Consultant #" />
         <TableColumn fx:id="tableColumnConsultantName" prefWidth="119.0" text="Name" />
@@ -56,6 +59,9 @@
     <Button fx:id="buttonDeleteMilestone" layoutX="889.0" layoutY="520.0" mnemonicParsing="false" onAction="#buttonDeleteMilestoneAction" text="Delete milestone" />
 
     <TableView fx:id="tableViewMilestones" layoutX="550.0" layoutY="310.0" prefHeight="200.0" prefWidth="445.0">
+      <placeholder>
+        <Label text="Select a project to view its milestones"/>
+      </placeholder>
       <columns>
         <TableColumn fx:id="tableColumnMilestoneNo" prefWidth="80.0" text="Milestone #" />
         <TableColumn fx:id="tableColumnMilestoneName" prefWidth="210.0" text="Milestone name" />
