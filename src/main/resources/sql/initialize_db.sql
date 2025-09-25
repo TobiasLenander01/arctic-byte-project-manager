@@ -1,4 +1,6 @@
--- DROP TABLES
+-- =========================================================
+-- DROP TABLES (order matters: drop children first)
+-- =========================================================
 DROP TABLE IF EXISTS Project_Assignment;
 
 DROP TABLE IF EXISTS Milestone;
@@ -7,49 +9,53 @@ DROP TABLE IF EXISTS Consultant;
 
 DROP TABLE IF EXISTS Project;
 
+-- =========================================================
 -- CREATE TABLES
+-- =========================================================
 CREATE TABLE Consultant (
-    ConsultantID int IDENTITY(1, 1),
-    ConsultantNo int NOT NULL,
-    ConsultantName varchar(255) NOT NULL,
-    Title varchar(255) NOT NULL,
+    ConsultantID INT IDENTITY(1, 1),
+    ConsultantNo INT NOT NULL,
+    ConsultantName VARCHAR(255) NOT NULL,
+    Title VARCHAR(255) NOT NULL,
     CONSTRAINT PK_Consultant_ConsultantID PRIMARY KEY (ConsultantID),
-    CONSTRAINT UQ_Consultant_ConsultantNo UNIQUE(ConsultantNo)
+    CONSTRAINT UQ_Consultant_ConsultantNo UNIQUE (ConsultantNo)
 );
 
 CREATE TABLE Project (
-    ProjectID int IDENTITY(1, 1),
-    ProjectNo int NOT NULL,
-    ProjectName varchar(255) NOT NULL,
-    StartDate datetime NOT NULL,
-    EndDate datetime NULL,
+    ProjectID INT IDENTITY(1, 1),
+    ProjectNo INT NOT NULL,
+    ProjectName VARCHAR(255) NOT NULL,
+    StartDate DATETIME NOT NULL,
+    EndDate DATETIME NULL,
     CONSTRAINT PK_Project_ProjectID PRIMARY KEY (ProjectID),
-    CONSTRAINT UQ_Project_ProjectNo UNIQUE(ProjectNo)
+    CONSTRAINT UQ_Project_ProjectNo UNIQUE (ProjectNo)
 );
 
 CREATE TABLE Milestone (
-    MilestoneID int IDENTITY(1, 1),
-    MilestoneNo int NOT NULL,
-    MilestoneName varchar(255) NOT NULL,
-    MilestoneDate datetime NOT NULL,
-    ProjectID int NOT NULL,
+    MilestoneID INT IDENTITY(1, 1),
+    MilestoneNo INT NOT NULL,
+    MilestoneName VARCHAR(255) NOT NULL,
+    MilestoneDate DATETIME NOT NULL,
+    ProjectID INT NOT NULL,
     CONSTRAINT PK_Milestone_MilestoneID PRIMARY KEY (MilestoneID),
-    CONSTRAINT UQ_Milestone_MilestoneNo UNIQUE(MilestoneNo),
+    CONSTRAINT UQ_Milestone_MilestoneNo UNIQUE (MilestoneNo),
     CONSTRAINT CK_Milestone_Date CHECK (MilestoneDate >= '2022-01-01'),
-    CONSTRAINT FK_Milestone_ProjectID FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID)
+    CONSTRAINT FK_Milestone_ProjectID FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID) ON DELETE CASCADE -- <-- cascade delete milestones when project deleted
 );
 
 CREATE TABLE Project_Assignment (
-    ProjectID int NOT NULL,
-    ConsultantID int NOT NULL,
-    HoursWorked int NOT NULL,
-    CONSTRAINT PK_Project_Assignment_ProjectID PRIMARY KEY (ProjectID, ConsultantID),
-    CONSTRAINT CK_Project_Assignment_Hours CHECK (HoursWorked >= 0),
-    CONSTRAINT FK_Project_ConsultantID FOREIGN KEY (ConsultantID) REFERENCES Consultant (ConsultantID),
-    CONSTRAINT FK_Project_ProjectID FOREIGN KEY (ProjectID) REFERENCES Project (ProjectID)
+    ProjectID INT NOT NULL,
+    ConsultantID INT NOT NULL,
+    HoursWorked INT NOT NULL CHECK (HoursWorked >= 0),
+    CONSTRAINT PK_Project_Assignment PRIMARY KEY (ProjectID, ConsultantID),
+    CONSTRAINT FK_PA_Project FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID) ON DELETE CASCADE,
+    -- <-- cascade delete assignments when project deleted
+    CONSTRAINT FK_PA_Consultant FOREIGN KEY (ConsultantID) REFERENCES Consultant(ConsultantID) ON DELETE CASCADE -- <-- cascade delete assignments when consultant deleted
 );
 
+-- =========================================================
 -- TEST DATA
+-- =========================================================
 -- Consultants
 INSERT INTO
     Consultant (ConsultantNo, ConsultantName, Title)
@@ -190,16 +196,13 @@ VALUES
     (3019, 'AI Model Training', '2025-01-15', 9),
     (3020, 'Pilot Evaluation', '2025-03-01', 9);
 
--- SELECT STATEMENTS
+-- =========================================================
+-- Quick sanity checks
+-- =========================================================
 SELECT
     *
 FROM
     Consultant;
-
-SELECT
-    *
-FROM
-    Milestone;
 
 SELECT
     *
@@ -210,3 +213,8 @@ SELECT
     *
 FROM
     Project_Assignment;
+
+SELECT
+    *
+FROM
+    Milestone;
