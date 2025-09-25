@@ -56,11 +56,11 @@ public class CreateConsultantWindowController {
         try {
             consultantNo = Integer.parseInt(textFieldConsultantNo.getText().trim());
             if (consultantNo <= 0) {
-                AlertUtil.showError("Invalid input", "Consultant number must be a positive integer.");
+                AlertUtil.showError("Invalid input", "Consultant number must be a positive number.");
                 return;
             }
         } catch (NumberFormatException e) {
-            AlertUtil.showError("Invalid input", "Consultant number must be numeric.");
+            AlertUtil.showError("Invalid input", "Consultant number field must be a valid number.");
             return;
         }
 
