@@ -1,6 +1,5 @@
 package com.dropalltables.controllers;
 
-
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
@@ -45,6 +45,12 @@ public class ProjectsViewController {
     private TableColumn<Project, String> tableColumnProjectStartDate;
     @FXML
     private TableColumn<Project, String> tableColumnProjectEndDate;
+    @FXML
+    private TextField textFieldFilterNo;
+    @FXML
+    private TextField textFieldFilterName;
+    @FXML
+    private TextField textFieldFilterDate;
 
     // --- Table Consultants ---
     @FXML
@@ -102,9 +108,47 @@ public class ProjectsViewController {
         setupSelectionListener();
         updateAllConsultantsProjectsLabel();
 
-        // disable add hours button if no consultant is selected
+        // disable button if no consultant selected
         buttonSetHours.disableProperty().bind(
                 tableViewConsultantsOnProject.getSelectionModel().selectedItemProperty().isNull());
+
+        // hook up filters
+        textFieldFilterNo.textProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+        textFieldFilterName.textProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+        textFieldFilterDate.textProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+    }
+
+    // --- logic to filter projects table ---
+    private void applyFilters() {
+        String filterNo = textFieldFilterNo.getText().trim();
+        String filterName = textFieldFilterName.getText().toLowerCase().trim();
+        String filterDate = textFieldFilterDate.getText().trim();
+
+        List<Project> allProjects;
+        try {
+            DaoProject dao = new DaoProject();
+            allProjects = dao.getAllProjects();
+        } catch (DaoException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        projectData.setAll(allProjects.stream()
+                // filter by project number
+                .filter(p -> filterNo.isEmpty() || String.valueOf(p.getProjectNo()).startsWith(filterNo))
+                // filter by name
+                .filter(p -> filterName.isEmpty() || p.getName().toLowerCase().contains(filterName))
+                // filter by date (match start or end date string)
+                .filter(p -> {
+                    if (filterDate.isEmpty())
+                        return true;
+                    boolean matchesStart = p.getStartDate() != null &&
+                            p.getStartDate().toString().startsWith(filterDate);
+                    boolean matchesEnd = p.getEndDate() != null &&
+                            p.getEndDate().toString().startsWith(filterDate);
+                    return matchesStart || matchesEnd;
+                })
+                .toList());
     }
 
     // --- assign consultant to a project ---
@@ -314,7 +358,7 @@ public class ProjectsViewController {
                 DaoMilestone dao = new DaoMilestone();
                 dao.insertMilestone(newMilestone);
                 loadMilestonesForProject(selected);
-              
+
             }
         } catch (Exception e) {
             e.printStackTrace();
