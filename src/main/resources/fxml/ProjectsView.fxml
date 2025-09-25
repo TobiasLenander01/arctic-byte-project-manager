@@ -57,7 +57,8 @@
 
     <TableView fx:id="tableViewMilestones" layoutX="550.0" layoutY="310.0" prefHeight="200.0" prefWidth="445.0">
       <columns>
-        <TableColumn fx:id="tableColumnMilestoneName" prefWidth="290.0" text="Milestone name" />
+        <TableColumn fx:id="tableColumnMilestoneNo" prefWidth="80.0" text="Milestone #" />
+        <TableColumn fx:id="tableColumnMilestoneName" prefWidth="210.0" text="Milestone name" />
         <TableColumn fx:id="tableColumnMilestoneDate" prefWidth="154.0" text="Milestone date" />
       </columns>
     </TableView>

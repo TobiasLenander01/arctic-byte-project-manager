@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="300.0" prefWidth="300.0"
+   xmlns="http://javafx.com/javafx/23.0.1"
+   xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dropalltables.controllers.CreateMilestoneWindowController">
+
+   <children>
+      <Label fx:id="labelHeader" layoutX="61.0" layoutY="22.0" text="Create new milestone">
+         <font>
+            <Font name="System Bold" size="20.0" />
+         </font>
+      </Label>
+
+      <Line endX="150.0" layoutX="150.0" layoutY="70.0" startX="-150.0" />
+
+      <!-- Project info -->
+      <Label fx:id="labelProjectInfo" layoutX="7.0" layoutY="80.0" text="For project: [Project Name]">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Label>
+
+      <!-- Milestone number -->
+      <Label layoutX="7.0" layoutY="110.0" text="Milestone number">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Label>
+      <TextField fx:id="textFieldMilestoneNo" layoutX="120.0" layoutY="108.0" promptText="Milestone #" />
+
+      <!-- Milestone name -->
+      <Label layoutX="7.0" layoutY="149.0" text="Milestone name">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Label>
+      <TextField fx:id="textFieldMilestoneName" layoutX="120.0" layoutY="146.0" promptText="Name" />
+
+      <!-- Date -->
+      <Label layoutX="17.0" layoutY="189.0" text="Milestone date">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Label>
+      <DatePicker fx:id="datePickerMilestoneDate" layoutX="120.0" layoutY="187.0" promptText="Milestone date" />
+
+      <!-- Buttons -->
+      <Button fx:id="buttonOk" layoutX="108.0" layoutY="230.0" mnemonicParsing="false" onAction="#handleOkAction" text="OK" />
+      <Button fx:id="buttonCancel" layoutX="183.0" layoutY="230.0" mnemonicParsing="false" onAction="#handleCancelAction" text="Cancel" />
+   </children>
+</AnchorPane>

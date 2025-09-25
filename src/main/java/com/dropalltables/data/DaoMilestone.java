@@ -153,6 +153,23 @@ public class DaoMilestone {
         }
     }
 
+    public boolean milestoneNoExists(int milestoneNo) throws DaoException {
+        String sql = "SELECT COUNT(*) FROM Milestone WHERE MilestoneNo = ?";
+        try (Connection conn = connectionHandler.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, milestoneNo);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Failed to check if milestone number exists: " + milestoneNo, e);
+        }
+        return false;
+    }
+
     private Milestone instantiateMilestone(ResultSet rs) throws DaoException {
         try {
         int milestoneNo = rs.getInt("MilestoneNo");
