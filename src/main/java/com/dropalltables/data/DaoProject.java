@@ -120,24 +120,6 @@ public class DaoProject {
         }
     }
 
-    public boolean projectExists(int projectNo) throws DaoException {
-        if (projectNo <= 0) {
-            throw new IllegalArgumentException("ProjectNo must be positive");
-        }
-
-        String query = "SELECT 1 FROM Project WHERE ProjectNo = ?";
-
-        try (Connection connection = connectionHandler.getConnection();
-                PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, projectNo);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                return resultSet.next();
-            }
-        } catch (SQLException e) {
-            throw new DaoException("Unable to verify if project exists. Please try again.");
-        }
-    }
-
     public Integer getProjectID(int projectNo) throws DaoException {
         if (projectNo <= 0) {
             throw new IllegalArgumentException("ProjectNo must be positive");

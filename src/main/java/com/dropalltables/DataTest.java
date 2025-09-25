@@ -340,13 +340,6 @@ public class DataTest {
         System.out.println("\n daoProject.insertProject():");
         Project project1 = new Project(2007, "Grupparbete", java.time.LocalDate.parse("2024-06-01"));
 
-        if (daoProject.projectExists(project1.getProjectNo())) {
-            System.out.println("Project " + project1.getProjectNo() + " already exists. Skipping insert.");
-        } else {
-            daoProject.insertProject(project1);
-            System.out.println("Project inserted successfully.");
-        }
-
         // === TEST getProjectByNo ===
         System.out.println("\n daoProject.getProjectByNo():");
 
@@ -405,24 +398,8 @@ public class DataTest {
         }
 
         // === TEST projectExists ===
-        System.out.println("\n daoProject.projectExists():");
 
-        if (!allProjects.isEmpty()) {
-            int existingProjectNo = allProjects.get(0).getProjectNo();
-            boolean exists = daoProject.projectExists(existingProjectNo);
-            System.out.println("Project " + existingProjectNo + " exists: " + exists);
-        }
 
-        boolean nonExistingExists = daoProject.projectExists(9999);
-        System.out.println("Project 9999 exists: " + nonExistingExists);
-
-        // Test validation
-        try {
-            daoProject.projectExists(-5);
-            System.out.println("ERROR: Should have thrown IllegalArgumentException for negative ProjectNo");
-        } catch (IllegalArgumentException e) {
-            System.out.println("✓ Validation works for negative ProjectNo in exists check: " + e.getMessage());
-        }
 
         // === TEST insertProject validation ===
         System.out.println("\n daoProject.insertProject() validation tests:");
@@ -503,25 +480,6 @@ public class DataTest {
         }
 
         // === TEST deleteProject ===
-        System.out.println("\n daoProject.deleteProject():");
-
-        // Insert a test project to delete
-        Project testDeleteProject = new Project(9996, "Test Delete Project", java.time.LocalDate.now());
-        if (!daoProject.projectExists(testDeleteProject.getProjectNo())) {
-            daoProject.insertProject(testDeleteProject);
-            System.out.println("Inserted test project for deletion");
-
-            // Now delete it
-            daoProject.deleteProject(testDeleteProject.getProjectNo());
-            System.out.println("✓ Project deleted successfully");
-
-            // Verify deletion
-            boolean stillExists = daoProject.projectExists(testDeleteProject.getProjectNo());
-            System.out.println("Project still exists after deletion: " + stillExists);
-        } else {
-            System.out.println("Test project already exists, skipping delete test");
-        }
-
         // Test deleting non-existing project
         try {
             daoProject.deleteProject(9995);

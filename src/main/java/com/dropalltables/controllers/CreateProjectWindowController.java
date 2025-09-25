@@ -86,7 +86,7 @@ public class CreateProjectWindowController {
             // Creating new - check if project number already exists
             try {
                 DaoProject dao = new DaoProject();
-                if (dao.projectExists(projectNo)) {
+                if (dao.getProjectByNo(projectNo) != null) {
                     AlertUtil.showError("Duplicate Project Number", 
                         "Project number " + projectNo + " already exists. Please choose a different number.");
                     return; // keep window open
