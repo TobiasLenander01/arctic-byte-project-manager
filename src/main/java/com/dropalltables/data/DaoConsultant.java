@@ -53,7 +53,7 @@ public class DaoConsultant {
                 return instantiateConsultant(resultSet);
             }
         } catch (SQLException e) {
-            throw new DaoException("not_found ConsultantNo: " + consultantNo, e);
+            throw new DaoException("ConsultantNo no longer exists: " + consultantNo, e);
         }
         return null;
     }
@@ -70,7 +70,7 @@ public class DaoConsultant {
                 return instantiateConsultant(resultSet);
             }
         } catch (SQLException e) {
-            throw new DaoException("not_found ConsultantID: " + consultantID, e);
+            throw new DaoException("ConsultantID no longer exists:: " + consultantID, e);
         }
         return null;
     }

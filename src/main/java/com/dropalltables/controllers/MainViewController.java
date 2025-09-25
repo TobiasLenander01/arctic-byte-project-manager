@@ -9,7 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import java.awt.Desktop;
 import java.io.File;
-import java.io.IOException;
+import java.io.IOException; //TODO inga IOException här
 
 import com.dropalltables.util.*;
 
@@ -104,9 +104,9 @@ public class MainViewController {
             } else {
                 AlertUtil.showError("Not supported", "Opening Excel files is not supported on this system.");
             }
-        } catch (IOException e) {
+        } catch (IOException e) { //TODO inga IOException, printstacktrace, getmessage här
             e.printStackTrace();
-            AlertUtil.showError("Error", "Failed to open Excel file: " + e.getMessage());
+            AlertUtil.showError("Error", "Failed to open Excel file: " + e.getMessage()); 
         }
     }
 
