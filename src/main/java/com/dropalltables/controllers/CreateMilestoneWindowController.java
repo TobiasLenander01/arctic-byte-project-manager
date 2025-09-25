@@ -24,13 +24,9 @@ public class CreateMilestoneWindowController {
     @FXML
     private DatePicker datePickerMilestoneDate;
     @FXML
-    private Label labelHeader;
-    @FXML
     private Label labelProjectInfo;
     @FXML
     private Button buttonOk;
-    @FXML
-    private Button buttonCancel;
 
     private Milestone milestone = null; // holds the created milestone
     private Project project; // the project this milestone belongs to
@@ -82,7 +78,7 @@ public class CreateMilestoneWindowController {
 
     /** OK button: create milestone */
     @FXML
-    private void handleSaveAction() {
+    public void handleSaveAction() {
         // Reset milestone to null at the start of each save attempt
         milestone = null;
         
@@ -155,7 +151,7 @@ public class CreateMilestoneWindowController {
     }
 
     @FXML
-    private void handleCancelAction() {
+    public void handleCancelAction() {
         milestone = null; // discard
         closeWindow();
     }

@@ -85,7 +85,7 @@ public class MainViewController {
 
     // Open excel file
     @FXML
-    private void handleButtonExcelClickEvent() {
+    public void handleButtonExcelClickEvent() {
         try {
             File file = new File("data/db_export.xlsx");
 

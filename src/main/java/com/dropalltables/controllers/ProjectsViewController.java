@@ -78,16 +78,6 @@ public class ProjectsViewController {
     // --- Buttons ---
     @FXML
     private Button buttonSetHours;
-    @FXML
-    private Button buttonAddMilestone;
-    @FXML
-    private Button buttonDeleteMilestone;
-    @FXML
-    private Button buttonCreateProject;
-    @FXML
-    private Button buttonDeleteProject;
-    @FXML
-    private Button buttonUpdateProject;
 
     // --- Labels ---
     @FXML

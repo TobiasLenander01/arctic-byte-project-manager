@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class ConnectionHandler {
-    private String connectionURL;
+    private final String connectionURL;
     private final String propertiesFilePath = "/config.properties";
 
     // hämtar inloggningsuppgifter från properties filen under resources

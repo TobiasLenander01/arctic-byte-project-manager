@@ -112,7 +112,7 @@ public class ConsultantsViewController {
 
     /** Called when the toggle button is clicked. */
     @FXML
-    private void handleToggleLowProjects() {
+    public void handleToggleLowProjects() {
         if (toggleLowProjects.isSelected()) {
             try {
                 DaoProjectAssignment daoPA = new DaoProjectAssignment();

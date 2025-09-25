@@ -1,14 +1,14 @@
 package com.dropalltables.controllers;
 
+import com.dropalltables.models.Consultant;
+import com.dropalltables.util.AlertUtil;
+
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-
-import com.dropalltables.models.Consultant;
-import com.dropalltables.util.AlertUtil;
 
 public class CreateConsultantWindowController {
 
@@ -22,8 +22,6 @@ public class CreateConsultantWindowController {
     private Label labelHeader;
     @FXML
     private Button buttonOk;
-    @FXML
-    private Button buttonCancel;
 
     private Stage stage;
     private Consultant consultant; // created or edited consultant
@@ -50,7 +48,7 @@ public class CreateConsultantWindowController {
 
     // --- OK button ---
     @FXML
-    private void handleOkAction() {
+    public void handleOkAction() {
         // Validate ConsultantNo
         int consultantNo;
         try {
@@ -92,7 +90,7 @@ public class CreateConsultantWindowController {
 
     // --- Cancel button ---
     @FXML
-    private void handleCancelAction() {
+    public void handleCancelAction() {
         consultant = null; // discard changes
         stage.close();
     }

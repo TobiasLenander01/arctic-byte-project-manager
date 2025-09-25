@@ -1,6 +1,6 @@
 module db.dropalltables {
     requires javafx.base;
-    requires javafx.controls;
+    requires transitive javafx.controls;
     requires javafx.fxml;
     requires transitive javafx.graphics;
     requires java.sql;
@@ -8,6 +8,7 @@ module db.dropalltables {
 
     exports com.dropalltables;
     exports com.dropalltables.controllers;
+    exports com.dropalltables.models;
 
     opens com.dropalltables.controllers to javafx.fxml;
     opens com.dropalltables.models to javafx.base;

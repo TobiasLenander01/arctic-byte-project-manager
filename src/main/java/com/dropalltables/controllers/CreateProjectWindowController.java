@@ -1,12 +1,11 @@
 package com.dropalltables.controllers;
 
-import com.dropalltables.util.*;
-import com.dropalltables.data.DaoException;
-import com.dropalltables.data.DaoProject;
-
 import java.time.LocalDate;
 
+import com.dropalltables.data.DaoException;
+import com.dropalltables.data.DaoProject;
 import com.dropalltables.models.Project;
+import com.dropalltables.util.AlertUtil;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -29,8 +28,6 @@ public class CreateProjectWindowController {
     private Label labelHeader;
     @FXML
     private Button buttonOk;
-    @FXML
-    private Button buttonCancel;
 
     private Project project; // holds either a new or existing project
 
@@ -52,7 +49,7 @@ public class CreateProjectWindowController {
 
     /** OK button: create or update */
     @FXML
-    private void handleOkAction() {
+    public void handleOkAction() {
         String name = textFieldProjectName.getText();
         LocalDate startDate = datePickerStartDate.getValue();
         LocalDate endDate = datePickerEndDate.getValue();
@@ -112,7 +109,7 @@ public class CreateProjectWindowController {
     }
 
     @FXML
-    private void handleCancelAction() {
+    public void handleCancelAction() {
         project = null; // discard
         closeWindow();
     }
