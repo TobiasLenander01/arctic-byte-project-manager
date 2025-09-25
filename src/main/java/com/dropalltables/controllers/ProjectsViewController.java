@@ -1,6 +1,6 @@
 package com.dropalltables.controllers;
 
-import java.io.IOException;
+import java.io.IOException; //TODO ta bort
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -305,7 +305,7 @@ public class ProjectsViewController {
                 dao.updateProject(updatedProject);
                 loadProjectsFromDatabase();
             }
-        } catch (DaoException | IOException e) {
+        } catch (DaoException | IOException e) { //TODO inga IOException här
             AlertUtil.showError("Error", "Failed to update project.");
         }
     }
