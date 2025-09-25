@@ -1,5 +1,6 @@
 package com.dropalltables.controllers;
 
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -62,6 +63,8 @@ public class ProjectsViewController {
     private Label labelMilestonesHeader;
     @FXML
     private TableView<Milestone> tableViewMilestones;
+    @FXML
+    private TableColumn<Milestone, Number> tableColumnMilestoneNo;
     @FXML
     private TableColumn<Milestone, String> tableColumnMilestoneName;
     @FXML
@@ -293,24 +296,30 @@ public class ProjectsViewController {
             return;
         }
 
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Add Milestone");
-        dialog.setHeaderText("New milestone for project: " + selected.getName());
-        dialog.setContentText("Enter milestone name:");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CreateMilestoneWindow.fxml"));
+            Parent root = loader.load();
 
-        dialog.showAndWait().ifPresent(name -> {
-            try {
-                int milestoneNo = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
-                Milestone milestone = new Milestone(milestoneNo, name, LocalDate.now(), selected);
+            CreateMilestoneWindowController controller = loader.getController();
+            controller.setProject(selected);
 
+            Stage dialog = new Stage();
+            dialog.setTitle("Add Milestone");
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.setScene(new Scene(root));
+            dialog.showAndWait();
+
+            Milestone newMilestone = controller.getCreatedMilestone();
+            if (newMilestone != null) {
                 DaoMilestone dao = new DaoMilestone();
-                dao.insertMilestone(milestone);
-
+                dao.insertMilestone(newMilestone);
                 loadMilestonesForProject(selected);
-            } catch (DaoException e) {
-                AlertUtil.showError("Error", "Failed to add milestone.");
+              
             }
-        });
+        } catch (Exception e) {
+            e.printStackTrace();
+            AlertUtil.showError("Error", "Failed to add milestone: " + e.getMessage());
+        }
     }
 
     // --- Delete milestone ---
@@ -385,6 +394,7 @@ public class ProjectsViewController {
     }
 
     private void setupMilestoneColumns() {
+        tableColumnMilestoneNo.setCellValueFactory(new PropertyValueFactory<>("milestoneNo"));
         tableColumnMilestoneName.setCellValueFactory(new PropertyValueFactory<>("name"));
         tableColumnMilestoneDate.setCellValueFactory(new PropertyValueFactory<>("date"));
         tableViewMilestones.setItems(milestoneData);
