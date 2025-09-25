@@ -53,7 +53,7 @@
       <DatePicker fx:id="datePickerMilestoneDate" layoutX="120.0" layoutY="187.0" promptText="Milestone date" />
 
       <!-- Buttons -->
-      <Button fx:id="buttonOk" layoutX="108.0" layoutY="230.0" mnemonicParsing="false" onAction="#handleOkAction" text="OK" />
+      <Button fx:id="buttonOk" layoutX="108.0" layoutY="230.0" mnemonicParsing="false" onAction="#handleSaveAction" text="OK" />
       <Button fx:id="buttonCancel" layoutX="183.0" layoutY="230.0" mnemonicParsing="false" onAction="#handleCancelAction" text="Cancel" />
    </children>
 </AnchorPane>

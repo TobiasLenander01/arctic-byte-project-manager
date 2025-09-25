@@ -78,19 +78,19 @@ public class CreateMilestoneWindowController {
         milestone = null;
         
         String milestoneNoText = textFieldMilestoneNo.getText();
-        String name = textFieldName.getText();
-        LocalDate date = datePickerDate.getValue();
+        String name = textFieldMilestoneName.getText();
+        LocalDate date = datePickerMilestoneDate.getValue();
 
         // Validate Milestone Number
         int milestoneNo;
         try {
             milestoneNo = Integer.parseInt(milestoneNoText.trim());
             if (milestoneNo <= 0) {
-                AlertUtil.showError("Invalid input", "Milestone number must be a positive integer.");
+                AlertUtil.showError("Invalid input", "Milestone number must be a positive number.");
                 return; // keep window open
             }
         } catch (NumberFormatException e) {
-            AlertUtil.showError("Invalid input", "Milestone number must be a valid positive integer.");
+            AlertUtil.showError("Invalid input", "Milestone number must be a valid positive number.");
             return; // keep window open
         }
 
