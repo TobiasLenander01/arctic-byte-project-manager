@@ -15,10 +15,17 @@ public class DaoProjectAssignment {
 
     @FunctionalInterface
     private interface Binder {
-        void bind(PreparedStatement ps) throws SQLException; // behåll SQL här!! catch i ExcUpd
+        void bind(PreparedStatement ps) throws SQLException;
     }
 
-    // Removes duplicate code when updating database
+    /**
+     * A private helper method to execute update, insert, or delete SQL statements.
+     * This reduces boilerplate code for database write operations.
+     * @param sql The SQL statement to execute.
+     * @param binder A lambda expression to bind parameters to the PreparedStatement.
+     * @return The number of rows affected by the operation.
+     * @throws DaoException if a database access error occurs.
+     */
     private int execUpdate(String sql, Binder binder) throws DaoException {
         try (Connection c = connectionHandler.getConnection();
                 PreparedStatement ps = c.prepareStatement(sql)) {
@@ -29,6 +36,11 @@ public class DaoProjectAssignment {
         }
     }
 
+    /**
+     * Constructor for DaoProjectAssignment.
+     * Initializes the ConnectionHandler.
+     * @throws DaoException if unable to connect to the database.
+     */
     public DaoProjectAssignment() throws DaoException {
         try {
             this.connectionHandler = new ConnectionHandler();
@@ -37,6 +49,12 @@ public class DaoProjectAssignment {
         }
     }
 
+    /**
+     * Helper method to create a ProjectAssignment object from a ResultSet.
+     * @param rs The ResultSet containing project assignment data.
+     * @return A new ProjectAssignment object.
+     * @throws SQLException if there is an error reading the ResultSet.
+     */
     private ProjectAssignment instantiateProjectAssignment(ResultSet rs) throws SQLException {
         return new ProjectAssignment(
                 rs.getInt("ConsultantID"),
@@ -44,7 +62,13 @@ public class DaoProjectAssignment {
                 rs.getInt("HoursWorked"));
     }
 
-    // Returns a project assignment matching consultantID and projectID
+    /**
+     * Finds and returns a specific project assignment based on consultant and project IDs.
+     * @param consultantID The ID of the consultant.
+     * @param projectID The ID of the project.
+     * @return The ProjectAssignment object if found, otherwise null.
+     * @throws DaoException if a database access error occurs.
+     */
     private ProjectAssignment findProjectAssignment(int consultantID, int projectID) throws DaoException {
         String sql = """
                 SELECT ConsultantID, ProjectID, HoursWorked
@@ -68,9 +92,12 @@ public class DaoProjectAssignment {
         return null;
     }
 
-    /*
-     * Assigns a consultant to a project starting with 0 hours worked. Uniqueness is
-     * handled in DB?
+    /**
+     * Assigns a consultant to a project with an initial 0 hours worked.
+     * @param consultantID The ID of the consultant to assign.
+     * @param projectID The ID of the project to assign the consultant to.
+     * @return The number of rows affected (should be 1 on success).
+     * @throws DaoException if a database access error occurs.
      */
     public int insertProjectAssignment(int consultantID, int projectID) throws DaoException {
         String sql = """
@@ -83,7 +110,14 @@ public class DaoProjectAssignment {
         });
     }
 
-    // Updates the hours worked by a consultant on a project
+    /**
+     * Updates the number of hours worked by a consultant on a specific project.
+     * @param consultantID The ID of the consultant.
+     * @param projectID The ID of the project.
+     * @param hours The new total hours worked.
+     * @return The number of rows affected (should be 1 on success).
+     * @throws DaoException if the assignment is not found or if a database error occurs.
+     */
     public int updateHours(int consultantID, int projectID, int hours) throws DaoException {
         ProjectAssignment pa = findProjectAssignment(consultantID, projectID);
 
@@ -107,6 +141,13 @@ public class DaoProjectAssignment {
         });
     }
 
+    /**
+     * Deletes a specific project assignment.
+     * @param consultantID The ID of the consultant in the assignment.
+     * @param projectID The ID of the project in the assignment.
+     * @return The number of rows affected.
+     * @throws DaoException if a database access error occurs.
+     */
     public int deleteProjectAssignment(int consultantID, int projectID) throws DaoException {
         String sql = """
                 DELETE FROM Project_Assignment
@@ -119,6 +160,12 @@ public class DaoProjectAssignment {
         });
     }
 
+    /**
+     * Deletes all project assignments for a specific consultant.
+     * @param consultantID The ID of the consultant whose assignments are to be deleted.
+     * @return The number of rows affected.
+     * @throws DaoException if a database access error occurs.
+     */
     public int deleteProjectAssignmentByConsultantID(int consultantID) throws DaoException {
         String sql = """
                 DELETE FROM Project_Assignment
@@ -129,6 +176,12 @@ public class DaoProjectAssignment {
         });
     }
 
+    /**
+     * Deletes all project assignments for a specific project.
+     * @param projectID The ID of the project whose assignments are to be deleted.
+     * @return The number of rows affected.
+     * @throws DaoException if a database access error occurs.
+     */
     public int deleteProjectAssignmentByProjectID(int projectID) throws DaoException {
         String sql = """
                 DELETE FROM Project_Assignment
@@ -139,6 +192,12 @@ public class DaoProjectAssignment {
         });
     }
 
+    /**
+     * Retrieves all project assignments for a specific project.
+     * @param projectID The ID of the project.
+     * @return A list of project assignments.
+     * @throws DaoException if a database access error occurs.
+     */
     public List<ProjectAssignment> getByProjectID(int projectID) throws DaoException {
         List<ProjectAssignment> list = new ArrayList<>();
         String sql = """
@@ -159,6 +218,12 @@ public class DaoProjectAssignment {
         return list;
     }
 
+    /**
+     * Retrieves all project assignments for a specific consultant.
+     * @param consultantID The ID of the consultant.
+     * @return A list of project assignments.
+     * @throws DaoException if a database access error occurs.
+     */
     public List<ProjectAssignment> getByConsultantID(int consultantID) throws DaoException {
         List<ProjectAssignment> list = new ArrayList<>();
         String sql = """
@@ -179,7 +244,12 @@ public class DaoProjectAssignment {
         return list;
     }
 
-    // Returns total number of hours on all project assignments by a consultant
+    /**
+     * Calculates and returns the total number of hours worked by a specific consultant across all projects.
+     * @param consultantID The ID of the consultant.
+     * @return The total hours worked. Returns 0 if the consultant has no assignments.
+     * @throws DaoException if a database access error occurs.
+     */
     public int totalHoursForConsultant(int consultantID) throws DaoException {
         int hours = 0;
 
@@ -204,7 +274,11 @@ public class DaoProjectAssignment {
         return hours;
     }
 
-    // Returns total number of hours on all project assignments by all consultants
+    /**
+     * Calculates and returns the total number of hours worked by all consultants across all projects.
+     * @return The total hours worked across the entire system.
+     * @throws DaoException if a database access error occurs.
+     */
     public int totalHoursForAllConsultants() throws DaoException {
         String sql = """
                 SELECT COALESCE(SUM(HoursWorked), 0) AS TotalHours
@@ -225,7 +299,12 @@ public class DaoProjectAssignment {
         return 0;
     }
 
-    // Returns ID of consultant with the most worked hours. No handling of ties.
+    /**
+     * Finds the ID of the consultant who has worked the most hours in total.
+     * Note: This method does not handle ties; it returns the first one found.
+     * @return The ID of the consultant with the most hours. Returns 0 if no assignments exist.
+     * @throws DaoException if a database access error occurs.
+     */
     public int hardestWorkingConsultant() throws DaoException {
         String sql = """
                 SELECT TOP 1 ConsultantID
@@ -247,6 +326,12 @@ public class DaoProjectAssignment {
         return 0;
     }
 
+    /**
+     * Retrieves a list of consultant names who are assigned to a maximum of 'max' projects.
+     * @param max The maximum number of projects a consultant can be assigned to.
+     * @return A list of consultant names meeting the criteria.
+     * @throws DaoException if a database access error occurs.
+     */
     public List<String> consultantsInMaxNbrOfProjects(int max) throws DaoException {
         List<String> consultants = new ArrayList<>();
 
@@ -278,7 +363,11 @@ public class DaoProjectAssignment {
         return consultants;
     }
 
-    // Returns list of all projects that involve every consultant
+    /**
+     * Retrieves a list of project IDs for projects that involve every single consultant in the database.
+     * @return A list of project IDs.
+     * @throws DaoException if a database access error occurs.
+     */
     public List<Integer> projectsThatInvolveEveryConsultant() throws DaoException {
         String sql = """
                 SELECT ProjectID
@@ -300,6 +389,13 @@ public class DaoProjectAssignment {
         return ids;
     }
 
+    /**
+     * Retrieves all active project assignments for a specific consultant.
+     * An active project is one that does not have an end date.
+     * @param consultantID The ID of the consultant.
+     * @return A list of active project assignments.
+     * @throws DaoException if a database access error occurs.
+     */
     public List<ProjectAssignment> getActiveProjectAssignments(int consultantID) throws DaoException {
         List<ProjectAssignment> list = new ArrayList<>();
         String sql = """
@@ -324,8 +420,13 @@ public class DaoProjectAssignment {
         return list;
     }
 
-    // Returns all consultant assignments for a project,
-    // including consultant details (ConsultantNo, Name, Title)
+    /**
+     * Retrieves all assignments for a specific project, including detailed information
+     * about each assigned consultant (number, name, title).
+     * @param projectID The ID of the project.
+     * @return A list of ProjectAssignment objects, populated with consultant details.
+     * @throws DaoException if a database access error occurs.
+     */
     public List<ProjectAssignment> getAssignmentsWithConsultants(int projectID) throws DaoException {
         List<ProjectAssignment> list = new ArrayList<>();
         String sql = """

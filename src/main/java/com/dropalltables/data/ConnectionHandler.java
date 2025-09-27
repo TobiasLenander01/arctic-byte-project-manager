@@ -11,9 +11,11 @@ public class ConnectionHandler {
     private final String connectionURL;
     private final String propertiesFilePath = "/config.properties";
 
-    // hämtar inloggningsuppgifter från properties filen under resources
-    // ist för att skriva in dem i koden
-    // om fil inte hittas throws IOException till klass som anropar konstruktorn
+    /**
+     * Constructor for ConnectionHandler.
+     * Reads database connection details from a properties file, builds the connection URL.
+     * @throws IOException if the properties file cannot be found or read.
+     */
     public ConnectionHandler() throws IOException {
 
         Properties connectionProperties = new Properties();
@@ -42,6 +44,11 @@ public class ConnectionHandler {
                 + "trustServerCertificate=true;";
     }
 
+    /**
+     * Establishes and returns a new connection to the database.
+     * @return A new Connection object.
+     * @throws SQLException if a database access error occurs.
+     */
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(connectionURL);
     }

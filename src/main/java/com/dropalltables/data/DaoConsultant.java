@@ -14,6 +14,11 @@ public class DaoConsultant {
 
     private final ConnectionHandler connectionHandler;
 
+    /**
+     * Constructor for DaoConsultant.
+     * Initializes the ConnectionHandler.
+     * @throws DaoException if unable to connect to the database.
+     */
     public DaoConsultant() throws DaoException {
         try {
             this.connectionHandler = new ConnectionHandler();
@@ -22,10 +27,17 @@ public class DaoConsultant {
         }
     }
 
-    // metoder
+    /**
+     * Retrieves a list of all consultants from the database.
+     * @return A list of all consultants.
+     * @throws DaoException if there is an error loading the consultants.
+     */
     public List<Consultant> getAllConsultants() throws DaoException {
         List<Consultant> consultants = new ArrayList<>();
-        String query = "SELECT * FROM Consultant";
+        String query = """
+                SELECT *
+                FROM Consultant
+                """;
 
         try (Connection connection = connectionHandler.getConnection();
                 PreparedStatement statement = connection.prepareStatement(query);
@@ -41,8 +53,18 @@ public class DaoConsultant {
         return consultants;
     }
 
+    /**
+     * Retrieves a consultant by their consultant number.
+     * @param consultantNo The number of the consultant to retrieve.
+     * @return The consultant object, or null if not found.
+     * @throws DaoException if there is an error finding the consultant.
+     */
     public Consultant getConsultantByNo(int consultantNo) throws DaoException {
-        String query = "SELECT * FROM Consultant WHERE consultantNo = ?";
+        String query = """
+                SELECT *
+                FROM Consultant
+                WHERE consultantNo = ?
+                """;
 
         try (Connection connection = connectionHandler.getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
@@ -58,8 +80,18 @@ public class DaoConsultant {
         return null;
     }
 
+    /**
+     * Retrieves a consultant by their internal database ID.
+     * @param consultantID The ID of the consultant to retrieve.
+     * @return The consultant object, or null if not found.
+     * @throws DaoException if there is an error finding the consultant.
+     */
     public Consultant getConsultantByID(int consultantID) throws DaoException {
-        String query = "SELECT * FROM Consultant WHERE consultantID = ?";
+        String query = """
+                SELECT *
+                FROM Consultant
+                WHERE consultantID = ?
+                """;
 
         try (Connection connection = connectionHandler.getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
@@ -75,6 +107,12 @@ public class DaoConsultant {
         return null;
     }
 
+    /**
+     * Helper method to create a Consultant object from a ResultSet.
+     * @param resultSet The ResultSet containing consultant data.
+     * @return A new Consultant object.
+     * @throws SQLException if there is an error reading the ResultSet.
+     */
     public Consultant instantiateConsultant(ResultSet resultSet) throws SQLException {
         return new Consultant(
                 resultSet.getInt("consultantNo"),
@@ -82,8 +120,16 @@ public class DaoConsultant {
                 resultSet.getString("title"));
     }
 
+    /**
+     * Inserts a new consultant into the database.
+     * @param consultant The consultant object to insert.
+     * @throws DaoException if a consultant with the same number already exists or if there is an error during insertion.
+     */
     public void insertConsultant(Consultant consultant) throws DaoException {
-        String sql = "INSERT INTO Consultant (ConsultantNo, ConsultantName, Title) VALUES (?, ?, ?)";
+        String sql = """
+                INSERT INTO Consultant (ConsultantNo, ConsultantName, Title)
+                VALUES (?, ?, ?)
+                """;
         try (Connection connection = connectionHandler.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, consultant.getConsultantNo());
@@ -99,14 +145,17 @@ public class DaoConsultant {
     }
 
     /**
-     * behöver tre variabler gamla för WHERE och alla tre nya värden.
-     * I controller fixa att autofilla de gamla värdena i texfält
-     * updatering sker oavsett om nya värden är samma som gamla
-     * skulle eventuallt kunna göra med consultant object som argument
-     * m.a.o updateConsultant(int oldConsultantNo, Consultant newConsultant)
+     * Updates an existing consultant's information.
+     * @param oldConsultantNo The current number of the consultant to be updated.
+     * @param newConsultant A consultant object containing the new information.
+     * @throws DaoException if the consultant is not found or if there is an error during the update.
      */
     public void updateConsultant(int oldConsultantNo, Consultant newConsultant) throws DaoException {
-        String sql = "UPDATE Consultant SET ConsultantNo = ?, ConsultantName = ?, Title = ? WHERE ConsultantNo = ?";
+        String sql = """
+                UPDATE Consultant
+                SET ConsultantNo = ?, ConsultantName = ?, Title = ?
+                WHERE ConsultantNo = ?
+                """;
         try (Connection connection = connectionHandler.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, newConsultant.getConsultantNo());
@@ -123,6 +172,12 @@ public class DaoConsultant {
         }
     }
 
+    /**
+     * Retrieves the internal database ID of a consultant by their consultant number.
+     * @param consultantNo The number of the consultant.
+     * @return The internal database ID of the consultant.
+     * @throws DaoException if the consultant is not found or if there is an error.
+     */
     public Integer getConsultantID(int consultantNo) throws DaoException {
         String sql = """
                 SELECT ConsultantID
@@ -144,14 +199,21 @@ public class DaoConsultant {
         }
     }
 
-    /// här logik för att även radera alla projectassignment med konsultent??
+    /**
+     * Deletes a consultant from the database, including all their project assignments.
+     * @param consultantNo The number of the consultant to delete.
+     * @throws DaoException if the consultant is not found or if there is an error during deletion.
+     */
     public void deleteConsultant(int consultantNo) throws DaoException {
         try {
             int foundConsultantID = getConsultantID(consultantNo);
             DaoProjectAssignment daoPA = new DaoProjectAssignment();
             daoPA.deleteProjectAssignmentByConsultantID(foundConsultantID);
 
-            String sql = "DELETE FROM Consultant WHERE ConsultantNo = ?";
+            String sql = """
+                    DELETE FROM Consultant
+                    WHERE ConsultantNo = ?
+                    """;
             try (Connection connection = connectionHandler.getConnection();
                     PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setInt(1, consultantNo);
@@ -165,7 +227,12 @@ public class DaoConsultant {
         }
     }
 
-    // returns list of all consultants NOT assigned to a specific project
+    /**
+     * Retrieves a list of all consultants who are not assigned to a specific project.
+     * @param projectID The ID of the project to check against.
+     * @return A list of consultants not in the specified project.
+     * @throws DaoException if there is an error loading the consultants.
+     */
     public List<Consultant> getConsultantsNotInProject(int projectID) throws DaoException {
         String sql = """
                 SELECT c.*

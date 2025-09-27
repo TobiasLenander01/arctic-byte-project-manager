@@ -15,6 +15,11 @@ import com.dropalltables.models.Project;
 public class DaoProject {
     private final ConnectionHandler connectionHandler;
 
+    /**
+     * Constructor for DaoProject.
+     * Initializes the ConnectionHandler.
+     * @throws DaoException if unable to connect to the database.
+     */
     public DaoProject() throws DaoException {
         try {
             this.connectionHandler = new ConnectionHandler();
@@ -23,10 +28,18 @@ public class DaoProject {
         }
     }
 
+    /**
+     * Retrieves a list of all projects from the database.
+     * @return A list of all projects.
+     * @throws DaoException if there is an error loading the projects.
+     */
     public List<Project> getAllProjects() throws DaoException {
         List<Project> projects = new ArrayList<>();
 
-        String query = "SELECT * FROM Project";
+        String query = """
+                SELECT *
+                FROM Project
+                """;
 
         try (Connection connection = connectionHandler.getConnection();
                 PreparedStatement statement = connection.prepareStatement(query);
@@ -42,8 +55,18 @@ public class DaoProject {
         return projects;
     }
 
+    /**
+     * Retrieves a project by its project number.
+     * @param projectNo The number of the project to retrieve.
+     * @return The project object, or null if not found.
+     * @throws DaoException if there is an error finding the project.
+     */
     public Project getProjectByNo(int projectNo) throws DaoException {
-        String query = "SELECT * FROM Project WHERE ProjectNo = ?";
+        String query = """
+                SELECT *
+                FROM Project
+                WHERE ProjectNo = ?
+                """;
 
         try (Connection connection = connectionHandler.getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
@@ -59,8 +82,18 @@ public class DaoProject {
         return null;
     }
 
+    /**
+     * Retrieves a project by its internal database ID.
+     * @param projectID The ID of the project to retrieve.
+     * @return The project object, or null if not found.
+     * @throws DaoException if there is an error finding the project.
+     */
     public Project getProjectByID(int projectID) throws DaoException {
-        String query = "SELECT * FROM Project WHERE ProjectID = ?";
+        String query = """
+                SELECT *
+                FROM Project
+                WHERE ProjectID = ?
+                """;
 
         try (Connection connection = connectionHandler.getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
@@ -76,6 +109,11 @@ public class DaoProject {
         return null;
     }
 
+    /**
+     * Inserts a new project into the database.
+     * @param project The project object to insert.
+     * @throws DaoException if a project with the same number already exists or if there is an error during insertion.
+     */
     public void insertProject(Project project) throws DaoException {
         String insert = """
                 INSERT INTO Project (ProjectNo, ProjectName, StartDate, EndDate)
@@ -99,8 +137,18 @@ public class DaoProject {
         }
     }
 
+    /**
+     * Retrieves the internal database ID of a project by its project number.
+     * @param projectNo The number of the project.
+     * @return The internal database ID of the project, or null if not found.
+     * @throws DaoException if there is an error finding the project.
+     */
     public Integer getProjectID(int projectNo) throws DaoException {
-        String query = "SELECT ProjectID FROM Project WHERE ProjectNo = ?";
+        String query = """
+                SELECT ProjectID
+                FROM Project
+                WHERE ProjectNo = ?
+                """;
 
         try (Connection connection = connectionHandler.getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
@@ -117,6 +165,11 @@ public class DaoProject {
         return null;
     }
 
+    /**
+     * Deletes a project from the database, including all its associated milestones and assignments.
+     * @param projectNo The number of the project to delete.
+     * @throws DaoException if the project is not found or if there is an error during deletion.
+     */
     public void deleteProject(int projectNo) throws DaoException {
         try {
             // Delete all milestones associated with this project
@@ -129,7 +182,10 @@ public class DaoProject {
             daoAssignment.deleteProjectAssignmentByProjectID(projectID);
 
             // Then delete the project
-            String query = "DELETE FROM Project WHERE ProjectNo = ?";
+            String query = """
+                    DELETE FROM Project
+                    WHERE ProjectNo = ?
+                    """;
             try (Connection connection = connectionHandler.getConnection();
                     PreparedStatement statement = connection.prepareStatement(query)) {
                 statement.setInt(1, projectNo);
@@ -144,9 +200,18 @@ public class DaoProject {
         }
     }
 
+    /**
+     * Updates an existing project's information.
+     * @param project A project object containing the new information.
+     * @throws DaoException if the project is not found or if there is an error during the update.
+     */
     public void updateProject(Project project) throws DaoException {
 
-        String query = "UPDATE Project SET ProjectName = ?, StartDate = ?, EndDate = ? WHERE ProjectNo = ?";
+        String query = """
+                UPDATE Project
+                SET ProjectName = ?, StartDate = ?, EndDate = ?
+                WHERE ProjectNo = ?
+                """;
 
         try (Connection connection = connectionHandler.getConnection();
                 PreparedStatement statement = connection.prepareStatement(query)) {
@@ -166,6 +231,13 @@ public class DaoProject {
         }
     }
 
+    /**
+     * Helper method to create a Project object from a ResultSet.
+     * Handles both projects with and without an end date.
+     * @param resultSet The ResultSet containing project data.
+     * @return A new Project object.
+     * @throws DaoException if there is an error reading the ResultSet.
+     */
     private Project instantiateProject(ResultSet resultSet) throws DaoException {
         try {
             int projectNo = resultSet.getInt("ProjectNo");
