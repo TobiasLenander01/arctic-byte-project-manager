@@ -17,6 +17,7 @@ public class DaoConsultant {
     /**
      * Constructor for DaoConsultant.
      * Initializes the ConnectionHandler.
+     * 
      * @throws DaoException if unable to connect to the database.
      */
     public DaoConsultant() throws DaoException {
@@ -29,6 +30,7 @@ public class DaoConsultant {
 
     /**
      * Retrieves a list of all consultants from the database.
+     * 
      * @return A list of all consultants.
      * @throws DaoException if there is an error loading the consultants.
      */
@@ -55,6 +57,7 @@ public class DaoConsultant {
 
     /**
      * Retrieves a consultant by their consultant number.
+     * 
      * @param consultantNo The number of the consultant to retrieve.
      * @return The consultant object, or null if not found.
      * @throws DaoException if there is an error finding the consultant.
@@ -82,6 +85,7 @@ public class DaoConsultant {
 
     /**
      * Retrieves a consultant by their internal database ID.
+     * 
      * @param consultantID The ID of the consultant to retrieve.
      * @return The consultant object, or null if not found.
      * @throws DaoException if there is an error finding the consultant.
@@ -109,6 +113,7 @@ public class DaoConsultant {
 
     /**
      * Helper method to create a Consultant object from a ResultSet.
+     * 
      * @param resultSet The ResultSet containing consultant data.
      * @return A new Consultant object.
      * @throws SQLException if there is an error reading the ResultSet.
@@ -122,8 +127,10 @@ public class DaoConsultant {
 
     /**
      * Inserts a new consultant into the database.
+     * 
      * @param consultant The consultant object to insert.
-     * @throws DaoException if a consultant with the same number already exists or if there is an error during insertion.
+     * @throws DaoException if a consultant with the same number already exists or
+     *                      if there is an error during insertion.
      */
     public void insertConsultant(Consultant consultant) throws DaoException {
         String sql = """
@@ -146,9 +153,11 @@ public class DaoConsultant {
 
     /**
      * Updates an existing consultant's information.
+     * 
      * @param oldConsultantNo The current number of the consultant to be updated.
-     * @param newConsultant A consultant object containing the new information.
-     * @throws DaoException if the consultant is not found or if there is an error during the update.
+     * @param newConsultant   A consultant object containing the new information.
+     * @throws DaoException if the consultant is not found or if there is an error
+     *                      during the update.
      */
     public void updateConsultant(int oldConsultantNo, Consultant newConsultant) throws DaoException {
         String sql = """
@@ -173,7 +182,9 @@ public class DaoConsultant {
     }
 
     /**
-     * Retrieves the internal database ID of a consultant by their consultant number.
+     * Retrieves the internal database ID of a consultant by their consultant
+     * number.
+     * 
      * @param consultantNo The number of the consultant.
      * @return The internal database ID of the consultant.
      * @throws DaoException if the consultant is not found or if there is an error.
@@ -200,9 +211,12 @@ public class DaoConsultant {
     }
 
     /**
-     * Deletes a consultant from the database, including all their project assignments.
+     * Deletes a consultant from the database, including all their project
+     * assignments.
+     * 
      * @param consultantNo The number of the consultant to delete.
-     * @throws DaoException if the consultant is not found or if there is an error during deletion.
+     * @throws DaoException if the consultant is not found or if there is an error
+     *                      during deletion.
      */
     public void deleteConsultant(int consultantNo) throws DaoException {
         try {
@@ -228,7 +242,9 @@ public class DaoConsultant {
     }
 
     /**
-     * Retrieves a list of all consultants who are not assigned to a specific project.
+     * Retrieves a list of all consultants who are not assigned to a specific
+     * project.
+     * 
      * @param projectID The ID of the project to check against.
      * @return A list of consultants not in the specified project.
      * @throws DaoException if there is an error loading the consultants.
@@ -260,4 +276,44 @@ public class DaoConsultant {
         }
         return consultants;
     }
+
+    public List<Consultant> getAllWithProjectCount() throws DaoException {
+        String sql = """
+                SELECT
+                    c.ConsultantNo,
+                    c.ConsultantName,
+                    c.Title,
+                    COUNT(DISTINCT pa.ProjectID) AS ProjectCount
+                FROM Consultant c
+                LEFT JOIN Project_Assignment pa
+                       ON pa.ConsultantID = c.ConsultantID
+                GROUP BY c.ConsultantNo, c.ConsultantName, c.Title
+                ORDER BY c.ConsultantNo
+                """;
+
+        List<Consultant> list = new ArrayList<>();
+
+        try (Connection con = connectionHandler.getConnection();
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                // build the Consultant with the three constructor fields
+                Consultant c = new Consultant(
+                        rs.getInt("ConsultantNo"),
+                        rs.getString("ConsultantName"),
+                        rs.getString("Title"));
+                // set the projectCount from the query
+                c.setProjectCount(rs.getInt("ProjectCount"));
+
+                list.add(c);
+            }
+
+        } catch (SQLException e) {
+            throw new DaoException("Failed to load consultants with project count", e);
+        }
+
+        return list;
+    }
+
 }

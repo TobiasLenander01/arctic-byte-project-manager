@@ -1,25 +1,28 @@
 package com.dropalltables.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.dropalltables.data.DaoException;
 import com.dropalltables.data.DaoMetadata;
 import com.dropalltables.util.AlertUtil;
 
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.text.Text;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 public class MetadataViewController {
+
     @FXML
-    Text textAllColumnNames;
+    private ComboBox<String> comboQueries;
     @FXML
-    Text textPKConstraints;
+    private TableView<MetadataRow> tableResults;
     @FXML
-    Text textCheckConstraints;
-    @FXML
-    Text textConsultantNotInteger;
-    @FXML
-    Text textMaxRowsTable;
+    private Label labelStatus;
 
     private DaoMetadata dao;
 
@@ -27,34 +30,71 @@ public class MetadataViewController {
     public void initialize() {
         try {
             dao = new DaoMetadata();
-            textAllColumnNames.setText("All column names:\n" + stringFromList(dao.getAllDatabaseColumns()));
-            textPKConstraints
-                    .setText("Names of all primary key constraints:\n" + stringFromList(dao.getAllPKConstraints()));
-            textCheckConstraints
-                    .setText("Names of all check constraints:\n" + stringFromList(dao.getAllCheckConstraints()));
-            textConsultantNotInteger.setText("Names of all columns in Consultant table NOT of type Integer:\n"
-                    + stringFromList(dao.getNonIntConsultantColumns()));
-            textMaxRowsTable.setText("Name and number of rows of table in db with the highest number of rows:\n"
-                    + dao.getRowsFromMaxRowTable());
-
         } catch (DaoException e) {
             AlertUtil.showError("Error", e.getMessage());
+            return;
         }
+
+        // populate combo with the available metadata queries
+        comboQueries.setItems(FXCollections.observableArrayList(
+                "All column names",
+                "Primary key constraints",
+                "Check constraints",
+                "Consultant columns not INTEGER",
+                "Table with max rows"));
+        comboQueries.getSelectionModel().selectFirst();
+
+        // prepare table with a single string column to start with
+        TableColumn<MetadataRow, String> col = new TableColumn<>("Result");
+        col.setCellValueFactory(new PropertyValueFactory<>("value"));
+        tableResults.getColumns().add(col);
     }
 
-    // transform list into a comma-separated string
-    private String stringFromList(List<String> l) {
-        if (l.isEmpty()) {
-            return "";
+    @FXML
+    public void handleRunQuery() {
+        if (dao == null)
+            return;
+
+        String choice = comboQueries.getValue();
+        List<String> data = new ArrayList<>();
+
+        try {
+            if ("All column names".equals(choice)) {
+                data = dao.getAllDatabaseColumns();
+            } else if ("Primary key constraints".equals(choice)) {
+                data = dao.getAllPKConstraints();
+            } else if ("Check constraints".equals(choice)) {
+                data = dao.getAllCheckConstraints();
+            } else if ("Consultant columns not INTEGER".equals(choice)) {
+                data = dao.getNonIntConsultantColumns();
+            } else if ("Table with max rows".equals(choice)) {
+                // this one returns a single descriptive string
+                data.add(dao.getRowsFromMaxRowTable());
+            }
+        } catch (DaoException e) {
+            AlertUtil.showError("Error", e.getMessage());
+            return;
         }
 
-        StringBuilder sb = new StringBuilder();
-
-        for (String s : l) {
-            sb.append(", ");
-            sb.append(s);
+        // wrap results for TableView
+        List<MetadataRow> rows = new ArrayList<>();
+        for (String s : data) {
+            rows.add(new MetadataRow(s));
         }
-        sb.delete(0, 2); // remove leading comma and whitespace
-        return sb.toString();
+        tableResults.setItems(FXCollections.observableArrayList(rows));
+        labelStatus.setText("Rows: " + rows.size());
+    }
+
+    /** Simple holder for one-column table rows */
+    public static class MetadataRow {
+        private final String value;
+
+        public MetadataRow(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 }

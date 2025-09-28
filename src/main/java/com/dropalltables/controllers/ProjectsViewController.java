@@ -79,10 +79,6 @@ public class ProjectsViewController {
     @FXML
     private Button buttonSetHours;
 
-    // --- Labels ---
-    @FXML
-    private Label labelAllConsultantsProjects;
-
     // --- Data lists ---
     private final ObservableList<Project> projectData = FXCollections.observableArrayList();
     private final ObservableList<ProjectAssignment> consultantData = FXCollections.observableArrayList();
@@ -95,7 +91,6 @@ public class ProjectsViewController {
         setupMilestoneColumns();
         loadProjectsFromDatabase();
         setupSelectionListener();
-        updateAllConsultantsProjectsLabel();
 
         // disable button if no consultant selected
         buttonSetHours.disableProperty().bind(
@@ -490,14 +485,15 @@ public class ProjectsViewController {
         return tableViewProjects.getSelectionModel().getSelectedItem();
     }
 
-    // --- Label for "projects with every consultant" ---
-    private void updateAllConsultantsProjectsLabel() {
+    // --- Show "projects with every consultant" in an alert when button pressed ---
+    @FXML
+    public void buttonShowAllConsultantsProjectsAction() {
         try {
             DaoProjectAssignment daoPA = new DaoProjectAssignment();
             List<Integer> projectIDs = daoPA.projectsThatInvolveEveryConsultant();
 
             if (projectIDs.isEmpty()) {
-                labelAllConsultantsProjects.setText("No project involves every consultant.");
+                AlertUtil.showInfo("Projects", "No project involves every consultant.");
                 return;
             }
 
@@ -510,10 +506,11 @@ public class ProjectsViewController {
                 }
             }
 
-            labelAllConsultantsProjects.setText(
-                    "Projects that involve every consultant: " + String.join(", ", projectNames));
+            AlertUtil.showInfo(
+                    "Projects with Every Consultant",
+                    "Projects that involve every consultant:\n" + String.join(", ", projectNames));
         } catch (DaoException e) {
-            labelAllConsultantsProjects.setText("Error retrieving data.");
+            AlertUtil.showError("Error", "Error retrieving data.");
         }
     }
 }

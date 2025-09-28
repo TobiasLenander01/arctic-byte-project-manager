@@ -8,9 +8,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="637.0" prefWidth="1045.0"
-  xmlns="http://javafx.com/javafx/23.0.1"
-  xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dropalltables.controllers.ProjectsViewController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="637.0" prefWidth="1045.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dropalltables.controllers.ProjectsViewController">
   <children>
     <Label layoutX="49.0" layoutY="14.0" text="Projects">
       <font>
@@ -37,7 +35,7 @@
     <!-- Consultants table -->
     <TableView fx:id="tableViewConsultantsOnProject" layoutX="550.0" layoutY="42.0" prefHeight="200.0" prefWidth="445.0">
       <placeholder>
-        <Label text="Select a project to view assigned consultants"/>
+        <Label text="Select a project to view assigned consultants" />
       </placeholder>
       <columns>
         <TableColumn fx:id="tableColumnConsultantNo" prefWidth="89.0" text="Consultant #" />
@@ -46,8 +44,6 @@
         <TableColumn fx:id="tableColumnConsultantHours" prefWidth="143.0" text="Hours worked" />
       </columns>
     </TableView>
-
-    <Label fx:id="labelAllConsultantsProjects" layoutX="49.0" layoutY="566.0" prefWidth="500.0" text="Projects that involve every consultant:" />
 
     <!-- Milestones section -->
     <Label fx:id="labelMilestonesHeader" layoutX="550.0" layoutY="285.0" text="Milestones (0)">
@@ -60,7 +56,7 @@
 
     <TableView fx:id="tableViewMilestones" layoutX="550.0" layoutY="310.0" prefHeight="200.0" prefWidth="445.0">
       <placeholder>
-        <Label text="Select a project to view its milestones"/>
+        <Label text="Select a project to view its milestones" />
       </placeholder>
       <columns>
         <TableColumn fx:id="tableColumnMilestoneNo" prefWidth="80.0" text="Milestone #" />
@@ -72,9 +68,10 @@
     <!-- Buttons -->
     <Button fx:id="buttonSetHours" layoutX="923.0" layoutY="251.0" mnemonicParsing="false" onAction="#buttonSetHoursAction" text="Set hours" />
     <Button fx:id="buttonDeleteProject" layoutX="49.0" layoutY="520.0" mnemonicParsing="false" onAction="#buttonDeleteProjectAction" text="Delete project" />
-    <Button layoutX="154.0" layoutY="520.0" mnemonicParsing="false" onAction="#buttonCreateProjectAction" text="Create project" />
-    <Button layoutX="270.0" layoutY="520.0" mnemonicParsing="false" onAction="#buttonUpdateProjectAction" text="Update project" />
-    <Button fx:id="buttonAssignConsultant" layoutX="550.0" layoutY="250.0" text="Assign consultant" onAction="#buttonAssignConsultantAction" />
+    <Button layoutX="147.0" layoutY="520.0" mnemonicParsing="false" onAction="#buttonCreateProjectAction" text="Create project" />
+    <Button layoutX="244.0" layoutY="520.0" mnemonicParsing="false" onAction="#buttonUpdateProjectAction" text="Update project" />
+    <Button fx:id="buttonAssignConsultant" layoutX="550.0" layoutY="250.0" onAction="#buttonAssignConsultantAction" text="Assign consultant" />
     <Button layoutX="720.0" layoutY="250.0" mnemonicParsing="false" onAction="#buttonRemoveConsultantAction" text="Remove consultant" />
+      <Button layoutX="49.0" layoutY="563.0" mnemonicParsing="false" onAction="#buttonShowAllConsultantsProjectsAction" text="Show projects that involve every consultant" />
   </children>
 </AnchorPane>
