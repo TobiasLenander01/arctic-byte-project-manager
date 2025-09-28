@@ -1,7 +1,6 @@
 package com.dropalltables.data;
 
 import java.io.IOException;
-import java.nio.channels.SelectableChannel;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -362,45 +361,6 @@ public class DaoProjectAssignment {
     }
 
     /**
-     * Retrieves a list of consultant names who are assigned to a maximum of 'max'
-     * projects.
-     * 
-     * @param max The maximum number of projects a consultant can be assigned to.
-     * @return A list of consultant names meeting the criteria.
-     * @throws DaoException if a database access error occurs.
-     */
-    public List<String> consultantsInMaxNbrOfProjects(int max) throws DaoException {
-        List<String> consultants = new ArrayList<>();
-
-        String sql = """
-                SELECT c.ConsultantName
-                FROM Consultant c
-                LEFT JOIN Project_Assignment pa
-                       ON c.ConsultantID = pa.ConsultantID
-                GROUP BY c.ConsultantID, c.ConsultantName
-                HAVING COUNT(pa.ProjectID) <= ?
-                """;
-
-        try (Connection conn = connectionHandler.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, max);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    // read the consultant name from the result set
-                    consultants.add(rs.getString("ConsultantName"));
-                }
-            }
-        } catch (SQLException e) {
-            throw new DaoException(
-                    "Failed to retrieve consultants with <= " + max + " projects", e);
-        }
-
-        return consultants;
-    }
-
-    /**
      * Retrieves a list of project IDs for projects that involve every single
      * consultant in the database.
      * 
@@ -426,38 +386,6 @@ public class DaoProjectAssignment {
             throw new DaoException("Unable to find projects involving all consultants. Please try again.");
         }
         return ids;
-    }
-
-    /**
-     * Retrieves all active project assignments for a specific consultant.
-     * An active project is one that does not have an end date.
-     * 
-     * @param consultantID The ID of the consultant.
-     * @return A list of active project assignments.
-     * @throws DaoException if a database access error occurs.
-     */
-    public List<ProjectAssignment> getActiveProjectAssignments(int consultantID) throws DaoException {
-        List<ProjectAssignment> list = new ArrayList<>();
-        String sql = """
-                SELECT pa.ConsultantID, pa.ProjectID, pa.HoursWorked
-                FROM Project_Assignment pa
-                JOIN Project p ON p.ProjectID = pa.ProjectID
-                WHERE ConsultantID = ?
-                AND EndDate IS NULL
-                """;
-
-        try (Connection c = connectionHandler.getConnection();
-                PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, consultantID);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(instantiateProjectAssignment(rs));
-                }
-            }
-        } catch (SQLException e) {
-            throw new DaoException("Unable to load active assignments for consultant. Please try again.");
-        }
-        return list;
     }
 
     /**
@@ -500,6 +428,11 @@ public class DaoProjectAssignment {
         return list;
     }
 
+    // Runs a scalar query to find if adding a consultant to a project, will make
+    // that project have more than 60 % of all active consultants assigned. An
+    // active consultant is defined as a consultant assigned to >0 projects, to
+    // allow consultants not to be counted if they're only in the system as a means
+    // of keeping track of finished projects
     public boolean tooManyResources(int projectID) throws DaoException {
         String sql = """
                 SELECT

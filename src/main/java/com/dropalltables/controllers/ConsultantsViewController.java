@@ -5,8 +5,6 @@ import java.util.List;
 
 import com.dropalltables.data.DaoConsultant;
 import com.dropalltables.data.DaoException;
-import com.dropalltables.data.DaoProject;
-import com.dropalltables.data.DaoProjectAssignment;
 import com.dropalltables.models.Consultant;
 import com.dropalltables.util.AlertUtil;
 
