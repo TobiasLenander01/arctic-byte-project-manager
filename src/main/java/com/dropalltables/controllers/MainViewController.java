@@ -146,15 +146,12 @@ public class MainViewController {
             // --- Hardest-working consultants (ties included) -----------------
             List<Integer> topIds = daoPA.hardestWorkingConsultants();
             StringBuilder topSb = new StringBuilder();
-            int maxHours = -1;
-            for (Integer id : topIds) {
+
+            for (int id : topIds) {
                 Consultant c = daoCon.getConsultantByID(id);
                 int hours = daoPA.totalHoursForConsultant(id);
-                if (hours > maxHours)
-                    maxHours = hours;
-                topSb.append(c.getName())
-                        .append(" (").append(c.getTitle()).append(") – ")
-                        .append(hours).append(" hours\n");
+                topSb.append(String.format("%s (%s) %d hours%n",
+                        c.getName(), c.getTitle(), hours));
             }
 
             // --- Totals for the whole system ---------------------------------
