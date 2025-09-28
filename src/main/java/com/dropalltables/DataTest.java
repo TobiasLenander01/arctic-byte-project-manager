@@ -135,8 +135,9 @@ public class DataTest {
             System.out.println("\ntotalHoursForConsultant(after) = " + totalAfter +
                     " (delta " + (totalAfter - totalBefore) + ", expected " + newHours + ")");
 
-            int hardest = daoPA.hardestWorkingConsultant();
-            System.out.println("\nhardestWorkingConsultant() -> ConsultantID: " + hardest);
+            // int hardest = daoPA.hardestWorkingConsultant();
+            // System.out.println("\nhardestWorkingConsultant() -> ConsultantID: " +
+            // hardest);
 
             List<Integer> allHandsProjects = daoPA.projectsThatInvolveEveryConsultant();
             System.out.println("\nprojectsThatInvolveEveryConsultant() -> " + allHandsProjects);
@@ -190,11 +191,11 @@ public class DataTest {
 
             // Test deleting all milestones for a project
             System.out.println("\n--- TESTING DELETE ALL MILESTONES FOR PROJECT ---");
-            
+
             // First, let's count milestones for project 1 before deletion
             int projectNoForMassDelete = 2001; // Using the first project from test data
             System.out.println("\n Testing deleteMilestonesByProjectNo for ProjectNo " + projectNoForMassDelete + ":");
-            
+
             // Get ProjectID for ProjectNo using SQL query
             int projectIDForMassDelete = -1;
             try (Connection conn = connectionHandler.getConnection()) {
@@ -210,7 +211,7 @@ public class DataTest {
             } catch (SQLException e) {
                 System.out.println("Error getting ProjectID: " + e.getMessage());
             }
-            
+
             // === TEST METADATA DAO ===
             System.out.println("\n--- TESTING METADATA ---");
             DaoMetadata daoMetadata = new DaoMetadata();
@@ -398,8 +399,6 @@ public class DataTest {
         }
 
         // === TEST projectExists ===
-
-
 
         // === TEST insertProject validation ===
         System.out.println("\n daoProject.insertProject() validation tests:");

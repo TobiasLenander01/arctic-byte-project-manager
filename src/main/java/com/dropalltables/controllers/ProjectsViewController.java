@@ -4,15 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dropalltables.data.DaoConsultant;
-import com.dropalltables.data.DaoException;
-import com.dropalltables.data.DaoMilestone;
-import com.dropalltables.data.DaoProject;
-import com.dropalltables.data.DaoProjectAssignment;
-import com.dropalltables.models.Consultant;
-import com.dropalltables.models.Milestone;
-import com.dropalltables.models.Project;
-import com.dropalltables.models.ProjectAssignment;
+import com.dropalltables.data.*;
+import com.dropalltables.models.*;
 import com.dropalltables.util.AlertUtil;
 
 import javafx.collections.FXCollections;
@@ -21,19 +14,26 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceDialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+/**
+ * Controller for the Projects view.
+ *
+ * Responsibilities:
+ * • Display and filter projects
+ * • Manage consultant assignments (with >60 % resource warning)
+ * • Full CRUD for projects and milestones
+ * • Toggle filter to show only active projects (EndDate IS NULL)
+ */
 public class ProjectsViewController {
-    // --- Table Projects ---
+
+    // ------------------------------------------------------------------------
+    // --- FXML UI elements
+    // ------------------------------------------------------------------------
+    // Project table + filters
     @FXML
     private TableView<Project> tableViewProjects;
     @FXML
@@ -50,8 +50,10 @@ public class ProjectsViewController {
     private TextField textFieldFilterName;
     @FXML
     private TextField textFieldFilterDate;
+    @FXML
+    private CheckBox checkBoxActiveOnly; // NEW: show only active projects
 
-    // --- Table Consultants ---
+    // Consultant table
     @FXML
     private TableView<ProjectAssignment> tableViewConsultantsOnProject;
     @FXML
@@ -63,7 +65,7 @@ public class ProjectsViewController {
     @FXML
     private TableColumn<ProjectAssignment, Integer> tableColumnConsultantHours;
 
-    // --- Table Milestones ---
+    // Milestone table
     @FXML
     private Label labelMilestonesHeader;
     @FXML
@@ -75,15 +77,20 @@ public class ProjectsViewController {
     @FXML
     private TableColumn<Milestone, String> tableColumnMilestoneDate;
 
-    // --- Buttons ---
+    // Buttons
     @FXML
     private Button buttonSetHours;
 
-    // --- Data lists ---
+    // ------------------------------------------------------------------------
+    // --- Backing data
+    // ------------------------------------------------------------------------
     private final ObservableList<Project> projectData = FXCollections.observableArrayList();
     private final ObservableList<ProjectAssignment> consultantData = FXCollections.observableArrayList();
     private final ObservableList<Milestone> milestoneData = FXCollections.observableArrayList();
 
+    // ------------------------------------------------------------------------
+    // --- Initialization
+    // ------------------------------------------------------------------------
     @FXML
     public void initialize() {
         setupProjectColumns();
@@ -92,154 +99,55 @@ public class ProjectsViewController {
         loadProjectsFromDatabase();
         setupSelectionListener();
 
-        // disable button if no consultant selected
-        buttonSetHours.disableProperty().bind(
-                tableViewConsultantsOnProject.getSelectionModel().selectedItemProperty().isNull());
+        // Disable “set hours” unless a consultant is selected
+        buttonSetHours.disableProperty()
+                .bind(tableViewConsultantsOnProject.getSelectionModel().selectedItemProperty().isNull());
 
-        // hook up filters
-        textFieldFilterNo.textProperty().addListener((obs, oldVal, newVal) -> applyFilters());
-        textFieldFilterName.textProperty().addListener((obs, oldVal, newVal) -> applyFilters());
-        textFieldFilterDate.textProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+        // Live filters: text fields + active-only checkbox
+        textFieldFilterNo.textProperty().addListener((obs, o, n) -> applyFilters());
+        textFieldFilterName.textProperty().addListener((obs, o, n) -> applyFilters());
+        textFieldFilterDate.textProperty().addListener((obs, o, n) -> applyFilters());
+        checkBoxActiveOnly.selectedProperty().addListener((obs, o, n) -> applyFilters());
     }
 
-    // --- logic to filter projects table ---
+    // ------------------------------------------------------------------------
+    // --- Filtering
+    // ------------------------------------------------------------------------
+    /** Re-applies all project filters in memory (no extra DB calls). */
     private void applyFilters() {
         String filterNo = textFieldFilterNo.getText().trim();
         String filterName = textFieldFilterName.getText().toLowerCase().trim();
         String filterDate = textFieldFilterDate.getText().trim();
-
-        List<Project> allProjects;
-        try {
-            DaoProject dao = new DaoProject();
-            allProjects = dao.getAllProjects();
-        } catch (DaoException e) {
-            AlertUtil.showError("Error", e.getMessage());
-            return;
-        }
-
-        projectData.setAll(allProjects.stream()
-                // filter by project number
-                .filter(p -> filterNo.isEmpty() || String.valueOf(p.getProjectNo()).startsWith(filterNo))
-                // filter by name
-                .filter(p -> filterName.isEmpty() || p.getName().toLowerCase().contains(filterName))
-                // filter by date (match start or end date string)
-                .filter(p -> {
-                    if (filterDate.isEmpty())
-                        return true;
-                    boolean matchesStart = p.getStartDate() != null &&
-                            p.getStartDate().toString().startsWith(filterDate);
-                    boolean matchesEnd = p.getEndDate() != null &&
-                            p.getEndDate().toString().startsWith(filterDate);
-                    return matchesStart || matchesEnd;
-                })
-                .toList());
-    }
-
-    // --- assign consultant to a project ---
-    @FXML
-    public void buttonAssignConsultantAction() {
-        Project selectedProject = tableViewProjects.getSelectionModel().getSelectedItem();
-        if (selectedProject == null) {
-            AlertUtil.showInfo("No project selected", "Please select a project first.");
-            return;
-        }
+        boolean activeOnly = checkBoxActiveOnly.isSelected();
 
         try {
-            // Fetch consultants not in this project
-            DaoProject daoProject = new DaoProject();
-            int projectID = daoProject.getProjectID(selectedProject.getProjectNo());
-
-            DaoConsultant daoConsultant = new DaoConsultant();
-            List<Consultant> available = daoConsultant.getConsultantsNotInProject(projectID);
-
-            if (available.isEmpty()) {
-                AlertUtil.showInfo("No consultants available", "All consultants are already assigned.");
-                return;
-            }
-
-            // --- Show selection dialog ---
-            // Make a simple list of consultant strings
-            List<String> consultantChoices = new ArrayList<>();
-            for (Consultant c : available) {
-                consultantChoices.add(c.getName() + " (" + c.getTitle() + ")");
-            }
-
-            // Show dialog
-            ChoiceDialog<String> dialog = new ChoiceDialog<>(null, consultantChoices);
-            dialog.setTitle("Assign Consultant");
-            dialog.setHeaderText("Assign consultant to project: " + selectedProject.getName());
-            dialog.setContentText("Choose consultant:");
-
-            // Handle selection
-            dialog.showAndWait().ifPresent(choice -> {
-                // Find the consultant that matches the string
-                Consultant selectedConsultant = null;
-                for (Consultant c : available) {
-                    String display = c.getName() + " (" + c.getTitle() + ")";
-                    if (display.equals(choice)) {
-                        selectedConsultant = c;
-                        break;
-                    }
-                }
-
-                if (selectedConsultant != null) {
-                    try {
-                        DaoProjectAssignment daoPA = new DaoProjectAssignment();
-                        DaoConsultant daoC = new DaoConsultant();
-                        DaoProject daoP = new DaoProject();
-
-                        daoPA.insertProjectAssignment(
-                                daoC.getConsultantID(selectedConsultant.getConsultantNo()),
-                                daoP.getProjectID(selectedProject.getProjectNo()));
-
-                        loadConsultantsForProject(selectedProject);
-                    } catch (DaoException e) {
-                        AlertUtil.showError("Error", e.getMessage());
-                    }
-                }
-            });
-
+            List<Project> all = new DaoProject().getAllProjects();
+            projectData.setAll(all.stream()
+                    .filter(p -> filterNo.isEmpty() || String.valueOf(p.getProjectNo()).startsWith(filterNo))
+                    .filter(p -> filterName.isEmpty() || p.getName().toLowerCase().contains(filterName))
+                    .filter(p -> {
+                        if (filterDate.isEmpty())
+                            return true;
+                        boolean s = p.getStartDate() != null && p.getStartDate().toString().startsWith(filterDate);
+                        boolean e = p.getEndDate() != null && p.getEndDate().toString().startsWith(filterDate);
+                        return s || e;
+                    })
+                    .filter(p -> !activeOnly || p.getEndDate() == null) // NEW filter
+                    .toList());
         } catch (DaoException e) {
             AlertUtil.showError("Error", e.getMessage());
         }
     }
 
-    // --- remove consultant from project assignment ---
-    @FXML
-    public void buttonRemoveConsultantAction() {
-        Project selectedProject = tableViewProjects.getSelectionModel().getSelectedItem();
-        ProjectAssignment selectedAssignment = tableViewConsultantsOnProject.getSelectionModel().getSelectedItem();
-
-        if (selectedProject == null) {
-            AlertUtil.showInfo("No project selected", "Please select a project first.");
-            return;
-        }
-
-        if (selectedAssignment == null) {
-            AlertUtil.showInfo("No consultant selected", "Please select a consultant to remove.");
-            return;
-        }
-
-        try {
-            DaoProjectAssignment daoPA = new DaoProjectAssignment();
-            daoPA.deleteProjectAssignment(selectedAssignment.getConsultantID(), selectedAssignment.getProjectID());
-
-            // refresh consultants table
-            loadConsultantsForProject(selectedProject);
-
-        } catch (DaoException e) {
-            AlertUtil.showError("Error", e.getMessage());
-        }
-    }
-
-    // --- Create project ---
+    // ------------------------------------------------------------------------
+    // --- Project CRUD
+    // ------------------------------------------------------------------------
     @FXML
     public void buttonCreateProjectAction() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CreateProjectWindow.fxml"));
             Parent root = loader.load();
-
-            CreateProjectWindowController controller = loader.getController();
+            CreateProjectWindowController c = loader.getController();
 
             Stage dialog = new Stage();
             dialog.setTitle("Add Project");
@@ -247,34 +155,28 @@ public class ProjectsViewController {
             dialog.setScene(new Scene(root));
             dialog.showAndWait();
 
-            Project newProject = controller.getCreatedProject();
-            if (newProject != null) {
-                DaoProject dao = new DaoProject();
-                dao.insertProject(newProject);
+            Project p = c.getCreatedProject();
+            if (p != null) {
+                new DaoProject().insertProject(p);
                 loadProjectsFromDatabase();
             }
-        } catch (java.io.IOException e) {
-            AlertUtil.showError("Error", "Failed to load dialog");
-        } catch (DaoException e) {
+        } catch (IOException | DaoException e) {
             AlertUtil.showError("Error", e.getMessage());
         }
     }
 
-    // --- Update project ---
     @FXML
     public void buttonUpdateProjectAction() {
-        Project selected = tableViewProjects.getSelectionModel().getSelectedItem();
-        if (selected == null) {
+        Project sel = tableViewProjects.getSelectionModel().getSelectedItem();
+        if (sel == null) {
             AlertUtil.showInfo("No project selected", "Please select a project to update.");
             return;
         }
-
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CreateProjectWindow.fxml"));
             Parent root = loader.load();
-
-            CreateProjectWindowController controller = loader.getController();
-            controller.setProjectForEdit(selected); // prefill form with selected project
+            CreateProjectWindowController c = loader.getController();
+            c.setProjectForEdit(sel);
 
             Stage dialog = new Stage();
             dialog.setTitle("Update Project");
@@ -282,33 +184,26 @@ public class ProjectsViewController {
             dialog.setScene(new Scene(root));
             dialog.showAndWait();
 
-            Project updatedProject = controller.getCreatedProject();
-            if (updatedProject != null) {
-                DaoProject dao = new DaoProject();
-                dao.updateProject(updatedProject);
+            Project updated = c.getCreatedProject();
+            if (updated != null) {
+                new DaoProject().updateProject(updated);
                 loadProjectsFromDatabase();
             }
-
-        } catch (DaoException e) {
+        } catch (IOException | DaoException e) {
             AlertUtil.showError("Error", e.getMessage());
-        } catch (IOException e) {
-            AlertUtil.showError("Error", "Failed to load dialog");
         }
     }
 
-    // --- Delete project ---
     @FXML
     public void buttonDeleteProjectAction() {
-        Project selected = tableViewProjects.getSelectionModel().getSelectedItem();
-        if (selected == null) {
+        Project sel = tableViewProjects.getSelectionModel().getSelectedItem();
+        if (sel == null) {
             AlertUtil.showInfo("No selection", "Please select a project to delete.");
             return;
         }
         try {
-            DaoProject dao = new DaoProject();
-            dao.deleteProject(selected.getProjectNo());
-
-            projectData.remove(selected);
+            new DaoProject().deleteProject(sel.getProjectNo());
+            projectData.remove(sel);
             consultantData.clear();
             milestoneData.clear();
             tableViewProjects.getSelectionModel().clearSelection();
@@ -317,21 +212,145 @@ public class ProjectsViewController {
         }
     }
 
-    // --- Add milestone ---
+    // ------------------------------------------------------------------------
+    // --- Consultant assignment & hours
+    // ------------------------------------------------------------------------
     @FXML
-    public void buttonAddMilestoneAction() {
-        Project selected = tableViewProjects.getSelectionModel().getSelectedItem();
-        if (selected == null) {
+    public void buttonAssignConsultantAction() {
+        Project p = tableViewProjects.getSelectionModel().getSelectedItem();
+        if (p == null) {
             AlertUtil.showInfo("No project selected", "Please select a project first.");
             return;
         }
 
         try {
+            int projectID = new DaoProject().getProjectID(p.getProjectNo());
+            List<Consultant> available = new DaoConsultant().getConsultantsNotInProject(projectID);
+            if (available.isEmpty()) {
+                AlertUtil.showInfo("No consultants available",
+                        "All consultants are already assigned to this project.");
+                return;
+            }
+
+            List<String> choices = new ArrayList<>();
+            for (Consultant c : available) {
+                choices.add(c.getName() + " (" + c.getTitle() + ")");
+            }
+
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(null, choices);
+            dialog.setTitle("Assign Consultant");
+            dialog.setHeaderText("Assign consultant to project: " + p.getName());
+            dialog.setContentText("Choose consultant:");
+
+            dialog.showAndWait().ifPresent(choice -> {
+                Consultant selected = available.stream()
+                        .filter(c -> (c.getName() + " (" + c.getTitle() + ")").equals(choice))
+                        .findFirst().orElse(null);
+                if (selected == null)
+                    return;
+
+                try {
+                    DaoProjectAssignment daoPA = new DaoProjectAssignment();
+                    int consultantID = new DaoConsultant()
+                            .getConsultantID(selected.getConsultantNo());
+
+                    // Resource warning if this project would exceed 60 % of active consultants
+                    if (daoPA.tooManyResources(projectID)) {
+                        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                        confirm.setTitle("Resource Warning");
+                        confirm.setHeaderText("High Resource Usage");
+                        confirm.setContentText(
+                                "Adding this consultant will make this project use more than 60 % "
+                                        + "of the company's active consultant resources.\n\n"
+                                        + "Do you want to continue?");
+                        confirm.showAndWait().ifPresent(btn -> {
+                            if (btn == ButtonType.OK)
+                                insertAssignment(daoPA, consultantID, projectID, p);
+                        });
+                    } else {
+                        insertAssignment(daoPA, consultantID, projectID, p);
+                    }
+                } catch (DaoException e) {
+                    AlertUtil.showError("Error", e.getMessage());
+                }
+            });
+
+        } catch (DaoException e) {
+            AlertUtil.showError("Error", e.getMessage());
+        }
+    }
+
+    @FXML
+    public void buttonRemoveConsultantAction() {
+        Project p = tableViewProjects.getSelectionModel().getSelectedItem();
+        ProjectAssignment a = tableViewConsultantsOnProject.getSelectionModel().getSelectedItem();
+        if (p == null) {
+            AlertUtil.showInfo("No project selected", "Please select a project first.");
+            return;
+        }
+        if (a == null) {
+            AlertUtil.showInfo("No consultant selected", "Please select a consultant to remove.");
+            return;
+        }
+        try {
+            new DaoProjectAssignment().deleteProjectAssignment(a.getConsultantID(), a.getProjectID());
+            loadConsultantsForProject(p);
+        } catch (DaoException e) {
+            AlertUtil.showError("Error", e.getMessage());
+        }
+    }
+
+    @FXML
+    public void buttonSetHoursAction() {
+        ProjectAssignment sel = tableViewConsultantsOnProject.getSelectionModel().getSelectedItem();
+        if (sel == null)
+            return;
+
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Set Hours");
+        dialog.setHeaderText("Consultant: " + sel.getConsultantName());
+        dialog.setContentText("Enter number of hours:");
+
+        dialog.showAndWait().ifPresent(input -> {
+            try {
+                int hours = Integer.parseInt(input);
+                if (hours < 0)
+                    throw new NumberFormatException();
+                new DaoProjectAssignment().updateHours(sel.getConsultantID(), sel.getProjectID(), hours);
+                loadConsultantsForProject(findSelectedProject());
+            } catch (NumberFormatException e) {
+                AlertUtil.showError("Invalid input", "Please enter a positive number.");
+            } catch (DaoException e) {
+                AlertUtil.showError("Error", e.getMessage());
+            }
+        });
+    }
+
+    private void insertAssignment(DaoProjectAssignment daoPA,
+            int consultantID, int projectID, Project project) {
+        try {
+            daoPA.insertProjectAssignment(consultantID, projectID);
+            loadConsultantsForProject(project);
+        } catch (DaoException e) {
+            AlertUtil.showError("Error", e.getMessage());
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // --- Milestone CRUD
+    // ------------------------------------------------------------------------
+    @FXML
+    public void buttonAddMilestoneAction() {
+        Project p = tableViewProjects.getSelectionModel().getSelectedItem();
+        if (p == null) {
+            AlertUtil.showInfo("No project selected", "Please select a project first.");
+            return;
+        }
+        try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CreateMilestoneWindow.fxml"));
             Parent root = loader.load();
-
-            CreateMilestoneWindowController controller = loader.getController();
-            controller.setProject(selected);
+            CreateMilestoneWindowController c = loader.getController();
+            c.setProject(p);
 
             Stage dialog = new Stage();
             dialog.setTitle("Add Milestone");
@@ -339,76 +358,67 @@ public class ProjectsViewController {
             dialog.setScene(new Scene(root));
             dialog.showAndWait();
 
-            Milestone newMilestone = controller.getCreatedMilestone();
-            if (newMilestone != null) {
-                DaoMilestone dao = new DaoMilestone();
-                dao.insertMilestone(newMilestone);
-                loadMilestonesForProject(selected);
-
+            Milestone newM = c.getCreatedMilestone();
+            if (newM != null) {
+                new DaoMilestone().insertMilestone(newM);
+                loadMilestonesForProject(p);
             }
-
-        } catch (IOException e) {
-            AlertUtil.showError("Error", "Failed to load dialog");
-        } catch (DaoException e) {
+        } catch (IOException | DaoException e) {
             AlertUtil.showError("Error", e.getMessage());
         }
     }
 
-    // --- Delete milestone ---
+    @FXML
+    public void buttonUpdateMilestoneAction() {
+        Milestone m = tableViewMilestones.getSelectionModel().getSelectedItem();
+        if (m == null) {
+            AlertUtil.showInfo("No milestone selected", "Please select a milestone to update.");
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CreateMilestoneWindow.fxml"));
+            Parent root = loader.load();
+            CreateMilestoneWindowController c = loader.getController();
+            c.setMilestoneForEdit(m);
+
+            Stage dialog = new Stage();
+            dialog.setTitle("Update Milestone");
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.setScene(new Scene(root));
+            dialog.showAndWait();
+
+            Milestone updated = c.getCreatedMilestone();
+            if (updated != null) {
+                new DaoMilestone().updateMilestone(updated);
+                Project p = tableViewProjects.getSelectionModel().getSelectedItem();
+                if (p != null)
+                    loadMilestonesForProject(p);
+            }
+        } catch (IOException | DaoException e) {
+            AlertUtil.showError("Error", e.getMessage());
+        }
+    }
+
     @FXML
     public void buttonDeleteMilestoneAction() {
-        Milestone selectedMilestone = tableViewMilestones.getSelectionModel().getSelectedItem();
-        if (selectedMilestone == null) {
+        Milestone m = tableViewMilestones.getSelectionModel().getSelectedItem();
+        if (m == null) {
             AlertUtil.showInfo("No milestone selected", "Please select a milestone to delete.");
             return;
         }
-
         try {
-            DaoMilestone dao = new DaoMilestone();
-            dao.deleteMilestone(selectedMilestone.getMilestoneNo());
-
-            Project currentProject = tableViewProjects.getSelectionModel().getSelectedItem();
-            if (currentProject != null) {
-                loadMilestonesForProject(currentProject);
-            }
+            new DaoMilestone().deleteMilestone(m.getMilestoneNo());
+            Project p = tableViewProjects.getSelectionModel().getSelectedItem();
+            if (p != null)
+                loadMilestonesForProject(p);
         } catch (DaoException e) {
             AlertUtil.showError("Error", e.getMessage());
         }
     }
 
-    // --- Add hours ---
-    @FXML
-    public void buttonSetHoursAction() {
-        ProjectAssignment selected = tableViewConsultantsOnProject.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            return;
-        }
-
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Set Hours");
-        dialog.setHeaderText("Consultant: " + selected.getConsultantName());
-        dialog.setContentText("Enter number of hours:");
-
-        dialog.showAndWait().ifPresent(input -> {
-            try {
-                int hours = Integer.parseInt(input);
-                if (hours < 0) {
-                    throw new NumberFormatException("Negative hours not allowed");
-                }
-
-                DaoProjectAssignment dao = new DaoProjectAssignment();
-                dao.updateHours(selected.getConsultantID(), selected.getProjectID(), hours);
-
-                loadConsultantsForProject(findSelectedProject());
-            } catch (NumberFormatException e) {
-                AlertUtil.showError("Invalid input", "Please enter a valid number. Number must be positive.");
-            } catch (DaoException e) {
-                AlertUtil.showError("Error", e.getMessage());
-            }
-        });
-    }
-
-    // --- Setup columns ---
+    // ------------------------------------------------------------------------
+    // --- Helper methods
+    // ------------------------------------------------------------------------
     private void setupProjectColumns() {
         tableColumnProjectNumber.setCellValueFactory(new PropertyValueFactory<>("projectNo"));
         tableColumnProjectName.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -432,22 +442,19 @@ public class ProjectsViewController {
         tableViewMilestones.setItems(milestoneData);
     }
 
-    // --- Loaders ---
     private void loadProjectsFromDatabase() {
         try {
-            DaoProject dao = new DaoProject();
-            List<Project> projects = dao.getAllProjects();
-            projectData.setAll(projects);
+            projectData.setAll(new DaoProject().getAllProjects());
         } catch (DaoException e) {
             AlertUtil.showError("Error", e.getMessage());
         }
     }
 
     private void setupSelectionListener() {
-        tableViewProjects.getSelectionModel().selectedItemProperty().addListener((obs, oldProject, newProject) -> {
-            if (newProject != null) {
-                loadConsultantsForProject(newProject);
-                loadMilestonesForProject(newProject);
+        tableViewProjects.getSelectionModel().selectedItemProperty().addListener((obs, oldP, newP) -> {
+            if (newP != null) {
+                loadConsultantsForProject(newP);
+                loadMilestonesForProject(newP);
             } else {
                 consultantData.clear();
                 milestoneData.clear();
@@ -455,26 +462,20 @@ public class ProjectsViewController {
         });
     }
 
-    private void loadConsultantsForProject(Project project) {
+    private void loadConsultantsForProject(Project p) {
         try {
-            DaoProject daoProject = new DaoProject();
-            Integer projectID = daoProject.getProjectID(project.getProjectNo());
-
-            DaoProjectAssignment daoPA = new DaoProjectAssignment();
-            List<ProjectAssignment> assignments = daoPA.getAssignmentsWithConsultants(projectID);
-            consultantData.setAll(assignments);
+            int id = new DaoProject().getProjectID(p.getProjectNo());
+            consultantData.setAll(new DaoProjectAssignment().getAssignmentsWithConsultants(id));
         } catch (DaoException e) {
             consultantData.clear();
         }
     }
 
-    private void loadMilestonesForProject(Project project) {
+    private void loadMilestonesForProject(Project p) {
         try {
-            DaoMilestone daoMilestone = new DaoMilestone();
-            List<Milestone> milestones = daoMilestone.getMilestonesByProjectNo(project.getProjectNo());
-            milestoneData.setAll(milestones);
-
-            labelMilestonesHeader.setText("Milestones (" + milestones.size() + ")");
+            List<Milestone> ms = new DaoMilestone().getMilestonesByProjectNo(p.getProjectNo());
+            milestoneData.setAll(ms);
+            labelMilestonesHeader.setText("Milestones (" + ms.size() + ")");
         } catch (DaoException e) {
             milestoneData.clear();
             labelMilestonesHeader.setText("Milestones (0)");
@@ -485,30 +486,23 @@ public class ProjectsViewController {
         return tableViewProjects.getSelectionModel().getSelectedItem();
     }
 
-    // --- Show "projects with every consultant" in an alert when button pressed ---
     @FXML
     public void buttonShowAllConsultantsProjectsAction() {
         try {
-            DaoProjectAssignment daoPA = new DaoProjectAssignment();
-            List<Integer> projectIDs = daoPA.projectsThatInvolveEveryConsultant();
-
-            if (projectIDs.isEmpty()) {
+            List<Integer> ids = new DaoProjectAssignment().projectsThatInvolveEveryConsultant();
+            if (ids.isEmpty()) {
                 AlertUtil.showInfo("Projects", "No project involves every consultant.");
                 return;
             }
-
-            DaoProject daoProject = new DaoProject();
-            List<String> projectNames = new ArrayList<>();
-            for (Integer id : projectIDs) {
-                Project project = daoProject.getProjectByID(id);
-                if (project != null) {
-                    projectNames.add(project.getName());
-                }
+            List<String> names = new ArrayList<>();
+            DaoProject dao = new DaoProject();
+            for (Integer id : ids) {
+                Project p = dao.getProjectByID(id);
+                if (p != null)
+                    names.add(p.getProjectNo() + ", " + p.getName());
             }
-
-            AlertUtil.showInfo(
-                    "Projects with Every Consultant",
-                    "Projects that involve every consultant:\n" + String.join(", ", projectNames));
+            AlertUtil.showInfo("Projects with Every Consultant",
+                    "Projects that involve every consultant:\n" + String.join("\n", names));
         } catch (DaoException e) {
             AlertUtil.showError("Error", "Error retrieving data.");
         }

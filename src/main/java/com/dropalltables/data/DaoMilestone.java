@@ -19,6 +19,7 @@ public class DaoMilestone {
     /**
      * Constructor for DaoMilestone.
      * Initializes the ConnectionHandler.
+     * 
      * @throws DaoException if unable to connect to the database.
      */
     public DaoMilestone() throws DaoException {
@@ -31,9 +32,12 @@ public class DaoMilestone {
 
     /**
      * Inserts a new milestone into the database.
-     * It converts the project number from the Milestone object into a project ID before insertion.
+     * It converts the project number from the Milestone object into a project ID
+     * before insertion.
+     * 
      * @param milestone The milestone object to insert.
-     * @throws DaoException if the project is not found or if there is an error during insertion.
+     * @throws DaoException if the project is not found or if there is an error
+     *                      during insertion.
      */
     public void insertMilestone(Milestone milestone) throws DaoException {
         String sql = """
@@ -41,12 +45,12 @@ public class DaoMilestone {
                 VALUES (?, ?, ?, ?)
                 """;
         try (Connection conn = connectionHandler.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, milestone.getMilestoneNo());
             stmt.setString(2, milestone.getName());
             stmt.setTimestamp(3, Timestamp.valueOf(milestone.getDate().atStartOfDay()));
-            
+
             // Use DaoProject.getProjectID() to convert ProjectNo to ProjectID
             DaoProject daoProject = new DaoProject();
             try {
@@ -58,7 +62,7 @@ public class DaoMilestone {
             } catch (SQLException e) {
                 throw new DaoException("Unable to find the selected project. Please try again.");
             }
-            
+
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException("Unable to save milestone. Please check your input and try again.");
@@ -67,7 +71,9 @@ public class DaoMilestone {
 
     /**
      * Retrieves a list of all milestones for a specific project, ordered by date.
-     * @param projectNo The number of the project whose milestones are to be retrieved.
+     * 
+     * @param projectNo The number of the project whose milestones are to be
+     *                  retrieved.
      * @return A list of milestones for the specified project.
      * @throws DaoException if there is an error loading the milestones.
      */
@@ -80,7 +86,7 @@ public class DaoMilestone {
                 ORDER BY MilestoneDate
                 """;
         try (Connection conn = connectionHandler.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, projectNo);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -96,6 +102,7 @@ public class DaoMilestone {
 
     /**
      * Deletes a specific milestone from the database by its number.
+     * 
      * @param milestoneNo The number of the milestone to delete.
      * @throws DaoException if there is an error during deletion.
      */
@@ -105,7 +112,7 @@ public class DaoMilestone {
                 WHERE MilestoneNo = ?
                 """;
         try (Connection conn = connectionHandler.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, milestoneNo);
             stmt.executeUpdate();
@@ -114,10 +121,11 @@ public class DaoMilestone {
         }
     }
 
-
     /**
      * Deletes all milestones associated with a specific project.
-     * @param projectNo The number of the project for which to delete all milestones.
+     * 
+     * @param projectNo The number of the project for which to delete all
+     *                  milestones.
      * @throws DaoException if there is an error during deletion.
      */
     public void deleteMilestonesByProjectNo(int projectNo) throws DaoException {
@@ -126,7 +134,7 @@ public class DaoMilestone {
                 WHERE ProjectID = (SELECT ProjectID FROM Project WHERE ProjectNo = ?)
                 """;
         try (Connection conn = connectionHandler.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, projectNo);
             stmt.executeUpdate();
@@ -137,6 +145,7 @@ public class DaoMilestone {
 
     /**
      * Checks if a milestone with a specific number already exists in the database.
+     * 
      * @param milestoneNo The milestone number to check.
      * @return true if the milestone number exists, false otherwise.
      * @throws DaoException if there is an error during the check.
@@ -148,7 +157,7 @@ public class DaoMilestone {
                 WHERE MilestoneNo = ?
                 """;
         try (Connection conn = connectionHandler.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, milestoneNo);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -165,24 +174,45 @@ public class DaoMilestone {
     /**
      * Helper method to create a Milestone object from a ResultSet.
      * This involves fetching the associated Project object.
+     * 
      * @param rs The ResultSet containing milestone data.
      * @return A new Milestone object.
-     * @throws DaoException if there is an error reading the ResultSet or fetching the associated project.
+     * @throws DaoException if there is an error reading the ResultSet or fetching
+     *                      the associated project.
      */
     private Milestone instantiateMilestone(ResultSet rs) throws DaoException {
         try {
-        int milestoneNo = rs.getInt("MilestoneNo");
-        String name = rs.getString("MilestoneName");
-        LocalDate date = rs.getTimestamp("MilestoneDate").toLocalDateTime().toLocalDate();
-        int projectID = rs.getInt("ProjectID");
+            int milestoneNo = rs.getInt("MilestoneNo");
+            String name = rs.getString("MilestoneName");
+            LocalDate date = rs.getTimestamp("MilestoneDate").toLocalDateTime().toLocalDate();
+            int projectID = rs.getInt("ProjectID");
 
-        DaoProject daoProject = new DaoProject();
-        Project project = daoProject.getProjectByID(projectID);
+            DaoProject daoProject = new DaoProject();
+            Project project = daoProject.getProjectByID(projectID);
 
-        return new Milestone(milestoneNo, name, date, project);
+            return new Milestone(milestoneNo, name, date, project);
 
         } catch (SQLException e) {
             throw new DaoException("Error loading milestone data. Please try again.");
-        } 
+        }
+    }
+
+    public int updateMilestone(Milestone m) throws DaoException {
+        if (m == null || m.getMilestoneNo() <= 0)
+            throw new IllegalArgumentException("Invalid milestone");
+        String sql = """
+                UPDATE Milestone
+                SET MilestoneName = ?, MilestoneDate = ?
+                WHERE MilestoneID = ?
+                """;
+        try (Connection c = connectionHandler.getConnection();
+                PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, m.getName());
+            ps.setDate(2, java.sql.Date.valueOf(m.getDate()));
+            ps.setInt(3, m.getMilestoneNo());
+            return ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException("Failed to update milestone: " + e.getMessage(), e);
+        }
     }
 }

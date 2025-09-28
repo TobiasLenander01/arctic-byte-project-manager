@@ -3,6 +3,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "DataTestAssignmentLogic",
+            "request": "launch",
+            "mainClass": "db.dropalltables/com.dropalltables.DataTestAssignmentLogic",
+            "projectName": "ht25-sysb23-db-dropalltables"
+        },
+        {
+            "type": "java",
             "name": "Run Data Tests",
             "request": "launch",
             "mainClass": "db.dropalltables/com.dropalltables.DataTest",

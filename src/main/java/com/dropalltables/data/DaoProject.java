@@ -18,6 +18,7 @@ public class DaoProject {
     /**
      * Constructor for DaoProject.
      * Initializes the ConnectionHandler.
+     * 
      * @throws DaoException if unable to connect to the database.
      */
     public DaoProject() throws DaoException {
@@ -30,6 +31,7 @@ public class DaoProject {
 
     /**
      * Retrieves a list of all projects from the database.
+     * 
      * @return A list of all projects.
      * @throws DaoException if there is an error loading the projects.
      */
@@ -55,8 +57,27 @@ public class DaoProject {
         return projects;
     }
 
+    public List<Project> getCompletedProjects() throws DaoException {
+        List<Project> completedProjects = new ArrayList<>();
+        String sql = "SELECT * FROM Project WHERE EndDate IS NOT NULL";
+        // fetch rows into Project objects (similar to getAllProjects)
+        try (Connection connection = connectionHandler.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+                Project project = instantiateProject(resultSet);
+                completedProjects.add(project);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Unable to load projects. Please try again.");
+        }
+        return completedProjects;
+    }
+
     /**
      * Retrieves a project by its project number.
+     * 
      * @param projectNo The number of the project to retrieve.
      * @return The project object, or null if not found.
      * @throws DaoException if there is an error finding the project.
@@ -84,6 +105,7 @@ public class DaoProject {
 
     /**
      * Retrieves a project by its internal database ID.
+     * 
      * @param projectID The ID of the project to retrieve.
      * @return The project object, or null if not found.
      * @throws DaoException if there is an error finding the project.
@@ -111,8 +133,10 @@ public class DaoProject {
 
     /**
      * Inserts a new project into the database.
+     * 
      * @param project The project object to insert.
-     * @throws DaoException if a project with the same number already exists or if there is an error during insertion.
+     * @throws DaoException if a project with the same number already exists or if
+     *                      there is an error during insertion.
      */
     public void insertProject(Project project) throws DaoException {
         String insert = """
@@ -139,6 +163,7 @@ public class DaoProject {
 
     /**
      * Retrieves the internal database ID of a project by its project number.
+     * 
      * @param projectNo The number of the project.
      * @return The internal database ID of the project, or null if not found.
      * @throws DaoException if there is an error finding the project.
@@ -166,9 +191,12 @@ public class DaoProject {
     }
 
     /**
-     * Deletes a project from the database, including all its associated milestones and assignments.
+     * Deletes a project from the database, including all its associated milestones
+     * and assignments.
+     * 
      * @param projectNo The number of the project to delete.
-     * @throws DaoException if the project is not found or if there is an error during deletion.
+     * @throws DaoException if the project is not found or if there is an error
+     *                      during deletion.
      */
     public void deleteProject(int projectNo) throws DaoException {
         try {
@@ -202,8 +230,10 @@ public class DaoProject {
 
     /**
      * Updates an existing project's information.
+     * 
      * @param project A project object containing the new information.
-     * @throws DaoException if the project is not found or if there is an error during the update.
+     * @throws DaoException if the project is not found or if there is an error
+     *                      during the update.
      */
     public void updateProject(Project project) throws DaoException {
 
@@ -234,6 +264,7 @@ public class DaoProject {
     /**
      * Helper method to create a Project object from a ResultSet.
      * Handles both projects with and without an end date.
+     * 
      * @param resultSet The ResultSet containing project data.
      * @return A new Project object.
      * @throws DaoException if there is an error reading the ResultSet.

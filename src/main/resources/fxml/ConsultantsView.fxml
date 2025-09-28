@@ -11,7 +11,9 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="580.0" prefWidth="1039.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dropalltables.controllers.ConsultantsViewController">
+<AnchorPane prefHeight="580.0" prefWidth="1039.0"
+  xmlns="http://javafx.com/javafx/23.0.1"
+  xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dropalltables.controllers.ConsultantsViewController">
 
   <children>
 
@@ -26,27 +28,31 @@
     <HBox layoutX="40.0" layoutY="55.0" spacing="10">
       <children>
         <Label text="No:">
-               <HBox.margin>
-                  <Insets top="3.0" />
-               </HBox.margin></Label>
+          <HBox.margin>
+            <Insets top="3.0" />
+          </HBox.margin>
+        </Label>
         <TextField fx:id="textFieldFilterNo" prefWidth="70" promptText="#" />
 
         <Label text="Name:">
-               <HBox.margin>
-                  <Insets top="3.0" />
-               </HBox.margin></Label>
+          <HBox.margin>
+            <Insets top="3.0" />
+          </HBox.margin>
+        </Label>
         <TextField fx:id="textFieldFilterName" prefWidth="140" promptText="Name" />
 
         <Label text="Title:">
-               <HBox.margin>
-                  <Insets top="3.0" />
-               </HBox.margin></Label>
+          <HBox.margin>
+            <Insets top="3.0" />
+          </HBox.margin>
+        </Label>
         <TextField fx:id="textFieldFilterTitle" prefWidth="140" promptText="Title" />
 
         <Label text="Projects ≤">
-               <HBox.margin>
-                  <Insets top="3.0" />
-               </HBox.margin></Label>
+          <HBox.margin>
+            <Insets top="3.0" />
+          </HBox.margin>
+        </Label>
         <TextField fx:id="textFieldFilterProjects" prefWidth="60" promptText="e.g. 3" />
       </children>
     </HBox>
@@ -66,7 +72,7 @@
     <Button layoutX="258.0" layoutY="498.0" onAction="#buttonDeleteConsultantAction" text="Delete consultant" />
     <Button layoutX="151.0" layoutY="498.0" onAction="#buttonEditConsultantAction" text="Edit consultant" />
 
-                <!-- Info box -->
+    <!-- Info box -->
     <Rectangle arcHeight="5" arcWidth="5" fill="WHITE" height="200.0" layoutX="701.0" layoutY="90.0" stroke="BLACK" strokeType="INSIDE" width="279.0" />
     <Label layoutX="711.0" layoutY="100.0" text="Consultant Info">
       <font>
@@ -74,13 +80,12 @@
       </font>
     </Label>
 
-          <Label fx:id="labelConsultantNo" layoutX="711.0" layoutY="130.0" text="No:" />
+    <Label fx:id="labelConsultantNo" layoutX="711.0" layoutY="130.0" text="No:" />
     <Label fx:id="labelConsultantName" layoutX="711.0" layoutY="160.0" text="Name:" />
     <Label fx:id="labelConsultantTitle" layoutX="711.0" layoutY="190.0" text="Title:" />
     <Label fx:id="labelConsultantAssignments" layoutX="711.0" layoutY="220.0" text="Projects:" />
     <Label fx:id="labelConsultantHours" layoutX="711.0" layoutY="250.0" text="Total hours worked:" />
 
     <Label fx:id="labelConsultantCount" layoutX="42.0" layoutY="539.0" style="-fx-font-weight: bold;" text="Total consultants: 0" />
-      <Button layoutX="544.0" layoutY="498.0" mnemonicParsing="false" text="Consultant report" />
   </children>
 </AnchorPane>
