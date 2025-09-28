@@ -44,6 +44,7 @@ public class AppController {
             Parent content = loader.load();
             mainViewController.getScrollPaneContent().setContent(content);
         } catch (IOException e) {
+            e.printStackTrace();
             System.out.println("Could not load view: " + viewName);
         }
     }

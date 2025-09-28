@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
@@ -9,70 +10,77 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.control.ToggleButton?>
 
-<AnchorPane prefHeight="552.0" prefWidth="943.0"
-  xmlns="http://javafx.com/javafx/23.0.1"
-  xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dropalltables.controllers.ConsultantsViewController">
+<AnchorPane prefHeight="580.0" prefWidth="1039.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dropalltables.controllers.ConsultantsViewController">
 
   <children>
+
     <!-- Title -->
-    <Label layoutX="43.0" layoutY="20.0" text="Consultants">
+    <Label layoutX="40" layoutY="20" text="Consultants">
       <font>
-        <Font name="System Bold" size="16.0" />
+        <Font name="System Bold" size="18" />
       </font>
     </Label>
 
     <!-- Filter row -->
-    <HBox layoutX="43.0" layoutY="50.0" spacing="10">
+    <HBox layoutX="40.0" layoutY="55.0" spacing="10">
       <children>
-        <Label text="No:" />
-        <TextField fx:id="textFieldFilterNo" promptText="#" prefWidth="80" />
+        <Label text="No:">
+               <HBox.margin>
+                  <Insets top="3.0" />
+               </HBox.margin></Label>
+        <TextField fx:id="textFieldFilterNo" prefWidth="70" promptText="#" />
 
-        <Label text="Name:" />
-        <TextField fx:id="textFieldFilterName" promptText="Name" prefWidth="120" />
+        <Label text="Name:">
+               <HBox.margin>
+                  <Insets top="3.0" />
+               </HBox.margin></Label>
+        <TextField fx:id="textFieldFilterName" prefWidth="140" promptText="Name" />
 
-        <Label text="Title:" />
-        <TextField fx:id="textFieldFilterTitle" promptText="Title" prefWidth="120" />
+        <Label text="Title:">
+               <HBox.margin>
+                  <Insets top="3.0" />
+               </HBox.margin></Label>
+        <TextField fx:id="textFieldFilterTitle" prefWidth="140" promptText="Title" />
+
+        <Label text="Projects ≤">
+               <HBox.margin>
+                  <Insets top="3.0" />
+               </HBox.margin></Label>
+        <TextField fx:id="textFieldFilterProjects" prefWidth="60" promptText="e.g. 3" />
       </children>
     </HBox>
 
     <!-- Table -->
-    <TableView fx:id="tableViewConsultants" layoutX="43.0" layoutY="80.0" prefHeight="400.0" prefWidth="402.0">
+    <TableView fx:id="tableViewConsultants" layoutX="40" layoutY="90" prefHeight="400.0" prefWidth="614.0">
       <columns>
-        <TableColumn fx:id="tableColumnConsultantNo" prefWidth="139.0" text="Consultant #" />
-        <TableColumn fx:id="tableColumnConsultantName" prefWidth="120.0" text="Name" />
-        <TableColumn fx:id="tableColumnConsultantTitle" prefWidth="120.0" text="Title" />
+        <TableColumn fx:id="tableColumnConsultantNo" prefWidth="110" text="Consultant #" />
+        <TableColumn fx:id="tableColumnConsultantName" prefWidth="230.0" text="Name" />
+        <TableColumn fx:id="tableColumnConsultantTitle" prefWidth="142.0" text="Title" />
+        <TableColumn fx:id="tableColumnProjectCount" minWidth="0.0" prefWidth="130.0" text="# of Projects" />
       </columns>
     </TableView>
 
-    <!-- Toggle to show only low-project consultants -->
-    <ToggleButton fx:id="toggleLowProjects" layoutX="350.0" layoutY="10.0" text="Show ≤3 projects only" onAction="#handleToggleLowProjects"/>
-
-
     <!-- Buttons -->
-    <Button layoutX="43.0" layoutY="500.0" onAction="#buttonCreateConsultantAction" text="Add consultant" />
-    <Button layoutX="166.0" layoutY="500.0" onAction="#buttonDeleteConsultantAction" text="Delete consultant" />
-    <Button layoutX="290.0" layoutY="500.0" onAction="#buttonEditConsultantAction" text="Edit consultant" />
+    <Button layoutX="42.0" layoutY="498.0" onAction="#buttonCreateConsultantAction" text="Add consultant" />
+    <Button layoutX="258.0" layoutY="498.0" onAction="#buttonDeleteConsultantAction" text="Delete consultant" />
+    <Button layoutX="151.0" layoutY="498.0" onAction="#buttonEditConsultantAction" text="Edit consultant" />
 
-    <!-- Consultant Info Box -->
-    <Rectangle fx:id="consultantInfoBox" arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="200.0" width="320.0" layoutX="560.0" layoutY="80.0" stroke="BLACK" strokeType="INSIDE" />
-
-    <!-- Info heading -->
-    <Label layoutX="570.0" layoutY="90.0" text="Consultant Info">
+                <!-- Info box -->
+    <Rectangle arcHeight="5" arcWidth="5" fill="WHITE" height="200.0" layoutX="701.0" layoutY="90.0" stroke="BLACK" strokeType="INSIDE" width="279.0" />
+    <Label layoutX="711.0" layoutY="100.0" text="Consultant Info">
       <font>
-        <Font name="System Bold" size="14.0"/>
+        <Font name="System Bold" size="16" />
       </font>
     </Label>
 
-    <!-- Labels inside box -->
-    <Label fx:id="labelConsultantNo" layoutX="570.0" layoutY="120.0" text="No:" />
-    <Label fx:id="labelConsultantName" layoutX="570.0" layoutY="150.0" text="Name:" />
-    <Label fx:id="labelConsultantTitle" layoutX="570.0" layoutY="180.0" text="Title:" />
-    <Label fx:id="labelConsultantAssignments" layoutX="570.0" layoutY="210.0" text="Assignments:" />
-    <Label fx:id="labelConsultantHours" layoutX="570.0" layoutY="240.0" text="Total Hours:" />
+          <Label fx:id="labelConsultantNo" layoutX="711.0" layoutY="130.0" text="No:" />
+    <Label fx:id="labelConsultantName" layoutX="711.0" layoutY="160.0" text="Name:" />
+    <Label fx:id="labelConsultantTitle" layoutX="711.0" layoutY="190.0" text="Title:" />
+    <Label fx:id="labelConsultantAssignments" layoutX="711.0" layoutY="220.0" text="Projects:" />
+    <Label fx:id="labelConsultantHours" layoutX="711.0" layoutY="250.0" text="Total hours worked:" />
 
+    <Label fx:id="labelConsultantCount" layoutX="42.0" layoutY="539.0" style="-fx-font-weight: bold;" text="Total consultants: 0" />
+      <Button layoutX="544.0" layoutY="498.0" mnemonicParsing="false" text="Consultant report" />
   </children>
-
-  <Label fx:id="labelConsultantCount" layoutX="43.0" layoutY="560" text="Total consultants: 0" style="-fx-font-weight: bold;" />
 </AnchorPane>

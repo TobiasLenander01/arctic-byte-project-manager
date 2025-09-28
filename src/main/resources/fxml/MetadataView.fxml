@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="552.0" prefWidth="943.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dropalltables.controllers.MetadataViewController">
-   <children>
-      <Text fx:id="textAllColumnNames" layoutX="69.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0" text="All column names:" wrappingWidth="726.13671875" />
-      <Text fx:id="textPKConstraints" layoutX="69.0" layoutY="109.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Names of all primary key constraints:" wrappingWidth="732.783203125" />
-      <Text fx:id="textCheckConstraints" layoutX="69.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Names of all check constraints:" wrappingWidth="689.013671875" />
-      <Text fx:id="textConsultantNotInteger" layoutX="69.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Names of all columns in Consultant table that are NOT of type integer:" wrappingWidth="676.037109375" />
-      <Text fx:id="textMaxRowsTable" layoutX="69.0" layoutY="322.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Name and number of rows of table in db with highest number of rows:" wrappingWidth="702.775390625" />
-   </children>
-</AnchorPane>
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1"
+   xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dropalltables.controllers.MetadataViewController">
+
+   <!-- Top bar with label, combo box and run button -->
+   <top>
+      <HBox spacing="10" style="-fx-padding: 10;">
+         <children>
+            <Label text="Select metadata query:"/>
+            <ComboBox fx:id="comboQueries" prefWidth="260"/>
+            <Button text="Run" onAction="#handleRunQuery"/>
+         </children>
+      </HBox>
+   </top>
+
+   <!-- Center table showing query results -->
+   <center>
+      <TableView fx:id="tableResults" prefHeight="400" prefWidth="600"/>
+   </center>
+
+   <!-- Status line at the bottom -->
+   <bottom>
+      <Label fx:id="labelStatus" style="-fx-font-style: italic; -fx-padding: 10;"/>
+   </bottom>
+</BorderPane>
